@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/24 23:25:42 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/09/25 00:19:12 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <map>
 # include <string>
 # include "Location.hpp"
+# include "ErrorPages.hpp"
 
 class	Server {
 	private:
@@ -23,6 +24,7 @@ class	Server {
 		int								_port;
 		int								_clientMaxBodySize;
 		std::map<std::string, Location>	_locations;
+		ErrorPages						_errorPages;
 	
 	public:
 		//Canonical constructor
