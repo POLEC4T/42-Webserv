@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/25 00:19:12 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/09/25 09:32:35 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,15 @@
 # include <map>
 # include <string>
 # include "Location.hpp"
-# include "ErrorPages.hpp"
+# include "ErrorPage.hpp"
 
 class	Server {
 	private:
 		std::string						_name;
 		int								_port;
 		int								_clientMaxBodySize;
-		std::map<std::string, Location>	_locations;
-		ErrorPages						_errorPages;
+		std::map<std::string, Location>	_mapLocation;
+		std::map<int, ErrorPage>		_mapErrorPage;
 	
 	public:
 		//Canonical constructor
@@ -50,8 +50,10 @@ class	Server {
 		
 		//Specific map
 		void		pushLocation(Location&);
-		Location&	getLocationByName(std::string);
-		
+		APage&		getLocationByName(std::string);
+		void		pushErrorPage(ErrorPage&);
+		APage&		getErrprPageByCode(int);
+
 };
 
 #endif

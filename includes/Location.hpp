@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/25 00:01:48 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/09/25 09:26:30 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ class	Location : public APage {
 		std::string					_index;
 		std::string					_cgiExtension;
 		std::string					_cgiPath;
+
+		std::string					_content;
 
 	public:
 		//Canonical constructor
