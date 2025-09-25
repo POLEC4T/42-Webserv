@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 00:02:01 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/25 09:46:00 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/09/25 12:42:08 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,6 @@
 
 //class ErrorPage inherit from APage got the private attribute _name, _content, _root, with the associated functions
 class ErrorPage : public APage {
-	private:
-		int			_code;
-		
 	public:
 		//Canonical form
 		ErrorPage();
@@ -29,13 +26,8 @@ class ErrorPage : public APage {
 		~ErrorPage();
 
 		//constructor with assignation values
+		ErrorPage(std::string name, std::string root);
 		ErrorPage(std::string name, std::string root, std::string content, int code);
-
-		//setter
-		void	setCode();
-		
-		//Getter
-		int	getCode();
 };
 
 #endif

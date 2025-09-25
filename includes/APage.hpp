@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:56:14 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/25 09:45:16 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/09/25 13:19:35 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class APage {
 		std::string	_name;
 		std::string	_root;
 		std::string	_content;
+		int			_code;
 
 	public:
 		//Canonic
@@ -29,17 +30,20 @@ class APage {
 		virtual ~APage() = 0;
 
 		//constructor with assignation values
-		APage(std::string name, std::string root, std::string content);
+		APage(std::string name, std::string root);
+		APage(std::string name, std::string root, std::string content, int code);
 
 		//Setter
-		void	setName();
-		void	setRoot();
-		void	setContent();
+		void	setName(std::string);
+		void	setRoot(std::string);
+		void	setContent(std::string);
+		void	setCode(int code);
 
 		//Getter
-		std::string	getName();
-		std::string	getRoot();
-		std::string	getContent();
+		virtual std::string	getName() const;
+		virtual std::string	getRoot() const;
+		virtual std::string	getContent() const;
+		virtual int			getCode() const;
 };
 
 #endif

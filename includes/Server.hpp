@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/25 09:32:35 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/09/25 13:32:57 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,20 +40,23 @@ class	Server {
 		void	setName(std::string);
 		void	setPort(int);
 		void	setClientMaxBodySize(int);
-		void	setLocation(Location&);
 		
 		//Getter
 		std::string						getName();
 		int								getPort();
 		int								getClientMaxBodySize();
-		std::map<std::string, Location>	getLocationMap();
 		
 		//Specific map
-		void		pushLocation(Location&);
-		APage&		getLocationByName(std::string);
-		void		pushErrorPage(ErrorPage&);
-		APage&		getErrprPageByCode(int);
+		void		pushLocation(const Location&);
+		APage&		getLocationByName(const std::string&);
+		void		pushErrorPage(const ErrorPage&);
+		APage&		getErrorPageByCode(const int);
 
+		//expection class if page and error page not found
+		class NoPageFound: public std::exception {
+			public:
+				const char* what() const throw() ;
+		};
 };
 
 #endif

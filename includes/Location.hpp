@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/25 09:43:59 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/09/25 12:58:33 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,15 @@ class	Location : public APage {
 		~Location();
 
 		//Constructor with values affectation, only root and name other can rest empty
-		Location(std::string _name, std::string _root);
+		Location(std::string name, std::string root);
+		Location(std::string name, std::string root, std::string content, int code);
 
 		//Setter
-		void	setAllowedMethods(std::vector<AHttpMethod>);
-		void	setAutoIndex(bool);
-		void	setIndex(std::string);
-		void	setCgiExtension(std::string);
-		void	setCgiPath(std::string);
+		void	setAllowedMethods(const std::vector<AHttpMethod>&);
+		void	setAutoIndex(const bool);
+		void	setIndex(const std::string&);
+		void	setCgiExtension(const std::string&);
+		void	setCgiPath(const std::string&);
 
 		//Getter
 		std::vector<AHttpMethod>	getAllowedMethods();
@@ -53,7 +54,7 @@ class	Location : public APage {
 		std::string					getCgiPath();
 
 		//Functions for vector<Methods>
-		void	pushMethod(AHttpMethod& method);
+		void	pushMethod(const AHttpMethod& method);
 };
 
 #endif
