@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/25 13:35:10 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/09/28 16:12:08 by dorianmazar      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,23 @@ APage&	Server::getErrorPageByCode(const int code) {
 	return it->second;
 }
 
+//functions
+void	Server::fillServerContent(const char* filename) {
+	std::ifstream	file(filename, std::ios::in);
+	std::string		content;
+	if (!file.is_open())
+		throw (CanNotOpenFile());
+	while (getline(file, content)) {
+		std::cout << content;
+	}
+		file.close();
+}
+
 //expection class
 const char*	Server::NoPageFound::what() const throw() {
 	return "Page and error page not found";
+}
+
+const char* Server::CanNotOpenFile::what() const throw() {
+	return "Can't open the file.";
 }
