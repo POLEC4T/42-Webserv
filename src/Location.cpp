@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/28 15:56:47 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/03 15:04:57 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,15 @@ Location&	Location::operator=(const Location& other) {
 
 Location::~Location() {}
 
+
+
 //constructor with assignement values
 Location::Location(std::string name, std::string root): APage(name, root) {}
 
 Location::Location(std::string name, std::string root,
 				std::string content, int code): APage(name, root, content, code) {}
+
+
 
 //Setter
 void    Location::setAllowedMethods(const std::vector<AHttpMethod*>& methods) {
@@ -67,6 +71,10 @@ void    Location::setAllowedMethods(const std::vector<AHttpMethod*>& methods) {
 	}
 }
 
+void	Location::setAutoIndex(const bool b) {
+	_autoIndex = b;
+}
+
 void	Location::setCgiExtension(const std::string& cgiExtension) {
 	_cgiExtension = cgiExtension;
 }
@@ -74,6 +82,8 @@ void	Location::setCgiExtension(const std::string& cgiExtension) {
 void	Location::setCgiPath(const std::string& cgiPath) {
 	_cgiPath = cgiPath;
 }
+
+
 
 //Getter
 std::vector<AHttpMethod*>   Location::getAllowedMethods() {
@@ -84,7 +94,7 @@ bool	Location::getAutoIndex() {
 	return _autoIndex;
 }
 
-std::string	Location::getIndex() {
+std::vector<std::string>	Location::getIndex() {
 	return _index;
 }
 
@@ -96,8 +106,14 @@ std::string	Location::getCgiPath() {
 	return _cgiPath;
 }
 
+
+
 //Vector functions
 void    Location::pushMethod(AHttpMethod* method) {
 	if (method)
 		_allowedMethods.push_back(method);
+}
+
+void	Location::addIndex(const std::string& index) {
+	_index.push_back(index);
 }

@@ -6,14 +6,14 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:56:14 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/25 13:19:35 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/03 23:19:42 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef APAGE_HPP
 # define APAGE_HPP
 
-# include <string>
+# include "Headers.h"
 
 class APage {
 	protected:

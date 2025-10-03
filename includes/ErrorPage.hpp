@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 00:02:01 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/25 12:42:08 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/03 23:20:09 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define ERRORPAGE_HPP
 
 # include "APage.hpp"
-# include <map>
 
 //class ErrorPage inherit from APage got the private attribute _name, _content, _root, with the associated functions
 class ErrorPage : public APage {

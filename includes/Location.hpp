@@ -3,18 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/28 15:53:36 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/03 23:20:20 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOCATION_HPP
 # define LOCATION_HPP
 
-# include <map>
-# include <vector>
 # include "AHttpMethod.hpp"
 # include "APage.hpp"
 
@@ -22,8 +20,10 @@
 class	Location : public APage {
 	private:
 		std::vector<AHttpMethod*>	_allowedMethods;
+		std::vector<std::string>	_index;
 		bool						_autoIndex;
-		std::string					_index;
+		int							_clientMaxBodySize;
+		std::string					_return;
 		std::string					_cgiExtension;
 		std::string					_cgiPath;
 
@@ -42,18 +42,18 @@ class	Location : public APage {
 		//Setter
 		void	setAllowedMethods(const std::vector<AHttpMethod*>&);
 		void	setAutoIndex(const bool);
-		void	setIndex(const std::string&);
 		void	setCgiExtension(const std::string&);
 		void	setCgiPath(const std::string&);
 
 		//Getter
 		std::vector<AHttpMethod*>	getAllowedMethods();
+		std::vector<std::string>	getIndex();
 		bool						getAutoIndex();
-		std::string					getIndex();
 		std::string					getCgiExtension();
 		std::string					getCgiPath();
 
-		//Functions for vector<Methods>
+		//vector functions
+		void	addIndex(const std::string&);
 		void	pushMethod(AHttpMethod* method);
 };
 

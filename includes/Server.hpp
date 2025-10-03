@@ -3,26 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/28 16:08:39 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/03 23:20:30 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include <map>
-# include <string>
-# include <iostream>
-# include <fstream>
 # include "Location.hpp"
 # include "ErrorPage.hpp"
 
 class	Server {
 	private:
-		std::string						_name;
+		std::vector<std::string>		_name;
 		int								_port;
 		int								_clientMaxBodySize;
 		std::map<std::string, Location>	_mapLocation;
@@ -36,15 +32,15 @@ class	Server {
 		~Server();
 
 		//Constructor with affectation values
-		Server(std::string, int, int);
+		Server(int, int);
 		
 		//Setter
-		void	setName(std::string);
+		void	addName(std::string);
 		void	setPort(int);
 		void	setClientMaxBodySize(int);
 		
 		//Getter
-		std::string						getName();
+		std::vector<std::string>		getName();
 		int								getPort();
 		int								getClientMaxBodySize();
 		
@@ -54,19 +50,12 @@ class	Server {
 		void		pushErrorPage(const ErrorPage&);
 		APage&		getErrorPageByCode(const int);
 
-		//functions
-		void	fillServerContent(const char* fileName);
-
-		//expection class if page and error page not found
+		//exception class if page and error page not found
 		class NoPageFound: public std::exception {
 			public:
 				const char* what() const throw() ;
 		};
-		//exception class if can't open a file
-		class CanNotOpenFile: public std::exception {
-			public:
-				const char* what() const throw() ;
-		};
+
 };
 
 #endif

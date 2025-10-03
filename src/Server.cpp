@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/28 16:12:08 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/03 23:17:32 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,17 +36,19 @@ Server&	Server::operator=(const Server& other) {
 
 Server::~Server() {}
 
-//constructor with assignement values
-Server::Server(std::string name, int port, int clientMaxBodySize) {
-	_name = name;
+
+
+//constructor with assignment values
+Server::Server(int port, int clientMaxBodySize) {
 	_port = port;
 	_clientMaxBodySize = clientMaxBodySize;
 }
 
 
+
 //Setter
-void	Server::setName(std::string name) {
-	_name = name;
+void	Server::addName(std::string name) {
+	_name.push_back(name);
 }
 
 void	Server::setPort(int port) {
@@ -58,7 +60,7 @@ void	Server::setClientMaxBodySize(int clientMaxBodySize) {
 }
 
 //Getter
-std::string	Server::getName() {
+std::vector<std::string>	Server::getName() {
 	return _name;
 }
 
@@ -69,6 +71,8 @@ int	Server::getPort() {
 int	Server::getClientMaxBodySize() {
 	return _clientMaxBodySize;
 }
+
+
 
 //Specific map
 void	Server::pushLocation(const Location& location) {
@@ -97,23 +101,21 @@ APage&	Server::getErrorPageByCode(const int code) {
 	return it->second;
 }
 
-//functions
-void	Server::fillServerContent(const char* filename) {
-	std::ifstream	file(filename, std::ios::in);
-	std::string		content;
-	if (!file.is_open())
-		throw (CanNotOpenFile());
-	while (getline(file, content)) {
-		std::cout << content;
-	}
-		file.close();
-}
 
-//expection class
+
+// //functions
+// void	Server::fillServerContent(const char* filename) {
+// 	std::ifstream	file(filename, std::ios::in);
+// 	std::string		content;
+// 	if (!file.is_open())
+// 		throw (CanNotOpenFile());
+	
+// 	file.close();
+// }
+
+
+
+//exception class
 const char*	Server::NoPageFound::what() const throw() {
 	return "Page and error page not found";
-}
-
-const char* Server::CanNotOpenFile::what() const throw() {
-	return "Can't open the file.";
 }
