@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/03 23:17:32 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/07 00:32:18 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,28 @@ void	Server::setClientMaxBodySize(int clientMaxBodySize) {
 	_clientMaxBodySize = clientMaxBodySize;
 }
 
+void	Server::setHost(std::string host) {
+	_host = host;
+}
+
+void	Server::setClientMaxBodySize(std::string clientMaxBodySize) {
+	int					maxBodySize = 0;
+	std::istringstream	iss(clientMaxBodySize);
+
+	iss >> maxBodySize;
+	setClientMaxBodySize(maxBodySize);
+}
+
+void	Server::setPort(std::string port) {
+	int					p = 0;
+	std::istringstream	iss(port);
+
+	iss >> p;
+	setPort(p);
+}
+
 //Getter
-std::vector<std::string>	Server::getName() {
+std::vector<std::string>	Server::getNames() {
 	return _name;
 }
 
@@ -72,7 +92,9 @@ int	Server::getClientMaxBodySize() {
 	return _clientMaxBodySize;
 }
 
-
+std::string	Server::getHost() {
+	return _host;
+}
 
 //Specific map
 void	Server::pushLocation(const Location& location) {
@@ -101,21 +123,21 @@ APage&	Server::getErrorPageByCode(const int code) {
 	return it->second;
 }
 
+void	Server::addErrorPage(std::string& name, std::string& root) {
+	ErrorPage			errorPage(name, root);
+	int					code = 0;
+	std::istringstream	iss(name);
 
+	iss >> code;
 
-// //functions
-// void	Server::fillServerContent(const char* filename) {
-// 	std::ifstream	file(filename, std::ios::in);
-// 	std::string		content;
-// 	if (!file.is_open())
-// 		throw (CanNotOpenFile());
-	
-// 	file.close();
-// }
-
-
+	errorPage.setCode(code);
+	pushErrorPage(errorPage);
+}
 
 //exception class
 const char*	Server::NoPageFound::what() const throw() {
 	return "Page and error page not found";
 }
+
+
+//functions

@@ -1,0 +1,183 @@
+server {
+    host 127.0.0.1;           # ou localhost
+    port 8080;
+    
+    # server_names (optionnel selon les specs)
+    server_name monsite.local www.monsite.local;
+    
+    # Taille max du body client (en bytes)
+    client_max_body_size 1048576;  # 1MB
+    
+    # Pages d'erreur par défaut pour ce serveur
+    error_page 404 /errors/404.html;
+    error_page 403 /errors/403.html;
+    error_page 500 /errors/500.html;
+    
+    # ROUTE 1 : Page d'accueil
+    location / {
+        # Méthodes HTTP acceptées
+        allowed_methods GET POST;
+        # Répertoire racine pour cette route
+        root /var/www/monsite;
+        
+        # Fichier par défaut si c'est un répertoire
+        index index.html index.php;
+        
+        # Listing des répertoires activé
+        autoindex on;
+    }
+    
+    # ROUTE 2 : API avec restrictions
+    location /api {
+        allowed_methods GET POST PUT DELETE;
+        root /var/www/monsite/api;
+        autoindex off;
+    }
+    
+    # ROUTE 3 : Upload de fichiers
+    location /upload {
+        allowed_methods POST;
+        root /var/www/monsite;
+        
+        # Répertoire où sauvegarder les uploads
+        upload_path /var/www/uploads;
+        client_max_body_size 5242880;  # 5MB pour les uploads
+    }
+    
+    # ROUTE 4 : Redirection HTTP
+    location /old-page {
+        # Redirection 301 (permanente)
+        return 301 /new-page;
+    }
+    
+    # ROUTE 5 : CGI pour PHP
+    location /cgi-bin {
+        allowed_methods GET POST;
+        root /var/www/cgi-bin;
+        
+        # Configuration CGI
+        cgi_extension .php;
+        cgi_path /usr/bin/php-cgi;  # Chemin complet vers l'exécutable CGI
+        
+        # Le serveur doit exécuter le CGI dans le bon répertoire
+        # pour les chemins relatifs
+    }
+    
+    # ROUTE 6 : Scripts Python CGI
+    location /python {
+        allowed_methods GET POST;
+        root /var/www/python-scripts;
+        cgi_extension .py;
+        cgi_path /usr/bin/python3;
+    }
+    
+    # ROUTE 7 : Répertoire avec listing désactivé
+    location /private {
+        allowed_methods GET;
+        root /var/www/private;
+        autoindex off;
+        index forbidden.html;  # Pas d'index par défaut
+    }
+}
+
+# SERVEUR 2 - Site secondaire (même host:port)
+server {
+    host 127.0.0.1;
+    port 8080;
+    
+    # Différent server_name pour différencier
+    server_name tonsite.local blog.local;
+    
+    client_max_body_size 2097152;  # 2MB
+    
+    # Pages d'erreur différentes
+    error_page 404 /blog-errors/not-found.html;
+    error_page 500 /blog-errors/server-error.html;
+    
+    location / {
+        allowed_methods GET POST;
+        root /var/www/blog;
+        index index.html;
+        autoindex on;
+    }
+    
+    # Route pour articles avec CGI
+    location /articles {
+        allowed_methods GET;
+        root /var/www/blog/articles;
+        cgi_extension .php;
+        cgi_path /usr/bin/php-cgi;
+    }
+}
+
+# SERVEUR 3 - Autre port (sera DEFAULT pour localhost:3000)
+server {
+    host localhost;
+    port 3000;
+    
+    # Pas de server_name spécifique = accepte tout
+    
+    client_max_body_size 512000;  # 500KB
+    
+    # Pages d'erreur globales
+    error_page 404 /errors/404.html;
+    error_page 500 /errors/500.html;
+    
+    # Route simple
+    location / {
+        allowed_methods GET;
+        root /var/www/simple;
+        index welcome.html;
+        autoindex off;
+    }
+    
+    # Test de redirection
+    location /redirect-test {
+        return 302 https://www.google.com;
+    }
+}
+
+# SERVEUR 4 - Tests avancés
+server {
+    host 127.0.0.1;
+    port 8081;
+    
+    server_name test.local;
+    client_max_body_size 10485760;  # 10MB
+    
+    # Route racine basique
+    location / {
+        allowed_methods GET POST;
+        root /var/www/test;
+        index test.html;
+        autoindex on;
+    }
+    
+    # Route avec mapping de répertoire différent
+    location /kapouet {
+        allowed_methods GET;
+        # Si URL = /kapouet/pouic/toto/pouet
+        # Alors fichier = /tmp/www/pouic/toto/pouet
+        root /tmp/www;
+        autoindex on;
+    }
+    
+    # Route pour uploads multiples
+    location /files {
+        allowed_methods GET POST DELETE;
+        root /var/www/test/files;
+        upload_path /var/uploads/test;
+        autoindex on;  # Pour voir les fichiers uploadés
+    }
+    
+    # CGI complexe avec POST
+    location /forms {
+        allowed_methods GET POST;
+        root /var/www/forms;
+        cgi_extension .php;
+        cgi_path /usr/bin/php-cgi;
+        
+        # Gestion des uploads dans les formulaires
+        upload_path /var/uploads/forms;
+    }
+}

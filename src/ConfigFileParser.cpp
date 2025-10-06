@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigFileParser.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 23:14:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/06 14:25:57 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/06 23:46:01 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,28 +46,59 @@ std::vector<std::string>	ft_split(const std::string& s, const std::string& delim
 	return (tokens);
 }
 
+bool	isBracketClosed(const std::string& content) {
+	int	brackets = 0;
+	for (size_t i = 0; i < content.length(); i++)
+	{
+		if (content[i] == '{')
+			brackets++;
+		else if (content[i] == '}')
+			brackets--;
+	}
+
+	return (brackets == 0);
+}
+
+int	countServer(const std::string& content) {
+	int	i = 0;
+	size_t	res = -1;
+
+	while ((res = content.find("server ", res + 1)) !=
+				std::string::npos){
+		i++;
+	}
+	return i;
+}
+
 int	getContent(std::string fileName, std::string& content) {
-	std::string	line;
+	std::string		line;
+	size_t			i;
 	std::ifstream	file(fileName.c_str(), std::ios_base::in);
 
 	if (!file.is_open())
 		return 1;
 	while (getline(file, line)) {
-		content += line;
+		if (!line.empty())
+		{
+			for (i = 0; i < line.length() && iswspace(line[i]); i++) {}
+			if (line[i] != '#')
+				content += line;
+		}
 	}
 	file.close();
 	return 0;
 }
 
-void	ConfigFileParser::configFileParser(const std::string& fileName) {
-	std::string					content;
-	std::vector<std::string>	test;
+// void	ConfigFileParser::configFileParser(const std::string& fileName) {
+// 	std::string					content;
+// 	std::vector<std::string>	test;
 
 
-	if (getContent(fileName, content))
-		throw (CanNotOpenFile());
-	test = ft_split(content, " \n\b\t\r\v\f");
-	for (std::vector<std::string>::iterator it = test.begin(); it != test.end(); it++) {
-		std::cout << *it << std::endl;
-	}
-}
+// 	if (getContent(fileName, content))
+// 		throw (CanNotOpenFile());
+// 	test = ft_split(content, " \n\b\t\r\v\f");
+// 	for (std::vector<std::string>::iterator it = test.begin(); it != test.end(); it++) {
+// 		if (*it == "server")
+// 	}
+	
+// }

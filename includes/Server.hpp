@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/03 23:20:30 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/07 00:32:18 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 class	Server {
 	private:
 		std::vector<std::string>		_name;
+		std::string						_host;
 		int								_port;
 		int								_clientMaxBodySize;
 		std::map<std::string, Location>	_mapLocation;
@@ -38,17 +39,22 @@ class	Server {
 		void	addName(std::string);
 		void	setPort(int);
 		void	setClientMaxBodySize(int);
+		void	setHost(std::string host);
+		void	setClientMaxBodySize(std::string);
+		void	setPort(std::string);
 		
 		//Getter
-		std::vector<std::string>		getName();
+		std::vector<std::string>		getNames();
 		int								getPort();
 		int								getClientMaxBodySize();
+		std::string						getHost();
 		
 		//Specific map
 		void		pushLocation(const Location&);
 		APage&		getLocationByName(const std::string&);
 		void		pushErrorPage(const ErrorPage&);
 		APage&		getErrorPageByCode(const int);
+		void		addErrorPage(std::string& code, std::string& root);
 
 		//exception class if page and error page not found
 		class NoPageFound: public std::exception {
@@ -56,6 +62,8 @@ class	Server {
 				const char* what() const throw() ;
 		};
 
+
+		Location	configFileLocationParser(std::vector<std::string>::iterator&);
 };
 
 #endif
