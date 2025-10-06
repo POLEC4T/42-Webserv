@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/03 23:20:20 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/06 13:20:02 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ class	Location : public APage {
 		std::vector<AHttpMethod*>	_allowedMethods;
 		std::vector<std::string>	_index;
 		bool						_autoIndex;
-		int							_clientMaxBodySize;
+		size_t						_clientMaxBodySize;
 		std::string					_return;
 		std::string					_cgiExtension;
 		std::string					_cgiPath;
@@ -44,6 +44,7 @@ class	Location : public APage {
 		void	setAutoIndex(const bool);
 		void	setCgiExtension(const std::string&);
 		void	setCgiPath(const std::string&);
+		void	setClientMaxBodySize(size_t);
 
 		//Getter
 		std::vector<AHttpMethod*>	getAllowedMethods();
@@ -51,6 +52,7 @@ class	Location : public APage {
 		bool						getAutoIndex();
 		std::string					getCgiExtension();
 		std::string					getCgiPath();
+		size_t						getClientMaxBodySize();
 
 		//vector functions
 		void	addIndex(const std::string&);

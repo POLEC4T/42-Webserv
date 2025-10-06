@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigFileParser.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 23:12:22 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/03 23:19:56 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/06 14:02:05 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ class ConfigFileParser {
 		ConfigFileParser();
 		~ConfigFileParser();
 
-		void	configFileParser(std::string fileName);
+		void	configFileParser(const std::string& fileName);
 
 		//exception class if can't open a file
 		class CanNotOpenFile: public std::exception {

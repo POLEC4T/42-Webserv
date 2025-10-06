@@ -13,7 +13,8 @@ SRCS = main.cpp \
 	$(SRC_DIR)/ErrorPage.cpp \
 	$(SRC_DIR)/Location.cpp \
 	$(SRC_DIR)/Server.cpp \
-	$(SRC_DIR)/AHttpMethod.cpp
+	$(SRC_DIR)/AHttpMethod.cpp \
+	$(SRC_DIR)/ConfigFileParser.cpp
 HEADERS = $(INC_DIR)/AHttpMethod.hpp \
 	$(INC_DIR)/APage.hpp \
 	$(INC_DIR)/CodeDefines.h \
@@ -21,7 +22,8 @@ HEADERS = $(INC_DIR)/AHttpMethod.hpp \
 	$(INC_DIR)/Location.hpp \
 	$(INC_DIR)/Request.hpp \
 	$(INC_DIR)/Response.hpp \
-	$(INC_DIR)/Server.hpp
+	$(INC_DIR)/Server.hpp	\
+	$(INC_DIR)/ConfigFileParser.hpp
 OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 
 CXX = c++
