@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 00:32:18 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/07 11:56:12 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ Server::Server() {}
 Server::Server(const Server& cpy) {
 	_name = cpy._name;
 	_port = cpy._port;
+	_host = cpy._host;
 	_clientMaxBodySize = cpy._clientMaxBodySize;
 	_mapLocation = cpy._mapLocation;
 	_mapErrorPage = cpy._mapErrorPage;
@@ -27,6 +28,7 @@ Server&	Server::operator=(const Server& other) {
 	{
 		this->_name = other._name;
 		this->_port = other._port;
+		this->_host = other._host;
 		this->_clientMaxBodySize = other._clientMaxBodySize;
 		this->_mapLocation = other._mapLocation;
 		this->_mapErrorPage = other._mapErrorPage;
@@ -59,7 +61,7 @@ void	Server::setClientMaxBodySize(int clientMaxBodySize) {
 	_clientMaxBodySize = clientMaxBodySize;
 }
 
-void	Server::setHost(std::string host) {
+void	Server::setHost(const std::string& host) {
 	_host = host;
 }
 
@@ -92,7 +94,7 @@ int	Server::getClientMaxBodySize() {
 	return _clientMaxBodySize;
 }
 
-std::string	Server::getHost() {
+const std::string&	Server::getHost() const {
 	return _host;
 }
 

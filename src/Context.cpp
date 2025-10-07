@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 00:29:16 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/07 11:59:46 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,11 +123,10 @@ void	addSpace(std::string& content, char toSeparate) {
 	}
 }
 
-Server	Context::configFileServerParser(std::vector<std::string>::iterator& it,
+void	Context::parseAndAddServer(std::vector<std::string>::iterator& it,
 		const std::vector<std::string>::iterator& itEnd) {
 	int brackets[2] = {0, 0};
 	Server newServer;
-
 	while (it != itEnd)
 	{
 		if (*it == "{")
@@ -138,10 +137,10 @@ Server	Context::configFileServerParser(std::vector<std::string>::iterator& it,
 			break;
 		if (*it == "host") {
 			++it;
+			std::string& host(*it);
 			if (it != itEnd) {
-				std::cout << *it << std::endl;
-				newServer.setHost(*it);
-				std::cout << "getHost" << newServer.getHost() << std::endl;
+				std::cout << host << std::endl;
+				newServer.setHost(host);
 			}
 		}
 		else if (*it == "port") {
@@ -174,7 +173,7 @@ Server	Context::configFileServerParser(std::vector<std::string>::iterator& it,
 	}
 	if (brackets[BRACKET_OPENED] != brackets[BRACKET_CLOSED])
 		throw (ErrorBracketParseFile());
-	return newServer;
+	addServer(newServer);
 }
 
 void	Context::configFileParser(const std::string& fileName) {
@@ -187,9 +186,8 @@ void	Context::configFileParser(const std::string& fileName) {
 	addSpace(content, ';');
 	tokens = ft_split(content, " \n\b\t\r\v\f");
 	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++) {
-		// std::cout << *it << std::endl;
 		if (*it == "server")
-			addServer(configFileServerParser(++it, tokens.end()));
+			parseAndAddServer(++it, tokens.end());
 	}
 	for (size_t i = 0; i < _servers.size(); ++i) {
 		std::cout << "Server " << i + 1 << ":\n";

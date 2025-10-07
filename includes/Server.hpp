@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 00:32:18 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/07 11:20:28 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ class	Server {
 		void	addName(std::string);
 		void	setPort(int);
 		void	setClientMaxBodySize(int);
-		void	setHost(std::string host);
+		void	setHost(const std::string& host);
 		void	setClientMaxBodySize(std::string);
 		void	setPort(std::string);
 		
@@ -47,7 +47,7 @@ class	Server {
 		std::vector<std::string>		getNames();
 		int								getPort();
 		int								getClientMaxBodySize();
-		std::string						getHost();
+		const std::string&					getHost() const;
 		
 		//Specific map
 		void		pushLocation(const Location&);
