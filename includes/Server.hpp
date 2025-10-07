@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 11:49:16 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/07 13:16:33 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ class	Server {
 		void	addName(std::string);
 		void	setPort(int);
 		void	setClientMaxBodySize(int);
-		void	setHost(std::string host);
+		void	setHost(const std::string& host);
 		void	setClientMaxBodySize(std::string);
 		void	setPort(std::string);
 		
@@ -47,7 +47,7 @@ class	Server {
 		std::vector<std::string>		getNames();
 		int								getPort();
 		int								getClientMaxBodySize();
-		std::string						getHost();
+		const std::string&					getHost() const;
 		
 		//Specific map
 		APage&		getLocationByName(const std::string&);

@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 11:52:31 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/07 13:17:15 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,11 +123,10 @@ void	addSpace(std::string& content, char toSeparate) {
 	}
 }
 
-void	Context::configFileServerParser(std::vector<std::string>::iterator& it,
+void	Context::parseAndAddServer(std::vector<std::string>::iterator& it,
 		const std::vector<std::string>::iterator& itEnd) {
-	int		brackets[2] = {0, 0};
-	Server	newServer;
-
+	int brackets[2] = {0, 0};
+	Server newServer;
 	while (it != itEnd)
 	{
 		if (*it == "{")
@@ -138,8 +137,9 @@ void	Context::configFileServerParser(std::vector<std::string>::iterator& it,
 			break;
 		if (*it == "host") {
 			++it;
+			std::string& host(*it);
 			if (it != itEnd) {
-				newServer.setHost(*it);
+				newServer.setHost(host);
 			}
 		}
 		else if (*it == "port") {
@@ -187,9 +187,8 @@ void	Context::configFileParser(const std::string& fileName) {
 	addSpace(content, ';');
 	tokens = ft_split(content, " \n\b\t\r\v\f");
 	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++) {
-		std::cout << *it << std::endl;
 		if (*it == "server")
-			configFileServerParser(++it, tokens.end());
+			parseAndAddServer(++it, tokens.end());
 	}
 
 

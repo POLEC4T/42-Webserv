@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 11:40:20 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/07 13:16:23 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class Context {
 
 		//functions
 		void	configFileParser(const std::string& fileName);
-		void	configFileServerParser(std::vector<std::string>::iterator&,
+		void	parseAndAddServer(std::vector<std::string>::iterator&,
 				const std::vector<std::string>::iterator&);
 
 		//exceptions
