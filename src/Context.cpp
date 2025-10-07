@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 11:59:46 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/07 12:00:55 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,6 @@ void	Context::parseAndAddServer(std::vector<std::string>::iterator& it,
 			++it;
 			std::string& host(*it);
 			if (it != itEnd) {
-				std::cout << host << std::endl;
 				newServer.setHost(host);
 			}
 		}
