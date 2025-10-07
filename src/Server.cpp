@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 00:32:18 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/07 11:51:08 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ std::string	Server::getHost() {
 }
 
 //Specific map
-void	Server::pushLocation(const Location& location) {
+void	Server::addLocation(const Location& location) {
 	_mapLocation.insert(std::make_pair(location.getName(), location));
 }
 
@@ -110,7 +110,7 @@ APage&	Server::getLocationByName(const std::string& name) {
 	return it->second;
 }
 
-void	Server::pushErrorPage(const ErrorPage& errorPage) {
+void	Server::addErrorPage(const ErrorPage& errorPage) {
 	_mapErrorPage.insert(std::make_pair(errorPage.getCode(), errorPage));
 }
 
@@ -131,7 +131,80 @@ void	Server::addErrorPage(std::string& name, std::string& root) {
 	iss >> code;
 
 	errorPage.setCode(code);
-	pushErrorPage(errorPage);
+	addErrorPage(errorPage);
+}
+
+void	Server::configFileLocationParser(std::vector<std::string>::iterator& it, const std::vector<std::string>::iterator itEnd) {
+	int	isClosed = 0;
+	Location	newLocation;
+
+	newLocation.setName(*it);
+	++it;
+	while (it != itEnd)
+	{
+		if (*it == "{")
+			isClosed++;
+		else if (*it == "}")
+			isClosed--;
+		if (isClosed == 0)
+			break;
+		if (*it == "root") {
+			it++;
+			if (it != itEnd)
+				newLocation.setRoot(*it);
+		}
+		else if (*it == "allowed_methods") {
+			it++;
+			while (it != itEnd && *it != ";") {
+				newLocation.addAllowedMethods(*it);
+				it++;
+			}
+		}
+		else if (*it == "index") {
+			it++;
+			while (it != itEnd && *it != ";") {
+				newLocation.addIndex(*it);
+				it++;
+			}
+		}
+		else if (*it == "autoindex") {
+			it++;
+			if (it != itEnd && *it == "on")
+				newLocation.setAutoIndex(true);
+			else if (it != itEnd && *it == "off")
+				newLocation.setAutoIndex(false);
+		}
+		else if (*it == "return") {
+			it++;
+			if (it != itEnd && (it + 1) != itEnd) {
+				newLocation.setReturn(*it);
+			}
+		}
+		else if (*it == "upload_path") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setUploadPath(*it);
+			}
+		}
+		else if (*it == "cgi_extension") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setCgiExtension(*it);
+			}
+		}
+		else if (*it == "cgi_path") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setCgiPath(*it);
+			}
+		}
+		it++;
+	}
+	addLocation(newLocation);
+}
+
+std::map<std::string, Location>& Server::getLocations() {
+    return _mapLocation;
 }
 
 //exception class

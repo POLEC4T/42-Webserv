@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 00:32:18 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/07 11:49:16 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,11 +50,17 @@ class	Server {
 		std::string						getHost();
 		
 		//Specific map
-		void		pushLocation(const Location&);
 		APage&		getLocationByName(const std::string&);
-		void		pushErrorPage(const ErrorPage&);
 		APage&		getErrorPageByCode(const int);
+
+		void		addLocation(const Location&);
+		void		addErrorPage(const ErrorPage&);
 		void		addErrorPage(std::string& code, std::string& root);
+
+		std::map<std::string, Location>&	getLocations();
+
+		//Parser
+		void		configFileLocationParser(std::vector<std::string>::iterator&, const std::vector<std::string>::iterator);
 
 		//exception class if page and error page not found
 		class NoPageFound: public std::exception {
@@ -63,7 +69,6 @@ class	Server {
 		};
 
 
-		Location	configFileLocationParser(std::vector<std::string>::iterator&);
 };
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 00:29:16 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/07 11:52:31 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,15 +118,15 @@ void	addSpace(std::string& content, char toSeparate) {
 	for (size_t i = 0; i < content.length(); ++i) {
 		if (content[i] == toSeparate) {
 			content.insert(i, " ");
-			++i; // Skip the space we just inserted
+			++i;
 		}
 	}
 }
 
-Server	Context::configFileServerParser(std::vector<std::string>::iterator& it,
+void	Context::configFileServerParser(std::vector<std::string>::iterator& it,
 		const std::vector<std::string>::iterator& itEnd) {
-	int brackets[2] = {0, 0};
-	Server newServer;
+	int		brackets[2] = {0, 0};
+	Server	newServer;
 
 	while (it != itEnd)
 	{
@@ -139,9 +139,7 @@ Server	Context::configFileServerParser(std::vector<std::string>::iterator& it,
 		if (*it == "host") {
 			++it;
 			if (it != itEnd) {
-				std::cout << *it << std::endl;
 				newServer.setHost(*it);
-				std::cout << "getHost" << newServer.getHost() << std::endl;
 			}
 		}
 		else if (*it == "port") {
@@ -168,13 +166,15 @@ Server	Context::configFileServerParser(std::vector<std::string>::iterator& it,
 			}
 		}
 		else if (*it == "location") {
-			
+			++it;
+			if (it != itEnd)
+				newServer.configFileLocationParser(it, itEnd);
 		}
 		++it;
 	}
 	if (brackets[BRACKET_OPENED] != brackets[BRACKET_CLOSED])
 		throw (ErrorBracketParseFile());
-	return newServer;
+	addServer(newServer);
 }
 
 void	Context::configFileParser(const std::string& fileName) {
@@ -187,10 +187,15 @@ void	Context::configFileParser(const std::string& fileName) {
 	addSpace(content, ';');
 	tokens = ft_split(content, " \n\b\t\r\v\f");
 	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++) {
-		// std::cout << *it << std::endl;
+		std::cout << *it << std::endl;
 		if (*it == "server")
-			addServer(configFileServerParser(++it, tokens.end()));
+			configFileServerParser(++it, tokens.end());
 	}
+
+
+
+
+
 	for (size_t i = 0; i < _servers.size(); ++i) {
 		std::cout << "Server " << i + 1 << ":\n";
 		std::cout << "  Host: " << _servers[i].getHost() << "\n";
@@ -203,6 +208,41 @@ void	Context::configFileParser(const std::string& fileName) {
 			if (j + 1 < names.size()) std::cout << ", ";
 		}
 		std::cout << "\n";
-		// Add more fields if needed
-	}
+		
+		// Print locations
+		std::map<std::string, Location>& locations = _servers[i].getLocations();
+		if (!locations.empty()) {
+			std::cout << "  Locations:\n";
+			for (std::map<std::string, Location>::iterator it = locations.begin(); it != locations.end(); ++it) {
+				std::cout << "    Location: " << it->first << "\n";
+				std::cout << "      Root: " << it->second.getRoot() << "\n";
+				std::cout << "      Auto Index: " << (it->second.getAutoIndex() ? "on" : "off") << "\n";
+				std::cout << "      Client Max Body Size: " << it->second.getClientMaxBodySize() << "\n";
+				
+				// Print index files
+				const std::vector<std::string>& indices = it->second.getIndex();
+				if (!indices.empty()) {
+					std::cout << "      Index: ";
+					for (size_t k = 0; k < indices.size(); ++k) {
+						std::cout << indices[k];
+						if (k + 1 < indices.size()) std::cout << ", ";
+					}
+					std::cout << "\n";
+				}
+				
+				// Print allowed methods (you'll need a getter for this)
+				// std::cout << "      Allowed Methods: ...\n";
+				
+				if (!it->second.getUploadPath().empty())
+					std::cout << "      Upload Path: " << it->second.getUploadPath() << "\n";
+				if (!it->second.getReturn().empty())
+					std::cout << "      Return: " << it->second.getReturn() << "\n";
+				if (!it->second.getCgiExtension().empty())
+					std::cout << "      CGI Extension: " << it->second.getCgiExtension() << "\n";
+				if (!it->second.getCgiPath().empty())
+					std::cout << "      CGI Path: " << it->second.getCgiPath() << "\n";
+			}
+		}
+		std::cout << "\n";
+}
 }

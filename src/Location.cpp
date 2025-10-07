@@ -6,23 +6,28 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/06 13:21:03 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/07 11:58:04 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 
-Location::Location(): APage() {}
+Location::Location(): APage() {
+	_clientMaxBodySize = 0;
+	_autoIndex = false;
+}
 
 Location::Location(const Location& cpy): APage(cpy) {
 	_autoIndex = cpy._autoIndex;
 	_index = cpy._index;
 	_cgiExtension = cpy._cgiExtension;
 	_cgiPath = cpy._cgiPath;
+	_return = cpy._return;
+	_uploadPath = cpy._uploadPath;
 	_allowedMethods.clear();
 	for (size_t i = 0; i < cpy._allowedMethods.size(); ++i) {
-		if (cpy._allowedMethods[i])
-			_allowedMethods.push_back(cpy._allowedMethods[i]);
+		// if (cpy._allowedMethods[i])
+		_allowedMethods.push_back(cpy._allowedMethods[i]);
 	}
 }
 
@@ -33,13 +38,13 @@ Location&	Location::operator=(const Location& other) {
 		this->_root = other._root;
 		this->_content = other._content;
 		this->_code = other._code;
-		for (size_t i = 0; i < this->_allowedMethods.size(); ++i) {
-			delete this->_allowedMethods[i];
-		}
+		// for (size_t i = 0; i < this->_allowedMethods.size(); ++i) {
+		// 	delete this->_allowedMethods[i];
+		// }
 		this->_allowedMethods.clear();
 		for (size_t i = 0; i < other._allowedMethods.size(); ++i) {
-			if (other._allowedMethods[i])
-				this->_allowedMethods.push_back(other._allowedMethods[i]);
+			// if (other._allowedMethods[i])
+			this->_allowedMethods.push_back(other._allowedMethods[i]);
 		}
 		this->_autoIndex = other._autoIndex;
 		this->_index = other._index;
@@ -60,16 +65,17 @@ Location::Location(std::string name, std::string root,
 
 
 //Setter
-void    Location::setAllowedMethods(const std::vector<AHttpMethod*>& methods) {
-	for (size_t i = 0; i < _allowedMethods.size(); ++i) {
-		delete _allowedMethods[i];
-	}
-	_allowedMethods.clear();
-	for (size_t i = 0; i < methods.size(); ++i) {
-		if (methods[i])
-			_allowedMethods.push_back(methods[i]);
-	}
-}
+
+// void    Location::setAllowedMethods(const std::vector<AHttpMethod*>& methods) {
+// 	for (size_t i = 0; i < _allowedMethods.size(); ++i) {
+// 		delete _allowedMethods[i];
+// 	}
+// 	_allowedMethods.clear();
+// 	for (size_t i = 0; i < methods.size(); ++i) {
+// 		if (methods[i])
+// 			_allowedMethods.push_back(methods[i]);
+// 	}
+// }
 
 void	Location::setAutoIndex(const bool b) {
 	_autoIndex = b;
@@ -87,26 +93,33 @@ void	Location::setClientMaxBodySize(size_t clientMaxBodySize) {
 	_clientMaxBodySize = clientMaxBodySize;
 }
 
+void	Location::setReturn(const std::string& ret) {
+	_return = ret;
+}
 
+void	Location::setUploadPath(const std::string& uploadPath) {
+	_uploadPath = uploadPath;
+}
 
 //Getter
-std::vector<AHttpMethod*>   Location::getAllowedMethods() {
-    return _allowedMethods;
-}
+
+// std::vector<AHttpMethod*>   Location::getAllowedMethods() {
+//     return _allowedMethods;
+// }
 
 bool	Location::getAutoIndex() {
 	return _autoIndex;
 }
 
-std::vector<std::string>	Location::getIndex() {
+const std::vector<std::string>	Location::getIndex() {
 	return _index;
 }
 
-std::string	Location::getCgiExtension() {
+const std::string&	Location::getCgiExtension() {
 	return _cgiExtension;
 }
 
-std::string	Location::getCgiPath() {
+const std::string&	Location::getCgiPath() {
 	return _cgiPath;
 }
 
@@ -114,14 +127,29 @@ size_t	Location::getClientMaxBodySize() {
 	return _clientMaxBodySize;
 }
 
+const std::string&	Location::getUploadPath() {
+	return _uploadPath;
+}
 
+const std::string&	Location::getReturn() {
+	return _return;
+}
+
+const std::vector<std::string>& Location::getAllowedMethods() const {
+    return _allowedMethods;
+}
 
 //Vector functions
-void    Location::pushMethod(AHttpMethod* method) {
-	if (method)
-		_allowedMethods.push_back(method);
-}
+
+// void    Location::pushMethod(AHttpMethod* method) {
+// 	if (method)
+// 		_allowedMethods.push_back(method);
+// }
 
 void	Location::addIndex(const std::string& index) {
 	_index.push_back(index);
+}
+
+void	Location::addAllowedMethods(const std::string& allowedMethod) {
+	_allowedMethods.push_back(allowedMethod);
 }

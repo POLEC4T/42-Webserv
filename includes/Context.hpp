@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/06 23:50:17 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/07 11:40:20 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@
 class Context {
 	private:
 		std::vector<Server>	_servers;
-		Server				_actualServer;
-		Location			_actualLocation;
+		Server				_currentServer;
+		Location			_currentLocation;
 
 	public:
 		Context();
@@ -36,7 +36,7 @@ class Context {
 
 		//functions
 		void	configFileParser(const std::string& fileName);
-		Server	configFileServerParser(std::vector<std::string>::iterator&,
+		void	configFileServerParser(std::vector<std::string>::iterator&,
 				const std::vector<std::string>::iterator&);
 
 		//exceptions
