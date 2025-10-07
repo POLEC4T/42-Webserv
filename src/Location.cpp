@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 11:58:04 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/07 16:01:06 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,9 @@ Location::Location(const Location& cpy): APage(cpy) {
 	_cgiPath = cpy._cgiPath;
 	_return = cpy._return;
 	_uploadPath = cpy._uploadPath;
-	_allowedMethods.clear();
-	for (size_t i = 0; i < cpy._allowedMethods.size(); ++i) {
-		// if (cpy._allowedMethods[i])
-		_allowedMethods.push_back(cpy._allowedMethods[i]);
-	}
+	_clientMaxBodySize = cpy._clientMaxBodySize;
+	_allowedMethods = cpy._allowedMethods;
+	_index = cpy._index;
 }
 
 Location&	Location::operator=(const Location& other) {
@@ -38,16 +36,16 @@ Location&	Location::operator=(const Location& other) {
 		this->_root = other._root;
 		this->_content = other._content;
 		this->_code = other._code;
-		// for (size_t i = 0; i < this->_allowedMethods.size(); ++i) {
-		// 	delete this->_allowedMethods[i];
-		// }
+		this->_return = other._return;
+		this->_cgiExtension = other._cgiExtension;
+		this->_cgiPath = other._cgiPath;
 		this->_allowedMethods.clear();
-		for (size_t i = 0; i < other._allowedMethods.size(); ++i) {
-			// if (other._allowedMethods[i])
-			this->_allowedMethods.push_back(other._allowedMethods[i]);
-		}
+		this->_allowedMethods = other._allowedMethods;
+		this->_index.clear();
+		this->_index = other._index;
 		this->_autoIndex = other._autoIndex;
 		this->_index = other._index;
+		this->_clientMaxBodySize = other._clientMaxBodySize;
 	}
 	return *this;
 }
@@ -91,6 +89,16 @@ void	Location::setCgiPath(const std::string& cgiPath) {
 
 void	Location::setClientMaxBodySize(size_t clientMaxBodySize) {
 	_clientMaxBodySize = clientMaxBodySize;
+}
+
+void	Location::setClientMaxBodySize(std::string clientMaxBodySize) {
+	int					maxBodySize = 0;
+	std::istringstream	iss(clientMaxBodySize);
+
+	iss >> maxBodySize;
+	if (iss.fail())
+		throw (Error::IntExpected(clientMaxBodySize));
+	setClientMaxBodySize(maxBodySize);
 }
 
 void	Location::setReturn(const std::string& ret) {
@@ -151,5 +159,7 @@ void	Location::addIndex(const std::string& index) {
 }
 
 void	Location::addAllowedMethods(const std::string& allowedMethod) {
+	if (allowedMethod != "GET" && allowedMethod != "POST" && allowedMethod != "DELETE")
+		throw (Error::UnknownToken(allowedMethod));
 	_allowedMethods.push_back(allowedMethod);
 }

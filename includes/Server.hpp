@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 13:16:33 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/07 16:12:03 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,39 +36,32 @@ class	Server {
 		Server(int, int);
 		
 		//Setter
-		void	addName(std::string);
+		void	addName(const std::string&);
 		void	setPort(int);
 		void	setClientMaxBodySize(int);
-		void	setHost(const std::string& host);
 		void	setClientMaxBodySize(std::string);
+		void	setHost(const std::string&);
 		void	setPort(std::string);
 		
 		//Getter
-		std::vector<std::string>		getNames();
-		int								getPort();
-		int								getClientMaxBodySize();
+		const std::vector<std::string>&		getNames() const ;
+		int									getPort() const ;
+		int									getClientMaxBodySize() const ;
 		const std::string&					getHost() const;
 		
 		//Specific map
 		APage&		getLocationByName(const std::string&);
-		APage&		getErrorPageByCode(const int);
+		APage&		getErrorPageByCode(const int, const std::string&);
 
 		void		addLocation(const Location&);
 		void		addErrorPage(const ErrorPage&);
-		void		addErrorPage(std::string& code, std::string& root);
+		void		addErrorPage(const std::string& code, const std::string& root);
 
 		std::map<std::string, Location>&	getLocations();
 
 		//Parser
-		void		configFileLocationParser(std::vector<std::string>::iterator&, const std::vector<std::string>::iterator);
-
-		//exception class if page and error page not found
-		class NoPageFound: public std::exception {
-			public:
-				const char* what() const throw() ;
-		};
-
-
+		void		parseAndAddLocation(std::vector<std::string>::iterator&, 
+					const std::vector<std::string>::iterator);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 11:50:27 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/07 13:38:13 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ class	Location : public APage {
 		void	setCgiExtension(const std::string&);
 		void	setCgiPath(const std::string&);
 		void	setClientMaxBodySize(size_t);
+		void	setClientMaxBodySize(std::string);
 		void	setReturn(const std::string&);
 		void	setUploadPath(const std::string&);
 
