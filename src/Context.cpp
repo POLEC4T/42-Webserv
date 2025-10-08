@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 16:55:45 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/08 13:29:31 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,4 +193,6 @@ void	Context::configFileParser(const std::string& fileName) {
 		if (*it == "server")
 			parseAndAddServer(++it, tokens.end());
 	}
+	if (_servers.empty())
+		throw (Error::NoServerInConfigFile());
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:34:04 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/07 16:10:29 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/08 13:29:49 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 # include <string>
 
 class Error {
-    public:
-    	class CanNotOpenFile: public std::exception {
+	public:
+		class CanNotOpenFile: public std::exception {
 			private:
 				std::string	_message;
 			public:
@@ -33,7 +33,7 @@ class Error {
 				const char* what() const throw() ;
 		};
 
-    	class NoPageFound: public std::exception {
+		class NoPageFound: public std::exception {
 			private:
 				std::string	_message;
 			public:
@@ -43,25 +43,25 @@ class Error {
 				~NoPageFound() throw() ;
 		};
 
-        class DidNotFindSemicolon: public std::exception {
+		class DidNotFindSemicolon: public std::exception {
 			private:
 				std::string	_message;
-            public:
-                const char* what() const throw() ;
+			public:
+				const char* what() const throw() ;
 
 				DidNotFindSemicolon(const std::string&);
 				~DidNotFindSemicolon() throw() ;
-        };
+		};
 
-        class UnknownToken: public std::exception {
+		class UnknownToken: public std::exception {
 			private:
 				std::string	_message;
-            public:
-                const char* what() const throw() ;
+			public:
+				const char* what() const throw() ;
 				
 				UnknownToken(const std::string&);
 				~UnknownToken() throw() ;
-        };
+		};
 
 		class IntExpected: public std::exception {
 			private:
@@ -71,6 +71,11 @@ class Error {
 				
 				IntExpected(const std::string&);
 				~IntExpected() throw() ;
+		};
+
+		class NoServerInConfigFile: public std::exception {
+			public:
+				const char* what() const throw() ;
 		};
 
 };
