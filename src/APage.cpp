@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   APage.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:22:06 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/25 13:34:52 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/07 13:24:09 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,15 +67,15 @@ void	APage::setCode(int code) {
 }
 
 //Getter
-std::string	APage::getName() const {
+const std::string&	APage::getName() const {
 	return _name;
 }
 
-std::string	APage::getRoot() const {
+const std::string&	APage::getRoot() const {
 	return _root;
 }
 
-std::string	APage::getContent() const {
+const std::string&	APage::getContent() const {
 	return _content;
 }
 

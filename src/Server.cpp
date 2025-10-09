@@ -3,16 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 11:56:12 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/07 16:12:20 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server() {}
+Server::Server() {
+	_clientMaxBodySize = 0;
+	_port = 0;
+}
 
 Server::Server(const Server& cpy) {
 	_name = cpy._name;
@@ -49,7 +52,7 @@ Server::Server(int port, int clientMaxBodySize) {
 
 
 //Setter
-void	Server::addName(std::string name) {
+void	Server::addName(const std::string& name) {
 	_name.push_back(name);
 }
 
@@ -78,19 +81,21 @@ void	Server::setPort(std::string port) {
 	std::istringstream	iss(port);
 
 	iss >> p;
+	if (iss.fail())
+		throw (Error::IntExpected(port));
 	setPort(p);
 }
 
 //Getter
-std::vector<std::string>	Server::getNames() {
+const std::vector<std::string>&	Server::getNames() const {
 	return _name;
 }
 
-int	Server::getPort() {
+int	Server::getPort() const {
 	return _port;
 }
 
-int	Server::getClientMaxBodySize() {
+int	Server::getClientMaxBodySize() const {
 	return _clientMaxBodySize;
 }
 
@@ -99,7 +104,7 @@ const std::string&	Server::getHost() const {
 }
 
 //Specific map
-void	Server::pushLocation(const Location& location) {
+void	Server::addLocation(const Location& location) {
 	_mapLocation.insert(std::make_pair(location.getName(), location));
 }
 
@@ -107,39 +112,136 @@ APage&	Server::getLocationByName(const std::string& name) {
 	std::map<std::string, Location>::iterator it = _mapLocation.find(name);
 	if (it == _mapLocation.end())
 	{
-		return (this->getErrorPageByCode(404));
+		return (this->getErrorPageByCode(404, name));
 	}
 	return it->second;
 }
 
-void	Server::pushErrorPage(const ErrorPage& errorPage) {
+void	Server::addErrorPage(const ErrorPage& errorPage) {
 	_mapErrorPage.insert(std::make_pair(errorPage.getCode(), errorPage));
 }
 
-APage&	Server::getErrorPageByCode(const int code) {
+APage&	Server::getErrorPageByCode(const int code, const std::string& fileName) {
 	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
 	if (it == _mapErrorPage.end())
 	{
-		throw(NoPageFound());
+		throw(Error::NoPageFound(fileName));
 	}
 	return it->second;
 }
 
-void	Server::addErrorPage(std::string& name, std::string& root) {
+void	Server::addErrorPage(const std::string& name, const std::string& root) {
 	ErrorPage			errorPage(name, root);
 	int					code = 0;
 	std::istringstream	iss(name);
 
 	iss >> code;
-
+	if (iss.fail())
+		throw (Error::IntExpected(name));
 	errorPage.setCode(code);
-	pushErrorPage(errorPage);
+	addErrorPage(errorPage);
 }
 
-//exception class
-const char*	Server::NoPageFound::what() const throw() {
-	return "Page and error page not found";
+void	Server::parseAndAddLocation(std::vector<std::string>::iterator& it, const std::vector<std::string>::iterator itEnd) {
+	int	isClosed = 0;
+	Location	newLocation;
+
+	newLocation.setName(*it);
+	++it;
+	while (it != itEnd)
+	{
+		if (*it == "{")
+			isClosed++;
+		else if (*it == "}")
+			isClosed--;
+		else if (*it == "root") {
+			it++;
+			if (it != itEnd)
+				newLocation.setRoot(*it);
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "allowed_methods") {
+			it++;
+			while (it != itEnd && *it != ";") {
+				newLocation.addAllowedMethods(*it);
+				it++;
+			}
+			if (it == itEnd || *it != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "index") {
+			it++;
+			while (it != itEnd && *it != ";") {
+				newLocation.addIndex(*it);
+				it++;
+			}
+			if (it == itEnd || *it != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "autoindex") {
+			it++;
+			if (it != itEnd && *it == "on")
+				newLocation.setAutoIndex(true);
+			else if (it != itEnd && *it == "off")
+				newLocation.setAutoIndex(false);
+			else
+				throw (Error::UnknownToken(*it));
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "return") {
+			it++;
+			if (it != itEnd && (it + 1) != itEnd) {
+				newLocation.setReturn(*it + " " + *(it + 1));
+				it++;
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "upload_path") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setUploadPath(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "cgi_extension") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setCgiExtension(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "cgi_path") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setCgiPath(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "client_max_body_size") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setClientMaxBodySize(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it != ";")
+			throw (Error::UnknownToken(*it));
+		if (isClosed == 0)
+			break;
+		it++;
+	}
+	if (isClosed != 0)
+		throw (Error::ErrorBracketParseFile());
+	addLocation(newLocation);
 }
 
-
-//functions
+std::map<std::string, Location>& Server::getLocations() {
+    return _mapLocation;
+}

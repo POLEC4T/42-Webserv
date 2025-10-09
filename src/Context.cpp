@@ -6,14 +6,11 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 13:18:46 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/09 13:41:49 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "Context.hpp"
-
-# define BRACKET_OPENED 0
-# define BRACKET_CLOSED 1
 
 Context::Context() {}
 
@@ -43,25 +40,14 @@ Context&	Context::operator=(const Context& other) {
 	return *this;
 }
 
-
 //Getter
-std::vector<Server>	Context::getServers() {
+const std::vector<Server>	Context::getServers() const {
 	return _servers;
 }
 
 //Setter
 void	Context::addServer(const Server& server) {
 	_servers.push_back(server);
-}
-
-
-//Exception
-const char* Context::CanNotOpenFile::what() const throw() {
-	return "Can't open the file.";
-}
-
-const char* Context::ErrorBracketParseFile::what() const throw() {
-	return "Not all brackets are closed or previously opened.";
 }
 
 //functions
@@ -95,6 +81,7 @@ std::vector<std::string>	ft_split(const std::string& s, const std::string& delim
 int	getContent(std::string fileName, std::string& content) {
 	std::string		line;
 	size_t			i;
+	size_t			foundComment;
 	std::ifstream	file(fileName.c_str(), std::ios_base::in);
 
 	if (!file.is_open())
@@ -105,6 +92,9 @@ int	getContent(std::string fileName, std::string& content) {
 			for (i = 0; i < line.length() && iswspace(line[i]); i++) {}
 			if (line[i] != '#')
 			{
+				foundComment = line.find('#');
+				if (foundComment != std::string::npos)
+					line.erase(foundComment, line.size());
 				content += line;
 				content += ' ';
 			}
@@ -118,39 +108,44 @@ void	addSpace(std::string& content, char toSeparate) {
 	for (size_t i = 0; i < content.length(); ++i) {
 		if (content[i] == toSeparate) {
 			content.insert(i, " ");
-			++i; // Skip the space we just inserted
+			++i;
 		}
 	}
 }
 
+
 void	Context::parseAndAddServer(std::vector<std::string>::iterator& it,
 		const std::vector<std::string>::iterator& itEnd) {
-	int brackets[2] = {0, 0};
+	int isClosed = 0;
 	Server newServer;
+
 	while (it != itEnd)
 	{
 		if (*it == "{")
-			brackets[BRACKET_OPENED]++;
+			isClosed++;
 		else if (*it == "}")
-			brackets[BRACKET_CLOSED]++;
-		if (brackets[BRACKET_OPENED] == brackets[BRACKET_CLOSED])
-			break;
-		if (*it == "host") {
+			isClosed--;
+		else if (*it == "host") {
 			++it;
-			std::string& host(*it);
 			if (it != itEnd) {
-				newServer.setHost(host);
+				newServer.setHost(*it);
 			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
 		}
 		else if (*it == "port") {
 			++it;
 			if (it != itEnd)
 				newServer.setPort(*it);
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
 		}
 		else if (*it == "client_max_body_size") {
 			++it;
 			if (it != itEnd)
 				newServer.setClientMaxBodySize(*it);
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
 		}
 		else if (*it == "server_name") {
 			++it;
@@ -158,20 +153,30 @@ void	Context::parseAndAddServer(std::vector<std::string>::iterator& it,
 				newServer.addName(*it);
 				++it;
 			}
+			if (it == itEnd || *it != ";")
+				throw (Error::DidNotFindSemicolon(*(it - 1)));
 		}
 		else if (*it == "error_page") {
 			if ((it + 1) != itEnd && (it + 2) != itEnd) {
 				newServer.addErrorPage(*(it + 1), *(it + 2));
 				it += 2;
 			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
 		}
 		else if (*it == "location") {
-			
+			++it;
+			if (it != itEnd)
+				newServer.parseAndAddLocation(it, itEnd);
 		}
+		else if (*it != ";")
+			throw (Error::UnknownToken(*it));
+		if (isClosed == 0)
+			break;
 		++it;
 	}
-	if (brackets[BRACKET_OPENED] != brackets[BRACKET_CLOSED])
-		throw (ErrorBracketParseFile());
+	if (isClosed != 0)
+		throw (Error::ErrorBracketParseFile());
 	addServer(newServer);
 }
 
@@ -181,25 +186,11 @@ void	Context::configFileParser(const std::string& fileName) {
 
 
 	if (getContent(fileName, content))
-		throw (CanNotOpenFile());
+		throw (Error::CanNotOpenFile(fileName));
 	addSpace(content, ';');
 	tokens = ft_split(content, " \n\b\t\r\v\f");
 	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++) {
 		if (*it == "server")
 			parseAndAddServer(++it, tokens.end());
-	}
-	for (size_t i = 0; i < _servers.size(); ++i) {
-		std::cout << "Server " << i + 1 << ":\n";
-		std::cout << "  Host: " << _servers[i].getHost() << "\n";
-		std::cout << "  Port: " << _servers[i].getPort() << "\n";
-		std::cout << "  Client Max Body Size: " << _servers[i].getClientMaxBodySize() << "\n";
-		std::cout << "  Names: ";
-		const std::vector<std::string>& names = _servers[i].getNames();
-		for (size_t j = 0; j < names.size(); ++j) {
-			std::cout << names[j];
-			if (j + 1 < names.size()) std::cout << ", ";
-		}
-		std::cout << "\n";
-		// Add more fields if needed
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/06 13:20:02 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/07 13:38:13 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,12 @@
 //class Location inherit from APage got the private attribute _name, _content, _root, with the associated functions
 class	Location : public APage {
 	private:
-		std::vector<AHttpMethod*>	_allowedMethods;
+		// std::vector<AHttpMethod*>	_allowedMethods;
+		std::vector<std::string>	_allowedMethods;
 		std::vector<std::string>	_index;
 		bool						_autoIndex;
 		size_t						_clientMaxBodySize;
+		std::string					_uploadPath;
 		std::string					_return;
 		std::string					_cgiExtension;
 		std::string					_cgiPath;
@@ -40,23 +42,35 @@ class	Location : public APage {
 		Location(std::string name, std::string root, std::string content, int code);
 
 		//Setter
-		void	setAllowedMethods(const std::vector<AHttpMethod*>&);
+		// void	setAllowedMethods(const std::vector<AHttpMethod*>&);
 		void	setAutoIndex(const bool);
 		void	setCgiExtension(const std::string&);
 		void	setCgiPath(const std::string&);
 		void	setClientMaxBodySize(size_t);
+		void	setClientMaxBodySize(std::string);
+		void	setReturn(const std::string&);
+		void	setUploadPath(const std::string&);
 
 		//Getter
-		std::vector<AHttpMethod*>	getAllowedMethods();
-		std::vector<std::string>	getIndex();
-		bool						getAutoIndex();
-		std::string					getCgiExtension();
-		std::string					getCgiPath();
-		size_t						getClientMaxBodySize();
+		// std::vector<AHttpMethod*>	getAllowedMethods();
+		const std::vector<std::string>	getIndex();
+	
+		bool							getAutoIndex();
+		size_t							getClientMaxBodySize();
 
+		const std::string&				getCgiExtension();
+		const std::string&				getCgiPath();
+		const std::string&				getUploadPath();
+		const std::string&				getReturn();
+
+		const std::vector<std::string>&	getAllowedMethods() const;
+		
 		//vector functions
+		void	addAllowedMethods(const std::string&);
 		void	addIndex(const std::string&);
-		void	pushMethod(AHttpMethod* method);
+
+
+		// void	pushMethod(AHttpMethod* method);
 };
 
 #endif

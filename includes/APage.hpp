@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   APage.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:56:14 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/03 23:19:42 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/07 13:21:17 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ class APage {
 		void	setCode(int code);
 
 		//Getter
-		virtual std::string	getName() const;
-		virtual std::string	getRoot() const;
-		virtual std::string	getContent() const;
+		virtual const std::string&	getName() const;
+		virtual const std::string&	getRoot() const;
+		virtual const std::string&	getContent() const;
 		virtual int			getCode() const;
 };
 

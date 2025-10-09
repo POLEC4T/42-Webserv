@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 11:20:28 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/07 16:12:03 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,34 +36,32 @@ class	Server {
 		Server(int, int);
 		
 		//Setter
-		void	addName(std::string);
+		void	addName(const std::string&);
 		void	setPort(int);
 		void	setClientMaxBodySize(int);
-		void	setHost(const std::string& host);
 		void	setClientMaxBodySize(std::string);
+		void	setHost(const std::string&);
 		void	setPort(std::string);
 		
 		//Getter
-		std::vector<std::string>		getNames();
-		int								getPort();
-		int								getClientMaxBodySize();
+		const std::vector<std::string>&		getNames() const ;
+		int									getPort() const ;
+		int									getClientMaxBodySize() const ;
 		const std::string&					getHost() const;
 		
 		//Specific map
-		void		pushLocation(const Location&);
 		APage&		getLocationByName(const std::string&);
-		void		pushErrorPage(const ErrorPage&);
-		APage&		getErrorPageByCode(const int);
-		void		addErrorPage(std::string& code, std::string& root);
+		APage&		getErrorPageByCode(const int, const std::string&);
 
-		//exception class if page and error page not found
-		class NoPageFound: public std::exception {
-			public:
-				const char* what() const throw() ;
-		};
+		void		addLocation(const Location&);
+		void		addErrorPage(const ErrorPage&);
+		void		addErrorPage(const std::string& code, const std::string& root);
 
+		std::map<std::string, Location>&	getLocations();
 
-		Location	configFileLocationParser(std::vector<std::string>::iterator&);
+		//Parser
+		void		parseAndAddLocation(std::vector<std::string>::iterator&, 
+					const std::vector<std::string>::iterator);
 };
 
 #endif
