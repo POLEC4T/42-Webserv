@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/07 17:43:44 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/09 11:59:54 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,21 @@
 // \r\n
 // BODY
 
+// Note: In practice, the "Set-Cookie" header field ([RFC6265]) often
+// appears multiple times in a response message and does not use the
+// list syntax, violating the above requirements on multiple header
+// fields with the same name.  Since it cannot be combined into a
+// single field-value, recipients ought to handle "Set-Cookie" as a
+// special case while processing header fields.  (See Appendix A.2.3
+// of [Kri2001] for details.)
+// -> special case for Set-Cookie
+
 # include <map>
 # include <iostream>
+# include <sstream>
 # include <vector>
+# include <exception>
+# include <cstdlib> 
 
 class Request {
 	private:
@@ -52,11 +64,14 @@ class Request {
 		std::map< std::string, std::vector<std::string> > _headers;
 		std::string _body;
 
+		const std::string& _getHeaderValue(const std::string &key) const;
+		
 		std::string _extractLoc(const std::string &req) const;
 		std::string _extractMethod(const std::string &req) const;
 		std::string _extractVersion(const std::string &req) const;
 		std::map< std::string, std::vector<std::string> > _extractHeaders(const std::string &req) const;
 		std::string _extractBody(const std::string &req) const;
+		void _parseRequestLine(const std::string &reqContent);
 		
 	
 	public:
@@ -66,6 +81,11 @@ class Request {
 		Request& operator=(const Request &other);
 
 		Request(const std::string &reqContent);
+		void displayRequest() const;
+
+	class NoHeaderValue : public std::exception {
+		virtual const char* what() const throw();
+	};
 };
 
 #endif
