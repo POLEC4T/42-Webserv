@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/09 13:41:39 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/09 19:44:51 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 // #method: check it is in server allowed methods
 // mandatory (400)
 
-// #location 
+// #uri 
 // mandatory (400)
 
 // #version
@@ -55,18 +55,19 @@
 # include <vector>
 # include <exception>
 # include <cstdlib> 
+# include "FtString.hpp" 
 
 class Request {
 	private:
 		std::string _method;
-		std::string _location;
+		std::string _uri;
 		std::string _version;
 		std::map< std::string, std::vector<std::string> > _headers;
 		std::string _body;
 
 		const std::string& _getHeaderValue(const std::string &key) const;
 		
-		std::string _extractLoc(const std::string &req) const;
+		std::string _extractUri(const std::string &req) const;
 		std::string _extractMethod(const std::string &req) const;
 		std::string _extractVersion(const std::string &req) const;
 		std::map< std::string, std::vector<std::string> > _extractHeaders(const std::string &req) const;
@@ -80,10 +81,28 @@ class Request {
 		Request(const Request &copy);
 		Request& operator=(const Request &other);
 
-		Request(const std::string &reqContent);
+		void init(const std::string &reqContent);
 		void displayRequest() const;
 
-	class NoHeaderValue : public std::exception {
+	class NoHeaderValueException : public std::exception {
+		private:
+			std::string _message;
+		public:
+			virtual const char* what() const throw();
+			NoHeaderValueException(const std::string& key);
+			~NoHeaderValueException() throw();
+	};
+
+	class BadHeaderNameException : public std::exception {
+		private:
+			std::string _message;
+		public:
+			virtual const char* what() const throw();
+			BadHeaderNameException(const std::string& key);
+			~BadHeaderNameException() throw();
+	};
+
+	class RequestLineException : public std::exception {
 		virtual const char* what() const throw();
 	};
 };

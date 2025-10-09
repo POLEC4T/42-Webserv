@@ -28,14 +28,15 @@ int main(int ac, char **av) {
 	reqExample += "Cache-Control: max-age=0\r\n";
 	reqExample += "\r\n";
 
-	Request req(reqExample);
+	Request req;
+	try {
+		req.init(reqExample);
+	} catch (std::exception &e) {
+		
+		std::cout << e.what() << std::endl;
+	}
 
+	req.displayRequest();
 
-	// std::string test;
-	// test += "11111:123\r\n"; // 0
-	// test += "22222:456\r\n"; // 7
-	// test += "33333:789\r\n"; // 14
-	// test += "\r\n";
-	// Request req(test);
 	return 0;
 }

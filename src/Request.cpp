@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/09 13:28:07 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/09 20:14:25 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ Request::~Request() {}
 
 Request::Request(const Request &copy) {
 	_method = copy._method;
-	_location = copy._location;
+	_uri = copy._uri;
 	_version = copy._version;
 	_headers = copy._headers;
 	_body = copy._body;
@@ -27,57 +27,12 @@ Request::Request(const Request &copy) {
 Request& Request::operator=(const Request &other) {
 	if (this != &other) {
 		_method = other._method;
-		_location = other._location;
+		_uri = other._uri;
 		_version = other._version;
 		_headers = other._headers;
 		_body = other._body;
 	}
 	return (*this);
-}
-
-std::string Request::_extractLoc(const std::string &req) const {
-	std::string loc;
-    size_t pos = req.find(' ');
-    if (pos == std::string::npos) {
-		return loc;
-	}
-	pos += 1;
-	size_t endPos = req.find(" ", pos);
-	if (endPos == std::string::npos) {
-		return loc;
-	}
-	loc = req.substr(pos, endPos - pos);
-	return loc;
-}
-
-std::string Request::_extractMethod(const std::string &req) const {
-	std::string method;
-	size_t pos = req.find(' ');
-	if (pos == std::string::npos) {
-		return method;
-	}
-	method = req.substr(0, pos);
-	return method;
-}
-
-std::string Request::_extractVersion(const std::string &req) const {
-	std::string version;
-	size_t pos = req.find(' ');
-	if (pos == std::string::npos) {
-		return version;
-	}
-	pos += 1;
-	pos = req.find(' ', pos);
-	if (pos == std::string::npos) {
-		return version;
-	}
-	pos += 1;
-	size_t endPos = req.find("\r\n", pos);
-	if (endPos == std::string::npos) {
-		return version;
-	}
-	version = req.substr(pos, endPos - pos);
-	return version;
 }
 
 /** RFC 7230:
@@ -116,8 +71,16 @@ std::map< std::string, std::vector<std::string> > Request::_extractHeaders(const
 		if (endKey == std::string::npos)
 			throw std::exception();
 
-		std::string key = line.substr(0, endKey);
-		std::string value = line.substr(endKey + 1, (line.size() - 1) - endKey);
+		FtString key = line.substr(0, endKey);
+		FtString value = line.substr(endKey + 1, (line.size() - 1) - endKey);
+
+		if (key.endsWith(" ")) {
+			throw BadHeaderNameException(key);
+		}
+
+		key.ltrim();
+		value.trim();
+
 		headers[key].push_back(value);
 	}
 	return headers;
@@ -126,7 +89,7 @@ std::map< std::string, std::vector<std::string> > Request::_extractHeaders(const
 const std::string& Request::_getHeaderValue(const std::string &key) const {
 	std::map<std::string, std::vector<std::string> >::const_iterator it = _headers.find(key);
 	if (it == _headers.end())
-		throw NoHeaderValue();
+		throw NoHeaderValueException(key);
 	return (it->second[0]);
 }
 
@@ -139,24 +102,50 @@ std::string Request::_extractBody(const std::string &req) const {
 	return body;
 }
 
-void Request::_parseRequestLine(const std::string &reqContent) {
-	std::istringstream iss(reqContent);
-	
-	std::string requestLine;
-	std::getline(iss, requestLine);
-	std::cout << "req line: " << requestLine << std::endl;
 
-	if (requestLine.empty() || requestLine.find('\r') == std::string::npos) {
+/**
+ * @throws if request line is not exactly "<method> <uri> <version>\r\n"
+ * 	  method MUST be GET, POST or DELETE
+ * 	  version MUST be HTTP/1.1 or HTTP/1.0
+ */
+void Request::_parseRequestLine(const std::string &reqContent) {
+	std::istringstream reqContentISS(reqContent);
+	FtString reqLine;
+	std::getline(reqContentISS, reqLine);
+	std::cout << "req line: " << reqLine << std::endl;
+
+	if (reqLine.find('\r') != reqLine.size() - 1)
+		throw RequestLineException();
+
+	reqLine.erase(reqLine.end() - 1);
+
+	if (reqLine.startsOrEndsWith(" "))
+		throw RequestLineException();
+
+	size_t firstSpace = reqLine.find(" ");
+	size_t lastSpace = reqLine.rfind(" ");
+
+	bool hasNotThreeElems = firstSpace == std::string::npos
+							|| firstSpace == std::string::npos
+							|| firstSpace == lastSpace;
+	if (hasNotThreeElems)
+		throw RequestLineException();
+
+	_method = reqLine.substr(0, firstSpace);
+	_uri = reqLine.substr(firstSpace + 1, lastSpace - (firstSpace + 1));
+	_version = reqLine.substr((lastSpace + 1), (reqLine.size()) - (lastSpace + 1));
 	
-	}
+	if (_uri.find(' ') != std::string::npos)
+		throw RequestLineException();
+	if (_method != "GET" && _method != "POST" && _method != "DELETE")
+		throw RequestLineException();
+	if (_version != "HTTP/1.1" && _version != "HTTP/1.0")
+		throw RequestLineException();
 }
 
-Request::Request(const std::string &reqContent) {
+void Request::init(const std::string &reqContent) {
 
 	_parseRequestLine(reqContent);
-	_method = _extractMethod(reqContent);
-	_location = _extractLoc(reqContent);
-	_version = _extractVersion(reqContent);
 	_headers = _extractHeaders(reqContent);
 	if (_headers["Content-Size"].size() > 0 && _headers["Content-Size"][0].size() > 0) {
 		_body = _extractBody(reqContent);
@@ -165,22 +154,45 @@ Request::Request(const std::string &reqContent) {
 
 void Request::displayRequest() const {
 	std::cout << "Method: '" << _method << "'" << std::endl;
-	std::cout << "Location: '" << _location << "'" << std::endl;
+	std::cout << "URI: '" << _uri << "'" << std::endl;
 	std::cout << "Version: '" << _version << "'" << std::endl;
 	std::cout << "Headers: " << std::endl;
 	for (std::map< std::string, std::vector<std::string> >::const_iterator it = _headers.begin(); it != _headers.end(); ++it) {
-		std::cout << "  " << it->first << ": ";
+		std::cout << "  '" << it->first << "': '";
 		for (size_t i = 0; i < it->second.size(); ++i) {
 			std::cout << it->second[i];
 			if (i < it->second.size() - 1)
 				std::cout << ", ";
 		}
-		std::cout << std::endl;
+		std::cout << "'" << std::endl;
 	}
 	std::cout << "Body: '" << _body << "'" << std::endl;
-
 }
 
-const char* Request::NoHeaderValue::what() const throw() {
-	return "Request: getHeaderValue: No header has this key";
+const char* Request::NoHeaderValueException::what() const throw() {
+	if (_message.empty())
+		return "Request: No header field for this key";
+	return _message.c_str();
 }
+
+Request::NoHeaderValueException::NoHeaderValueException(const std::string& missingKey) {
+	_message = "Request: No header field for \"" + missingKey + "\"";
+}
+
+Request::NoHeaderValueException::~NoHeaderValueException() throw() {}
+
+const char* Request::RequestLineException::what() const throw() {
+	return "Request: Error in the request line.";
+}
+
+const char* Request::BadHeaderNameException::what() const throw() {
+	if (_message.empty())
+		return "Request: bad header name";
+	return _message.c_str();
+}
+
+Request::BadHeaderNameException::BadHeaderNameException(const std::string& headerName) {
+_message = "Request: bad header name: \"" + headerName + "\"";
+}
+
+Request::BadHeaderNameException::~BadHeaderNameException() throw() {}
