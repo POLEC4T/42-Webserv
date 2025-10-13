@@ -1,77 +1,42 @@
 #include "Context.hpp"
+#include "Request.hpp"
 
 int main(int ac, char **av) {
 	Context	ctx;
 
-	if (ac != 2)
-	{
-		std::cerr << "Usage: ./webserv [ConfigFile]" << std::endl;
-		return 1;
-	}
+	(void) ac;
+	(void) av;
+	// if (ac != 2)
+	// {
+	// 	std::cerr << "Usage: ./webserv [ConfigFile]" << std::endl;
+	// 	return 1;
+	// }
+	// try {
+	// 	ctx.configFileParser(av[1]);
+	// }
+	// catch (std::exception& e) {
+	// 	std::cerr << e.what() << std::endl;
+	// }
+	std::string reqExample;
+	reqExample += "GET /fdsf.php HTTP/1.1\r\n";
+	reqExample += "Host: localhost\r\n";
+	reqExample += "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\r\n";
+	reqExample += "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n";
+	reqExample += "Accept-Language: en-US,en;q=0.5\r\n";
+	reqExample += "Accept-Encoding: gzip, deflate\r\n";
+	reqExample += "Connection: keep-alive\r\n";
+	reqExample += "Cache-Control: max-age=0\r\n";
+	reqExample += "\r\n";
+
+	Request req;
 	try {
-		ctx.configFileParser(av[1]);
-
-
-
-		std::vector<Server> _servers = ctx.getServers();
-		for (size_t i = 0; i < _servers.size(); ++i) {
-			std::cout << "Server " << i + 1 << ":\n";
-			std::cout << "  Host: " << _servers[i].getHost() << "\n";
-			std::cout << "  Port: " << _servers[i].getPort() << "\n";
-			std::cout << "  Client Max Body Size: " << _servers[i].getClientMaxBodySize() << "\n";
-			std::cout << "  Names: ";
-			const std::vector<std::string>& names = _servers[i].getNames();
-			for (size_t j = 0; j < names.size(); ++j) {
-				std::cout << names[j];
-				if (j + 1 < names.size()) std::cout << ", ";
-			}
-			std::cout << "\n";
-			
-			// Print locations
-			std::map<std::string, Location>& locations = _servers[i].getLocations();
-			if (!locations.empty()) {
-				std::cout << "  Locations:\n";
-				for (std::map<std::string, Location>::iterator it = locations.begin(); it != locations.end(); ++it) {
-					std::cout << "    Location: " << it->first << "\n";
-					std::cout << "      Root: " << it->second.getRoot() << "\n";
-					std::cout << "      Auto Index: " << (it->second.getAutoIndex() ? "on" : "off") << "\n";
-					std::cout << "      Client Max Body Size: " << it->second.getClientMaxBodySize() << "\n";
-					
-					// Print index files
-					const std::vector<std::string>& indices = it->second.getIndex();
-					if (!indices.empty()) {
-						std::cout << "      Index: ";
-						for (size_t k = 0; k < indices.size(); ++k) {
-							std::cout << indices[k];
-							if (k + 1 < indices.size()) std::cout << ", ";
-						}
-						std::cout << "\n";
-					}
-					
-					const std::vector<std::string>& method = it->second.getAllowedMethods();
-					if (!method.empty()) {
-						std::cout << "      Allowed Methods: ";
-						for (size_t k = 0; k < method.size(); ++k) {
-							std::cout << method[k];
-							if (k + 1 < method.size()) std::cout << ", ";
-						}
-						std::cout << "\n";
-					}
-					
-					if (!it->second.getUploadPath().empty())
-						std::cout << "      Upload Path: " << it->second.getUploadPath() << "\n";
-					if (!it->second.getReturn().empty())
-						std::cout << "      Return: " << it->second.getReturn() << "\n";
-					if (!it->second.getCgiExtension().empty())
-						std::cout << "      CGI Extension: " << it->second.getCgiExtension() << "\n";
-					if (!it->second.getCgiPath().empty())
-						std::cout << "      CGI Path: " << it->second.getCgiPath() << "\n";
-				}
-			}
-		std::cout << "\n";
-		}
+		req.init(reqExample);
+	} catch (std::exception &e) {
+		
+		std::cout << e.what() << std::endl;
 	}
-	catch (std::exception& e) {
-		std::cerr << e.what() << std::endl;
-	}
+
+	// req.displayRequest();
+
+	return 0;
 }

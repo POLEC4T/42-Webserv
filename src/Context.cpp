@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/08 13:29:31 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/13 12:56:30 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,33 +51,6 @@ void	Context::addServer(const Server& server) {
 }
 
 //functions
-
-bool	isDelimiter(char c, const std::string& delimiters) {
-	for (size_t i = 0; i < delimiters.length(); i++)
-	{
-		if (delimiters[i] == c)
-			return true;
-	}
-	return false;
-}
-
-std::vector<std::string>	ft_split(const std::string& s, const std::string& delimiters) {
-	std::vector<std::string>	tokens;
-	std::string					token;
-	size_t						j;
-	size_t						i;
-
-	for (i = 0; i < s.length(); i++) {
-		if (!isDelimiter(s[i], delimiters)) {
-			for (j = i + 1; j < s.length() && !isDelimiter(s[j], delimiters); j++) {}
-			token = s.substr(i, j - i);
-			tokens.push_back(token);
-			i = j;
-		}
-	}
-	return (tokens);
-}
-
 int	getContent(std::string fileName, std::string& content) {
 	std::string		line;
 	size_t			i;
@@ -181,14 +154,14 @@ void	Context::parseAndAddServer(std::vector<std::string>::iterator& it,
 }
 
 void	Context::configFileParser(const std::string& fileName) {
-	std::string					content;
+	FtString					content;
 	std::vector<std::string>	tokens;
 
 
 	if (getContent(fileName, content))
 		throw (Error::CanNotOpenFile(fileName));
 	addSpace(content, ';');
-	tokens = ft_split(content, " \n\b\t\r\v\f");
+	tokens = content.ft_split(" \n\b\t\r\v\f");
 	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++) {
 		if (*it == "server")
 			parseAndAddServer(++it, tokens.end());
