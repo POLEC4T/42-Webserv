@@ -17,6 +17,7 @@ SRCS = main.cpp \
 	$(SRC_DIR)/Request.cpp \
 	$(SRC_DIR)/Context.cpp \
 	$(SRC_DIR)/FtString.cpp \
+	$(SRC_DIR)/server.cpp \
 	$(SRC_DIR)/Error.cpp
 
 HEADERS = $(INC_DIR)/AHttpMethod.hpp \

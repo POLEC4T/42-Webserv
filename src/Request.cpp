@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 15:43:46 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 18:38:18 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,9 @@
 
 Request::~Request() {}
 
-Request::Request(const Server& server) : _server(server) {}
+Request::Request(const Server& server) : _server(server) {
+	(void) _server;
+}
 
 /** RFC 7230:
  * - check if header must be unique (Content-Length, Host, etc) 400
@@ -122,12 +124,9 @@ void Request::_parseRequestLine(const std::string &reqContent) {
 		throw RequestLineException();
 	if (_version != "HTTP/1.1" && _version != "HTTP/1.0")
 		throw RequestLineException();
-
-	
 }
 
-void Request::init(const std::string &reqContent) {
-
+void Request::parseRequest(const std::string &reqContent) {
 	_parseRequestLine(reqContent);
 	_headers = _extractHeaders(reqContent);
 	if (_headers["Content-Size"].size() > 0 && _headers["Content-Size"][0].size() > 0) {

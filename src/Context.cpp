@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 15:52:45 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/13 18:37:54 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,13 +45,16 @@ const std::vector<Server>	Context::getServers() const {
 	return _servers;
 }
 
+const std::map<int, ErrorPage>	Context::getMapDefaultErrorPage() const {
+	return _mapDefaultErrorPage;
+}
 //Setter
 void	Context::addServer(const Server& server) {
 	_servers.push_back(server);
 }
 
 //functions
-int	getContent(std::string fileName, std::string& content) {
+int	getContent(std::string fileName, std::string& content, char separator) {
 	std::string		line;
 	size_t			i;
 	size_t			foundComment;
@@ -69,7 +72,7 @@ int	getContent(std::string fileName, std::string& content) {
 				if (foundComment != std::string::npos)
 					line.erase(foundComment, line.size());
 				content += line;
-				content += ' ';
+				content += separator;
 			}
 		}
 	}
@@ -86,11 +89,10 @@ void	addSpace(std::string& content, char toSeparate) {
 	}
 }
 
-
 void	Context::parseAndAddServer(std::vector<std::string>::iterator& it,
-		const std::vector<std::string>::iterator& itEnd) {
+		const std::vector<std::string>::iterator& itEnd, std::map<int, ErrorPage> errorPages) {
 	int isClosed = 0;
-	Server newServer;
+	Server newServer(errorPages);
 
 	while (it != itEnd)
 	{
@@ -153,18 +155,33 @@ void	Context::parseAndAddServer(std::vector<std::string>::iterator& it,
 	addServer(newServer);
 }
 
-void	Context::configFileParser(const std::string& fileName) {
+void	Context::configFileParser(const std::string& fileName, std::map<int, ErrorPage> errorPages) {
 	FtString					content;
 	std::vector<std::string>	tokens;
 
-
-	getContent(fileName, content);
+	getContent(fileName, content, ' ');
 	addSpace(content, ';');
 	tokens = content.ft_split(" \n\b\t\r\v\f");
 	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++) {
 		if (*it == "server")
-			parseAndAddServer(++it, tokens.end());
+			parseAndAddServer(++it, tokens.end(), errorPages);
 	}
 	if (_servers.empty())
 		throw (Error::NoServerInConfigFile());
+}
+
+void	Context::parseAndSetMapDefaultErrorPage() {
+    std::string	fileName = "htmlFiles/errorPages/default/error_";
+	std::string	errorCodes[] = {"400", "403", "404", "405", "408", "413", "500"};
+	int			codes[] = {400, 403, 404, 405, 408, 413, 500};
+	int			size = 7;
+	
+	for (int i = 0; i < size; i++) {
+		std::string	content;
+		std::string	name = "error_" + errorCodes[i];
+
+		getContent(fileName + errorCodes[i] + ".html", content, '\n');
+		ErrorPage errorPage(name, content, codes[i]);
+		_mapDefaultErrorPage[codes[i]] = errorPage;
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:22:06 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 13:24:09 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/13 17:32:12 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,11 @@ APage::APage(std::string name, std::string root, std::string content, int code) 
 	_code = code;
 }
 
+APage::APage(std::string name, std::string content, int code) {
+	_name = name;
+	_content = content;
+	_code = code;
+}
 
 //Setter
 void	APage::setName(std::string name) {
@@ -65,6 +70,18 @@ void	APage::setContent(std::string content) {
 void	APage::setCode(int code) {
 	_code = code;
 }
+
+void	APage::setCode(std::string code) {
+	int					value = 0;
+	std::istringstream	iss(code);
+
+	iss >> value;
+	if (iss.fail())
+		throw (Error::IntExpected(code));
+	setCode(value);
+	
+}
+
 
 //Getter
 const std::string&	APage::getName() const {
