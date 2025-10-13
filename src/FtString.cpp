@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:38:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 11:36:54 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 15:29:31 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,9 @@ FtString& FtString::operator=(const std::string& other) {
 
 FtString::~FtString() {}
 
+
+#include <iostream>
+
 /**
  * @param delimiters a string containing all the delimiter characters
  */
@@ -41,16 +44,18 @@ std::vector<std::string> FtString::ft_split(const std::string& delimiters) const
 	std::vector<std::string>	tokens;
 	std::string					token;
 	size_t						j;
-	size_t						i;
-	bool isNotDelim;
+	size_t						i = 0;
 
-	for (i = 0; i < this->size(); i++) {
-		isNotDelim = delimiters.find(at(i)) == std::string::npos;
-		if (isNotDelim) {
-			for (j = i + 1; j < this->size() && isNotDelim; j++) {}
-			token = this->substr(i, j - i);
+	while (i < this->size()) {
+		while (i < this->size() && delimiters.find(at(i)) != std::string::npos)
+			i++;
+		j = i;
+		while (i < this->size() && delimiters.find(at(i)) == std::string::npos)
+			i++;
+		if (j < i)
+		{
+			token = this->substr(j, i - j);
 			tokens.push_back(token);
-			i = j;
 		}
 	}
 	return (tokens);

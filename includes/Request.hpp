@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 11:37:00 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 15:36:46 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,11 @@
 # include <exception>
 # include <cstdlib> 
 # include "FtString.hpp" 
+# include "Server.hpp"
 
 class Request {
 	private:
+		const Server& _server;
 		std::string _method;
 		std::string _uri;
 		std::string _version;
@@ -70,17 +72,14 @@ class Request {
 		std::map< std::string, std::vector<std::string> > _extractHeaders(const std::string &req) const;
 		std::string _extractBody(const std::string &req) const;
 		void _parseRequestLine(const std::string &reqContent);
-		
 	
 	public:
-		Request();
 		~Request();
-		Request(const Request &copy);
-		Request& operator=(const Request &other);
+		Request(const Server& server);
 
-		void init(const std::string &reqContent);
-		void displayRequest() const;
-		const std::string& getUri() const;
+		void 				init(const std::string &reqContent);
+		void 				displayRequest() const;
+		const std::string& 	getUri() const;
 
 	class NoHeaderValueException : public std::exception {
 		private:

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:34:04 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/08 13:29:49 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/13 14:45:47 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class Error {
 				const char* what() const throw() ;
 
 				CanNotOpenFile(const std::string&);
-				~CanNotOpenFile() throw();
+				~CanNotOpenFile() throw() ;
 		};
 
 		class ErrorBracketParseFile: public std::exception {

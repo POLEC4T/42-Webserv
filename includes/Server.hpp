@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 16:12:03 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/13 15:46:50 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ class	Server {
 		
 		//Specific map
 		APage&		getLocationByName(const std::string&);
-		APage&		getErrorPageByCode(const int, const std::string&);
+		APage&		getErrorPageByCode(const int);
 
 		void		addLocation(const Location&);
 		void		addErrorPage(const ErrorPage&);

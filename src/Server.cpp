@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 16:12:20 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/13 15:47:00 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ APage&	Server::getLocationByName(const std::string& name) {
 	std::map<std::string, Location>::iterator it = _mapLocation.find(name);
 	if (it == _mapLocation.end())
 	{
-		return (this->getErrorPageByCode(404, name));
+		return (this->getErrorPageByCode(404));
 	}
 	return it->second;
 }
@@ -121,11 +121,10 @@ void	Server::addErrorPage(const ErrorPage& errorPage) {
 	_mapErrorPage.insert(std::make_pair(errorPage.getCode(), errorPage));
 }
 
-APage&	Server::getErrorPageByCode(const int code, const std::string& fileName) {
+APage&	Server::getErrorPageByCode(const int code) {
 	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
 	if (it == _mapErrorPage.end())
 	{
-		throw(Error::NoPageFound(fileName));
 	}
 	return it->second;
 }

@@ -6,34 +6,15 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 12:53:41 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 15:43:46 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
-Request::Request() {}
-
 Request::~Request() {}
 
-Request::Request(const Request &copy) {
-	_method = copy._method;
-	_uri = copy._uri;
-	_version = copy._version;
-	_headers = copy._headers;
-	_body = copy._body;
-}
-
-Request& Request::operator=(const Request &other) {
-	if (this != &other) {
-		_method = other._method;
-		_uri = other._uri;
-		_version = other._version;
-		_headers = other._headers;
-		_body = other._body;
-	}
-	return (*this);
-}
+Request::Request(const Server& server) : _server(server) {}
 
 /** RFC 7230:
  * - check if header must be unique (Content-Length, Host, etc) 400
@@ -114,7 +95,6 @@ void Request::_parseRequestLine(const std::string &reqContent) {
 	std::istringstream reqContentISS(reqContent);
 	FtString reqLine;
 	std::getline(reqContentISS, reqLine);
-	std::cout << "req line: " << reqLine << std::endl;
 
 	if (reqLine.find('\r') != reqLine.size() - 1)
 		throw RequestLineException();
