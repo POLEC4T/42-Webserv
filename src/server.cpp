@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 18:44:46 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 19:24:50 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,7 @@ int createSocket(const Server &server) {
 						  &addrinfos);
 	if (ret != 0) {
 		std::cerr << "getaddrinfo: " << gai_strerror(ret) << std::endl; // todo: test this
+		return (-1);
 	}
 
 	servfd = socket(addrinfos->ai_family, addrinfos->ai_socktype, addrinfos->ai_protocol);
@@ -98,6 +99,7 @@ int createSocket(const Server &server) {
 		std::cerr << "listen: " << strerror(errno) << std::endl;
 		return (-1);
 	}
+	freeaddrinfo(addrinfos);
 	return (servfd);
 }
 

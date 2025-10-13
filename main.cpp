@@ -11,12 +11,12 @@ int main(int ac, char **av) {
 		std::cerr << e.what() << std::endl;
 		return 1;
 	}
-	std::map<int, ErrorPage> errorPages = ctx.getMapDefaultErrorPage();
-	for (std::map<int, ErrorPage>::iterator it = errorPages.begin(); it != errorPages.end(); it++) {
-		std::cout << "Name: " << it->second.getName() << std::endl;
-		std::cout << "Content: " << it->second.getContent() << std::endl;
-		std::cout << "Code: " << it->second.getCode() << std::endl;
-	}
+	// std::map<int, ErrorPage> errorPages = ctx.getMapDefaultErrorPage();
+	// for (std::map<int, ErrorPage>::iterator it = errorPages.begin(); it != errorPages.end(); it++) {
+	// 	std::cout << "Name: " << it->second.getName() << std::endl;
+	// 	std::cout << "Content: " << it->second.getContent() << std::endl;
+	// 	std::cout << "Code: " << it->second.getCode() << std::endl;
+	// }
 	
 	(void) ac;
 	(void) av;

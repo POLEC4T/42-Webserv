@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 18:37:51 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 19:23:41 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class	Server {
 		int								_clientMaxBodySize;
 		std::map<std::string, Location>	_mapLocation;
 		std::map<int, ErrorPage>		_mapErrorPage;
+		std::map<int, ErrorPage>		_mapDefaultErrorPage;
 	
 	public:
 		//Canonical constructor
