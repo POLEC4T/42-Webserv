@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 15:46:50 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 18:24:27 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,13 @@
 
 class	Server {
 	private:
-		std::vector<std::string>		_name;
-		std::string						_host;
-		int								_port;
-		int								_clientMaxBodySize;
-		std::map<std::string, Location>	_mapLocation;
-		std::map<int, ErrorPage>		_mapErrorPage;
+		std::vector<std::string>			_name;
+		std::string							_host;
+		int									_port;
+		int									_clientMaxBodySize;
+		std::map<std::string, Location>		_mapLocation;
+		std::map<int, ErrorPage>			_mapErrorPage;
+		std::map<int, ErrorPage>			_mapDefaultErrorPage;
 	
 	public:
 		//Canonical constructor
@@ -34,6 +35,7 @@ class	Server {
 
 		//Constructor with affectation values
 		Server(int, int);
+		Server(std::map<int, ErrorPage>);
 		
 		//Setter
 		void	addName(const std::string&);

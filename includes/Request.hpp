@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 15:36:46 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 17:47:20 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@
 
 class Request {
 	private:
-		const Server& _server;
+		// const Server& _server;
 		std::string _method;
 		std::string _uri;
 		std::string _version;
@@ -75,7 +75,7 @@ class Request {
 	
 	public:
 		~Request();
-		Request(const Server& server);
+		Request();
 
 		void 				init(const std::string &reqContent);
 		void 				displayRequest() const;

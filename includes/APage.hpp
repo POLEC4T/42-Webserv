@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:56:14 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 13:21:17 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/13 17:29:41 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,18 +32,20 @@ class APage {
 		//constructor with assignation values
 		APage(std::string name, std::string root);
 		APage(std::string name, std::string root, std::string content, int code);
+		APage(std::string name, std::string content, int code);
 
 		//Setter
 		void	setName(std::string);
 		void	setRoot(std::string);
 		void	setContent(std::string);
 		void	setCode(int code);
+		void	setCode(std::string);
 
 		//Getter
 		virtual const std::string&	getName() const;
 		virtual const std::string&	getRoot() const;
 		virtual const std::string&	getContent() const;
-		virtual int			getCode() const;
+		virtual int					getCode() const;
 };
 
 #endif

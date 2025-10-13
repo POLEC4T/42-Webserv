@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorPage.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 00:02:01 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/03 23:20:09 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/13 18:03:25 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ class ErrorPage : public APage {
 		//constructor with assignation values
 		ErrorPage(std::string name, std::string root);
 		ErrorPage(std::string name, std::string root, std::string content, int code);
+		ErrorPage(std::string name, std::string content, int code);
 };
 
 #endif

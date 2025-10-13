@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 15:47:00 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 18:32:08 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,9 @@ Server::Server(int port, int clientMaxBodySize) {
 	_clientMaxBodySize = clientMaxBodySize;
 }
 
+Server::Server(std::map<int, ErrorPage> errorPages) {
+	_mapDefaultErrorPage = errorPages;
+}
 
 
 //Setter
@@ -125,6 +128,7 @@ APage&	Server::getErrorPageByCode(const int code) {
 	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
 	if (it == _mapErrorPage.end())
 	{
+		return _mapDefaultErrorPage[code];
 	}
 	return it->second;
 }

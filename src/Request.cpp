@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 15:43:46 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 17:47:03 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 Request::~Request() {}
 
-Request::Request(const Server& server) : _server(server) {}
+Request::Request() {}
 
 /** RFC 7230:
  * - check if header must be unique (Content-Length, Host, etc) 400
