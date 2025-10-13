@@ -33,20 +33,12 @@ int main(int ac, char **av) {
 	Server serv = servers[0];
 	Request req(serv);
 	try {
-		req.init(reqExample);
+		req.parseRequest(reqExample);
 	} catch (std::exception &e) {
-		
 		std::cout << e.what() << std::endl;
 	}
 
-	FtString str("  aa   aab    c   ");
-
-	std::vector<std::string> vec = str.ft_split(" ");
-	for (size_t i = 0; i < vec.size(); i++) {
-		std::cout << "'" << vec[i] << "'" << std::endl;
-	}
-
-	// req.displayRequest();
+	req.displayRequest();
 
 	return 0;
 }

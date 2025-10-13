@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 15:46:50 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 18:30:44 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ class	Server {
 	private:
 		std::vector<std::string>		_name;
 		std::string						_host;
-		int								_port;
+		std::string						_port;
 		int								_clientMaxBodySize;
 		std::map<std::string, Location>	_mapLocation;
 		std::map<int, ErrorPage>		_mapErrorPage;
@@ -37,15 +37,14 @@ class	Server {
 		
 		//Setter
 		void	addName(const std::string&);
-		void	setPort(int);
 		void	setClientMaxBodySize(int);
 		void	setClientMaxBodySize(std::string);
 		void	setHost(const std::string&);
-		void	setPort(std::string);
+		void	setPort(const std::string&);
 		
 		//Getter
 		const std::vector<std::string>&		getNames() const ;
-		int									getPort() const ;
+		const std::string&					getPort() const;
 		int									getClientMaxBodySize() const ;
 		const std::string&					getHost() const;
 		

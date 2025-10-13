@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 15:36:46 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 16:15:00 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ class Request {
 		~Request();
 		Request(const Server& server);
 
-		void 				init(const std::string &reqContent);
+		void 				parseRequest(const std::string &reqContent);
 		void 				displayRequest() const;
 		const std::string& 	getUri() const;
 
