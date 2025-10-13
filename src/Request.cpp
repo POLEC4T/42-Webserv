@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/09 20:14:25 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 11:14:49 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,21 +65,22 @@ std::map< std::string, std::vector<std::string> > Request::_extractHeaders(const
 		endLine = req.find("\r\n", startLine);
 		line = req.substr(startLine, endLine - startLine);
 
-		size_t endKey;
+		size_t columnIdx;
 
-		endKey = line.find(':');
-		if (endKey == std::string::npos)
-			throw std::exception();
+		columnIdx = line.find(':');
+		if (columnIdx == std::string::npos)
+			throw NoHeaderColumnException();
 
-		FtString key = line.substr(0, endKey);
-		FtString value = line.substr(endKey + 1, (line.size() - 1) - endKey);
-
-		if (key.endsWith(" ")) {
-			throw BadHeaderNameException(key);
-		}
+		FtString key = line.substr(0, columnIdx);
+		FtString value = line.substr(columnIdx + 1, line.size() - (columnIdx + 1));
 
 		key.ltrim();
+		if (key.empty() || key.endsWith(" "))
+			throw BadHeaderNameException(key);
+
 		value.trim();
+		if (value.empty())
+			throw NoHeaderValueException(key);
 
 		headers[key].push_back(value);
 	}
@@ -126,7 +127,7 @@ void Request::_parseRequestLine(const std::string &reqContent) {
 	size_t lastSpace = reqLine.rfind(" ");
 
 	bool hasNotThreeElems = firstSpace == std::string::npos
-							|| firstSpace == std::string::npos
+							|| lastSpace == std::string::npos
 							|| firstSpace == lastSpace;
 	if (hasNotThreeElems)
 		throw RequestLineException();
@@ -134,8 +135,8 @@ void Request::_parseRequestLine(const std::string &reqContent) {
 	_method = reqLine.substr(0, firstSpace);
 	_uri = reqLine.substr(firstSpace + 1, lastSpace - (firstSpace + 1));
 	_version = reqLine.substr((lastSpace + 1), (reqLine.size()) - (lastSpace + 1));
-	
-	if (_uri.find(' ') != std::string::npos)
+
+	if (_uri.empty() || _uri.find(' ') != std::string::npos)
 		throw RequestLineException();
 	if (_method != "GET" && _method != "POST" && _method != "DELETE")
 		throw RequestLineException();
@@ -169,6 +170,10 @@ void Request::displayRequest() const {
 	std::cout << "Body: '" << _body << "'" << std::endl;
 }
 
+const std::string& Request::getUri() const {
+	return _uri;
+}
+
 const char* Request::NoHeaderValueException::what() const throw() {
 	if (_message.empty())
 		return "Request: No header field for this key";
@@ -185,6 +190,10 @@ const char* Request::RequestLineException::what() const throw() {
 	return "Request: Error in the request line.";
 }
 
+const char* Request::NoHeaderColumnException::what() const throw() {
+	return "Request: A header column is missing.";
+}
+
 const char* Request::BadHeaderNameException::what() const throw() {
 	if (_message.empty())
 		return "Request: bad header name";
@@ -192,7 +201,10 @@ const char* Request::BadHeaderNameException::what() const throw() {
 }
 
 Request::BadHeaderNameException::BadHeaderNameException(const std::string& headerName) {
-_message = "Request: bad header name: \"" + headerName + "\"";
+	if (headerName.empty())
+		_message = "Request: bad header name: empty";
+	else
+	_message = "Request: bad header name: \"" + headerName + "\"";
 }
 
 Request::BadHeaderNameException::~BadHeaderNameException() throw() {}

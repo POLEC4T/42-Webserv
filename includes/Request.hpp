@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/09 19:44:51 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 11:13:45 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,9 +67,6 @@ class Request {
 
 		const std::string& _getHeaderValue(const std::string &key) const;
 		
-		std::string _extractUri(const std::string &req) const;
-		std::string _extractMethod(const std::string &req) const;
-		std::string _extractVersion(const std::string &req) const;
 		std::map< std::string, std::vector<std::string> > _extractHeaders(const std::string &req) const;
 		std::string _extractBody(const std::string &req) const;
 		void _parseRequestLine(const std::string &reqContent);
@@ -83,6 +80,7 @@ class Request {
 
 		void init(const std::string &reqContent);
 		void displayRequest() const;
+		const std::string& getUri() const;
 
 	class NoHeaderValueException : public std::exception {
 		private:
@@ -103,6 +101,10 @@ class Request {
 	};
 
 	class RequestLineException : public std::exception {
+		virtual const char* what() const throw();
+	};
+
+	class NoHeaderColumnException : public std::exception {
 		virtual const char* what() const throw();
 	};
 };

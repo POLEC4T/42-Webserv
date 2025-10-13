@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:38:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/09 20:09:25 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 11:10:26 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,9 @@ FtString& FtString::operator=(const std::string& other) {
 
 FtString::~FtString() {}
 
+/**
+ * @param delimiters a string containing all the delimiter characters
+ */
 std::vector<std::string> FtString::ft_split(const std::string& delimiters) const {
 	std::vector<std::string>	tokens;
 	std::string					token;
@@ -46,6 +49,30 @@ std::vector<std::string> FtString::ft_split(const std::string& delimiters) const
 		if (isNotDelim) {
 			for (j = i + 1; j < this->size() && isNotDelim; j++) {}
 			token = this->substr(i, j - i);
+			tokens.push_back(token);
+			i = j;
+		}
+	}
+	return (tokens);
+}
+
+/**
+ * @param delimiter a string containing the delimiter, considered as a whole
+ */
+std::vector<std::string> FtString::ft_split_word(const std::string& delimiter) const {
+	std::vector<std::string>	tokens;
+	std::string					token;
+	size_t						j;
+	size_t						i;
+	bool isNotDelim;
+
+	for (i = 0; i < this->size(); i++) {
+		isNotDelim = this->substr(i, delimiter.size()) != delimiter;
+		if (isNotDelim) {
+			for (j = i + 1; j < this->size() && isNotDelim; j++) {
+				isNotDelim = this->substr(j, delimiter.size()) != delimiter;
+			}
+			token = this->substr(i - 1, j - i);
 			tokens.push_back(token);
 			i = j;
 		}
@@ -108,3 +135,12 @@ void FtString::trim() {
 	this->rtrim();
 }
 
+/**
+ * @returns true if string has @param nbElems separated by the @param delimiter
+ */
+bool FtString::hasXElemsSepByDel(int nbElems, const std::string& delimiter) const {
+	if (nbElems <= 0)
+		return false;
+	std::vector<std::string> elems = this->ft_split(delimiter);
+	return (elems.size() == static_cast<size_t>(nbElems));
+}

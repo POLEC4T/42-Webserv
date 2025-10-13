@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:33:39 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/09 20:09:56 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 11:02:10 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,10 @@ class FtString : public std::string {
 		~FtString();
 		
 		std::vector<std::string> ft_split(const std::string& delimiters) const;
+		std::vector<std::string> ft_split_word(const std::string& delimiter) const;
 		bool endsWith(const std::string& str) const;
 		bool startsOrEndsWith(const std::string& str) const;
+		bool hasXElemsSepByDel(int nbElems, const std::string& delimiter) const;
 
 		// modifiers
 		void ltrim();
