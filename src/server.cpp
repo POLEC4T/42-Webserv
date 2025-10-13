@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 18:32:18 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 18:44:46 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,12 +89,8 @@ int createSocket(const Server &server) {
 	}
 	int opt = 1;
 	setsockopt(servfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
-	struct sockaddr_in servAddr;
-	servAddr.sin_family = AF_INET;
-	servAddr.sin_port = htons(8080);
-	servAddr.sin_addr.s_addr = INADDR_ANY;
-		
-	if (bind(servfd, (struct sockaddr *)&servAddr, sizeof(servAddr)) == -1) {
+
+	if (bind(servfd, addrinfos->ai_addr, addrinfos->ai_addrlen) == -1) {
 		std::cerr << "bind: " << strerror(errno) << std::endl;
 		return (-1);
 	}
