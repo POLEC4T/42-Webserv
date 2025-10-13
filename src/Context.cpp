@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 16:55:45 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/07 18:43:47 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ int	getContent(std::string fileName, std::string& content) {
 	std::ifstream	file(fileName.c_str(), std::ios_base::in);
 
 	if (!file.is_open())
-		return 1;
+		throw (Error::CanNotOpenFile(fileName));
 	while (getline(file, line)) {
 		if (!line.empty())
 		{
@@ -185,8 +185,7 @@ void	Context::configFileParser(const std::string& fileName) {
 	std::vector<std::string>	tokens;
 
 
-	if (getContent(fileName, content))
-		throw (Error::CanNotOpenFile(fileName));
+	getContent(fileName, content);
 	addSpace(content, ';');
 	tokens = ft_split(content, " \n\b\t\r\v\f");
 	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++) {
