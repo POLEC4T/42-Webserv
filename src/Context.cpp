@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 14:46:48 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 15:52:45 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int	getContent(std::string fileName, std::string& content) {
 	std::ifstream	file(fileName.c_str(), std::ios_base::in);
 
 	if (!file.is_open())
-		return 1;
+		throw (Error::CanNotOpenFile(fileName));
 	while (getline(file, line)) {
 		if (!line.empty())
 		{
@@ -158,8 +158,7 @@ void	Context::configFileParser(const std::string& fileName) {
 	std::vector<std::string>	tokens;
 
 
-	if (getContent(fileName, content))
-		throw (Error::CanNotOpenFile(fileName));
+	getContent(fileName, content);
 	addSpace(content, ';');
 	tokens = content.ft_split(" \n\b\t\r\v\f");
 	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++) {
