@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 18:32:08 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/13 18:40:37 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 Server::Server() {
 	_clientMaxBodySize = 0;
-	_port = 0;
 }
 
 Server::Server(const Server& cpy) {
@@ -59,10 +58,6 @@ void	Server::addName(const std::string& name) {
 	_name.push_back(name);
 }
 
-void	Server::setPort(int port) {
-	_port = port;
-}
-
 void	Server::setClientMaxBodySize(int clientMaxBodySize) {
 	_clientMaxBodySize = clientMaxBodySize;
 }
@@ -79,14 +74,8 @@ void	Server::setClientMaxBodySize(std::string clientMaxBodySize) {
 	setClientMaxBodySize(maxBodySize);
 }
 
-void	Server::setPort(std::string port) {
-	int					p = 0;
-	std::istringstream	iss(port);
-
-	iss >> p;
-	if (iss.fail())
-		throw (Error::IntExpected(port));
-	setPort(p);
+void	Server::setPort(const std::string& port) {
+	_port = port;
 }
 
 //Getter
@@ -94,7 +83,7 @@ const std::vector<std::string>&	Server::getNames() const {
 	return _name;
 }
 
-int	Server::getPort() const {
+const std::string&	Server::getPort() const {
 	return _port;
 }
 

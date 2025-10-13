@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 18:24:27 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/13 18:37:51 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,12 @@
 
 class	Server {
 	private:
-		std::vector<std::string>			_name;
-		std::string							_host;
-		int									_port;
-		int									_clientMaxBodySize;
-		std::map<std::string, Location>		_mapLocation;
-		std::map<int, ErrorPage>			_mapErrorPage;
-		std::map<int, ErrorPage>			_mapDefaultErrorPage;
+		std::vector<std::string>		_name;
+		std::string						_host;
+		std::string						_port;
+		int								_clientMaxBodySize;
+		std::map<std::string, Location>	_mapLocation;
+		std::map<int, ErrorPage>		_mapErrorPage;
 	
 	public:
 		//Canonical constructor
@@ -39,15 +38,14 @@ class	Server {
 		
 		//Setter
 		void	addName(const std::string&);
-		void	setPort(int);
 		void	setClientMaxBodySize(int);
 		void	setClientMaxBodySize(std::string);
 		void	setHost(const std::string&);
-		void	setPort(std::string);
+		void	setPort(const std::string&);
 		
 		//Getter
 		const std::vector<std::string>&		getNames() const ;
-		int									getPort() const ;
+		const std::string&					getPort() const;
 		int									getClientMaxBodySize() const ;
 		const std::string&					getHost() const;
 		
