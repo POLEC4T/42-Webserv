@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:36:13 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/07 16:21:51 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/08 13:29:21 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ const char* Error::DidNotFindSemicolon::what() const throw() {
 
 const char* Error::UnknownToken::what() const throw() {
 	if (_message.empty())
-    	return "An other value was expected.";
+		return "An other value was expected.";
 	return _message.c_str();
 }
 
@@ -74,4 +74,8 @@ const char* Error::IntExpected::what() const throw() {
 	if (_message.empty())
 		return "An int was expected.";
 	return _message.c_str();
+}
+
+const char* Error::NoServerInConfigFile::what() const throw() {
+	return "Any server was found in the config file.";
 }
