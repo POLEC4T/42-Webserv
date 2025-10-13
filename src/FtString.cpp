@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:38:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 11:10:26 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 11:36:54 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,19 +63,22 @@ std::vector<std::string> FtString::ft_split_word(const std::string& delimiter) c
 	std::vector<std::string>	tokens;
 	std::string					token;
 	size_t						j;
-	size_t						i;
-	bool isNotDelim;
+	size_t						i = 0;
+	bool isDelim;
 
-	for (i = 0; i < this->size(); i++) {
-		isNotDelim = this->substr(i, delimiter.size()) != delimiter;
-		if (isNotDelim) {
-			for (j = i + 1; j < this->size() && isNotDelim; j++) {
-				isNotDelim = this->substr(j, delimiter.size()) != delimiter;
-			}
-			token = this->substr(i - 1, j - i);
-			tokens.push_back(token);
-			i = j;
+	while (i < this->size()) {
+		isDelim = this->substr(i, delimiter.size()) == delimiter;
+		if (isDelim) {
+			i += delimiter.size();
+			continue;
 		}
+		j = i + 1;
+		while (++j < this->size() && !isDelim)
+			isDelim = this->substr(j, delimiter.size()) == delimiter;
+		token = this->substr(i, (j - 1) - i);
+		tokens.push_back(token);
+		i = j + delimiter.size() - 1;
+		i++;
 	}
 	return (tokens);
 }

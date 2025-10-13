@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 11:14:49 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/13 12:53:41 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,9 +105,10 @@ std::string Request::_extractBody(const std::string &req) const {
 
 
 /**
- * @throws if request line is not exactly "<method> <uri> <version>\r\n"
- * 	  method MUST be GET, POST or DELETE
- * 	  version MUST be HTTP/1.1 or HTTP/1.0
+ * @throws if:
+ *		request line is not exactly "<method> <uri> <version>\r\n"
+ *		method is not GET, POST or DELETE
+ *		version is not be HTTP/1.1 or HTTP/1.0
  */
 void Request::_parseRequestLine(const std::string &reqContent) {
 	std::istringstream reqContentISS(reqContent);
@@ -117,7 +118,6 @@ void Request::_parseRequestLine(const std::string &reqContent) {
 
 	if (reqLine.find('\r') != reqLine.size() - 1)
 		throw RequestLineException();
-
 	reqLine.erase(reqLine.end() - 1);
 
 	if (reqLine.startsOrEndsWith(" "))
@@ -142,6 +142,8 @@ void Request::_parseRequestLine(const std::string &reqContent) {
 		throw RequestLineException();
 	if (_version != "HTTP/1.1" && _version != "HTTP/1.0")
 		throw RequestLineException();
+
+	
 }
 
 void Request::init(const std::string &reqContent) {

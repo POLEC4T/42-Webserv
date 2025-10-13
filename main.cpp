@@ -18,7 +18,7 @@ int main(int ac, char **av) {
 	// 	std::cerr << e.what() << std::endl;
 	// }
 	std::string reqExample;
-	reqExample += "GET /fdsf.php    HTTP/1.1\r\n";
+	reqExample += "GET /fdsf.php HTTP/1.1\r\n";
 	reqExample += "Host: localhost\r\n";
 	reqExample += "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\r\n";
 	reqExample += "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n";
@@ -35,15 +35,6 @@ int main(int ac, char **av) {
 		
 		std::cout << e.what() << std::endl;
 	}
-
-	FtString str("  Hello     World!  ");
-
-	std::cout << "Original string: '" << str << "'" << std::endl;
-	std::vector<std::string> vec = str.ft_split_word(" ");
-	for (size_t i = 0; i < vec.size(); i++) {
-		std::cout << vec[i] << std::endl;
-	}
-
 
 	// req.displayRequest();
 
