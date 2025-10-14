@@ -1,26 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sandbox.cpp                                        :+:      :+:    :+:   */
+/*   epoll.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 17:10:15 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/14 10:22:36 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <sys/socket.h>
-#include <netdb.h>
-#include <iostream>
-#include <unistd.h>
-#include <sstream>
-#include <fstream>
-#include <exception>
-#include <sys/epoll.h>
-#include <cstdlib>
-#include <fcntl.h>
-#include <unistd.h>
+#include "epoll.hpp"
 
 #define MAX_EVENT_WAITED 1024
 #define NB_EVENTS 1024
@@ -41,7 +31,7 @@ void readRequest(int clientFd, std::string &requestContent) {
 		limit++;
 		sizeRead = recv(clientFd, buffer, BUFFER_SIZE, 0);
 		if (sizeRead == -1) {
-			std::cerr << "recv: error !" << std::endl;
+			std::cerr << "recv:" << strerror(errno) << std::endl;
 			break;
 		} else if (sizeRead == 0) {
 			std::cerr << "Client disconnected" << std::endl;
@@ -54,32 +44,51 @@ void readRequest(int clientFd, std::string &requestContent) {
 	}
 }
 
+
+
 /**
  * - Sets up a TCP server socket
  * - Binds it to the specified address and port
  * - Listens for incoming connections
  */
-void setupServer(int &servFd, struct sockaddr_in &servAddr){
-	servFd = socket(AF_INET, SOCK_STREAM, 0);
-	if (servFd == -1) {
-		std::cerr << "socket err" << std::endl;
-		throw std::exception();
+int createSocket(const Server &server) {
+	int servfd;
+	
+	struct addrinfo *addrinfos;
+	struct addrinfo hints;
+
+	std::memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET; // ipv4 pelo
+	hints.ai_socktype = SOCK_STREAM; // tcp
+	hints.ai_flags = AI_PASSIVE; // for bind()
+
+	int ret = getaddrinfo(server.getHost().c_str(),
+						  server.getPort().c_str(),
+						  &hints,
+						  &addrinfos);
+	if (ret != 0) {
+		std::cerr << "getaddrinfo: " << gai_strerror(ret) << std::endl; // todo: test this
+		return (-1);
+	}
+
+	servfd = socket(addrinfos->ai_family, addrinfos->ai_socktype, addrinfos->ai_protocol);
+	if (servfd == -1) {
+		std::cerr << "createSocket:" << strerror(errno) << std::endl;
+		return (-1);
 	}
 	int opt = 1;
-	setsockopt(servFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
-	servAddr.sin_family = AF_INET;
-	servAddr.sin_port = htons(8080);
-	servAddr.sin_addr.s_addr = INADDR_ANY;
-		
-	if (bind(servFd, (struct sockaddr *)&servAddr, sizeof(servAddr)) == -1) {
-		std::cerr << "bind err" << std::endl;
-		throw std::exception();
+	setsockopt(servfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+
+	if (bind(servfd, addrinfos->ai_addr, addrinfos->ai_addrlen) == -1) {
+		std::cerr << "bind: " << strerror(errno) << std::endl;
+		return (-1);
 	}
-		
-	if (listen(servFd, 2) == -1) {
-		std::cerr << "listen err" << std::endl;
-		throw std::exception();
+	if (listen(servfd, 2) == -1) {
+		std::cerr << "listen: " << strerror(errno) << std::endl;
+		return (-1);
 	}
+	freeaddrinfo(addrinfos);
+	return (servfd);
 }
 
 /**
@@ -98,14 +107,10 @@ int setNonBlocking(int sockfd) {
 	return 0;
 }
 
-int main(void) {
-	struct sockaddr_in servAddr;
-	int servFd;
-	try {
-		setupServer(servFd, servAddr);
-	} catch (...) {
+int launchEpoll(const Server &server) {
+	int servfd = createSocket(server);
+	if (servfd == -1)
 		return 1;
-	}
 
 	struct epoll_event ev;
 	struct epoll_event events[NB_EVENTS];
@@ -115,11 +120,11 @@ int main(void) {
 		std::cerr << "epoll_create err" << std::endl;
 		return (1);
 	}
-	setNonBlocking(servFd);
+	setNonBlocking(servfd);
 	ev.events = EPOLLIN | EPOLLET;
-	ev.data.fd = servFd;
-	if (epoll_ctl(epollFd, EPOLL_CTL_ADD, servFd, &ev) == -1) {
-		std::cerr << "epoll_ctl: servFd" << std::endl;
+	ev.data.fd = servfd;
+	if (epoll_ctl(epollFd, EPOLL_CTL_ADD, servfd, &ev) == -1) {
+		std::cerr << "epoll_ctl: servfd" << std::endl;
 		return (1);
 	}
 		
@@ -135,10 +140,10 @@ int main(void) {
 			std::cout << eventsReady << " event" << (eventsReady > 1 ? "s" : "") << " ready" << std::endl;
 		}
 		for (int i = 0; i < eventsReady; ++i) {
-			if (events[i].data.fd == servFd) {
+			if (events[i].data.fd == servfd) {
 				struct sockaddr clientAddr;
 				int addrLen = sizeof(clientAddr);
-				int clientFd = accept(servFd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
+				int clientFd = accept(servfd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
 				if (clientFd == -1) {
 					std::cerr << "accept" << std::endl;
 					return (1);
@@ -159,7 +164,7 @@ int main(void) {
 				try {
 					std::string requestContent;
 					readRequest(clientFd, requestContent);
-					response = getResponse(requestContent);
+					// response = getResponse(requestContent);
 
 					if (send(clientFd, response.c_str(), response.size(), 0) == -1)
 						std::cout << "send: error !" << std::endl;
@@ -176,8 +181,8 @@ int main(void) {
 		std::cout << "-----\n";
 	}
 
-	epoll_ctl(epollFd, EPOLL_CTL_DEL, servFd, NULL);
-	close(servFd);
+	epoll_ctl(epollFd, EPOLL_CTL_DEL, servfd, NULL);
+	close(servfd);
 
 	
 	return 0;
