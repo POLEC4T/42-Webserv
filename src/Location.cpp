@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 16:01:06 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/13 17:29:07 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,16 +64,6 @@ Location::Location(std::string name, std::string root,
 
 //Setter
 
-// void    Location::setAllowedMethods(const std::vector<AHttpMethod*>& methods) {
-// 	for (size_t i = 0; i < _allowedMethods.size(); ++i) {
-// 		delete _allowedMethods[i];
-// 	}
-// 	_allowedMethods.clear();
-// 	for (size_t i = 0; i < methods.size(); ++i) {
-// 		if (methods[i])
-// 			_allowedMethods.push_back(methods[i]);
-// 	}
-// }
 
 void	Location::setAutoIndex(const bool b) {
 	_autoIndex = b;

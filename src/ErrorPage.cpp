@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorPage.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:35:49 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/25 12:51:00 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/13 18:04:30 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,3 +35,7 @@ ErrorPage::ErrorPage(std::string name, std::string root): APage(name , root) {}
 
 ErrorPage::ErrorPage(std::string name, std::string root,
 			std::string content, int code): APage(name, root, content, code) {}
+
+
+ErrorPage::ErrorPage(const std::string name, const std::string content, int code)
+			 : APage(name, content, code) {}
