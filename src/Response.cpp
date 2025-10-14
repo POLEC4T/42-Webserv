@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:47:45 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/13 18:07:34 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/14 12:58:02 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,15 +49,15 @@ std::string Response::build()
 {
     std::string res;
     
-    res = this->_version + ' ' + to_string(this->_code) + ' ' + this->_status + '\n';    
+    res = this->_version + ' ' + to_string(this->_code) + ' ' + this->_status + '\r\n';
     for (std::map<std::string, std::string>::iterator it = this->map.begin(); it != this->map.end(); it++)
     {
         res += *it->first;
         res += ": ";
         res += *it->second;
-        res += '\n';
+        res += '\r\n';
     }
-    res += '\n';
+    res += '\r\n';
     res += body;
 }
 
