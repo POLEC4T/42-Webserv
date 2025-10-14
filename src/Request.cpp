@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 18:38:18 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/14 16:29:09 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,7 @@
 
 Request::~Request() {}
 
-Request::Request(const Server& server) : _server(server) {
-	(void) _server;
-}
+Request::Request() {}
 
 /** RFC 7230:
  * - check if header must be unique (Content-Length, Host, etc) 400

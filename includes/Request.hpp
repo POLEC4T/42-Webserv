@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 19:29:43 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/14 16:28:42 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,11 +56,9 @@
 # include <exception>
 # include <cstdlib> 
 # include "FtString.hpp" 
-# include "Server.hpp"
 
 class Request {
 	private:
-		const Server& _server;
 		std::string _method;
 		std::string _uri;
 		std::string _version;
@@ -75,7 +73,7 @@ class Request {
 	
 	public:
 		~Request();
-		Request(const Server& server);
+		Request();
 
 		void 				parseRequest(const std::string &reqContent);
 		void 				displayRequest() const;

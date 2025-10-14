@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/14 15:50:14 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/14 17:16:05 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,33 +16,22 @@
 #define NB_EVENTS 1024
 #define BUFFER_SIZE 1024
 
-void readRequest(int clientFd, std::string &requestContent) {
-	// todo : read while end != /r/n/r/n
+int readRequest(int clientfd, std::string &requestContent) {
 	char buffer[BUFFER_SIZE] = { 0 };
-	int limit = 0;
 
 	ssize_t sizeRead;
-	while (1) {
-		if (limit > 10)
-		{
-			std::cerr << "limit reached " << std::endl;
-			break;
-		}
-		limit++;
-		sizeRead = recv(clientFd, buffer, BUFFER_SIZE, 0);
-		if (sizeRead == -1) {
-			std::cerr << "recv:" << strerror(errno) << std::endl;
-			break;
-		} else if (sizeRead == 0) {
-			std::cerr << "Client disconnected" << std::endl;
-			close(clientFd);
-			break;
-		}
-
-		requestContent.append(buffer, sizeRead);
-		if (requestContent.find("\r\n\r\n") != std::string::npos)
-			break;
+	sizeRead = recv(clientfd, buffer, BUFFER_SIZE, 0);
+	if (sizeRead == -1) {
+		std::cerr << "recv:" << strerror(errno) << std::endl;
+		return (EXIT_FAILURE);
+	} else if (sizeRead == 0) {
+		std::cerr << "Client disconnected" << std::endl;
+		close(clientfd);
+		return (EXIT_FAILURE);
 	}
+	requestContent.append(buffer, sizeRead);
+	
+	return (EXIT_SUCCESS);
 	// std::cout << requestContent << std::endl;
 }
 
@@ -104,20 +93,58 @@ const std::string& getTemplateResponse(const std::string &requestContent) {
 	return response;
 }
 
-/**
- * F_GETFL is FORBIDDEN
- */
 int setNonBlocking(int sockfd) {
-	int flags = fcntl(sockfd, F_GETFL, 0); // change this line to not use F_GETFL
-	if (flags == -1) {
-		std::cerr << "fcntl(F_GETFL)" <<std::endl;
-		return -1;
+	if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
+		std::cerr << "fcntl" << strerror(errno) <<std::endl;
+		return EXIT_FAILURE;
 	}
-	if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
-		std::cerr << "fcntl(F_SETFL)" <<std::endl;
-		return -1;
+	return EXIT_SUCCESS;
+}
+
+int addClient(int servfd, int epollfd) {
+	struct sockaddr clientAddr;
+	int addrLen = sizeof(clientAddr);
+	int clientfd = accept(servfd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
+	if (clientfd == -1) {
+		std::cerr << "accept:" << strerror(errno) << std::endl;
+		return (EXIT_FAILURE);
 	}
-	return 0;
+
+	if (setNonBlocking(clientfd) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+
+	struct epoll_event ev;
+	ev.events = EPOLLIN | EPOLLET; //EPOLLET: epoll_wait() will only report an event once
+	ev.data.fd = clientfd;
+	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, clientfd, &ev) == -1) {
+		std::cerr << "epoll_ctl: " << strerror(errno) << std::endl;
+		return (EXIT_FAILURE);
+	}
+	std::cout << "New connection, fd: " << clientfd << std::endl;
+	return (EXIT_SUCCESS);
+}
+
+int handleClient(int clientfd) {
+	Request req;
+	std::string requestContent;
+	
+	if (readRequest(clientfd, requestContent) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+
+	try {
+		req.parseRequest(requestContent);
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		return (EXIT_FAILURE);
+	}
+
+	std::string response = getTemplateResponse(requestContent);
+
+	if (send(clientfd, response.c_str(), response.size(), 0) == -1)
+		std::cout << "send: " << strerror(errno) << std::endl;
+
+	std::cout << "Response sent" << std::endl;
+	return (EXIT_SUCCESS);
 }
 
 int launchEpoll(const Server &server) {
@@ -133,7 +160,8 @@ int launchEpoll(const Server &server) {
 		std::cerr << "epoll_create:" << strerror(errno) << std::endl;
 		return (EXIT_FAILURE);
 	}
-	setNonBlocking(servfd);
+	if (setNonBlocking(servfd) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
 	ev.events = EPOLLIN | EPOLLET;
 	ev.data.fd = servfd;
 	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, servfd, &ev) == -1) {
@@ -142,67 +170,26 @@ int launchEpoll(const Server &server) {
 	}
 
 	int eventsReady;
-	Request req(server);
 	while (1) {
 		printf("epoll_waiting\n");
 		eventsReady = epoll_wait(epollfd, events, MAX_EVENT_WAITED, -1);
 		if (eventsReady == -1) {
 			std::cerr << "epoll_wait:" << strerror(errno) << std::endl;
 			return (EXIT_FAILURE);
-		} 
+		}
 		std::cout << eventsReady << " event" << (eventsReady > 1 ? "s" : "") << " ready" << std::endl;
 		for (int i = 0; i < eventsReady; ++i) {
 			if (events[i].data.fd == servfd) {
-				struct sockaddr clientAddr;
-				int addrLen = sizeof(clientAddr);
-				int clientFd = accept(servfd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
-				if (clientFd == -1) {
-					std::cerr << "accept:" << strerror(errno) << std::endl;
+				if (addClient(servfd, epollfd) == EXIT_FAILURE)
 					return (EXIT_FAILURE);
-				}
-
-				setNonBlocking(clientFd);
-
-				ev.events = EPOLLIN | EPOLLET; //EPOLLET: epoll_wait() will only report an event once
-				ev.data.fd = clientFd;
-				if (epoll_ctl(epollfd, EPOLL_CTL_ADD, clientFd, &ev) == -1) {
-					std::cerr << "epoll_ctl: " << strerror(errno) << std::endl;
-					return (EXIT_FAILURE);
-				}
-				std::cout << "New connection, fd: " << clientFd << std::endl;
 			} else {
-				std::string response;
-				int clientFd = events[i].data.fd;
-				try {
-					std::string requestContent;
-					readRequest(clientFd, requestContent);
-					try {
-						req.parseRequest(requestContent);
-					} catch (const std::exception& e) {
-						std::cerr << e.what() << std::endl;
-						continue;
-					}
-
-					response = getTemplateResponse(requestContent);
-
-					if (send(clientFd, response.c_str(), response.size(), 0) == -1)
-						std::cout << "send: " << strerror(errno) << std::endl;
-
-					std::cout << "Response sent" << std::endl;
-				} catch (...) {
-					std::cerr << "Error while creating response" << std::endl;
-					close(events[i].data.fd);
-					return (EXIT_FAILURE);
-				}
+				if (handleClient(events[i].data.fd) == EXIT_FAILURE)
+					continue;
 			}
 		}
 		std::cout << "-----\n";
 	}
-
-	epoll_ctl(epollfd, EPOLL_CTL_DEL, servfd, NULL);
 	close(servfd);
-
-	
 	return 0;
 }
 
