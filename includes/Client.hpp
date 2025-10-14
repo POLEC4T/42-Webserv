@@ -1,34 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   epoll.hpp                                          :+:      :+:    :+:   */
+/*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/14 10:11:47 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/14 14:58:56 by mniemaz          ###   ########.fr       */
+/*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
+/*   Updated: 2025/10/14 12:01:27 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef EPOLL_HPP
-# define EPOLL_HPP
+#ifndef CLIENT_HPP
+#define CLIENT_HPP
 
-# include <sys/socket.h>
-# include <sys/types.h>
-# include <sys/epoll.h>
-# include <netdb.h>
-# include <iostream>
-# include <unistd.h>
-# include <sstream>
-# include <fstream>
-# include <iostream>
-# include <exception>
-# include <cstdlib>
-# include <fcntl.h>
-# include <cstring>
-# include "Server.hpp"
-# include "Request.hpp"
-
-int	launchEpoll(const Server &server);
+class Client {
+	private:
+		t_status status;
+		
+	public:
+		typedef enum e_status {
+			WAITING,
+			READY
+		} t_status;
+}
 
 #endif

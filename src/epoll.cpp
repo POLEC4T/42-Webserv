@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/14 10:22:36 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/14 15:50:14 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ void readRequest(int clientFd, std::string &requestContent) {
 			break;
 		} else if (sizeRead == 0) {
 			std::cerr << "Client disconnected" << std::endl;
+			close(clientFd);
 			break;
 		}
 
@@ -42,9 +43,8 @@ void readRequest(int clientFd, std::string &requestContent) {
 		if (requestContent.find("\r\n\r\n") != std::string::npos)
 			break;
 	}
+	// std::cout << requestContent << std::endl;
 }
-
-
 
 /**
  * - Sets up a TCP server socket
@@ -91,6 +91,19 @@ int createSocket(const Server &server) {
 	return (servfd);
 }
 
+
+const std::string& getTemplateResponse(const std::string &requestContent) {
+	(void)requestContent;
+	static const std::string response =
+		"HTTP/1.1 200 OK\r\n"
+		"Content-Type: text/html\r\n"
+		"Content-Length: 95\r\n"
+		"\r\n"
+		"<!DOCTYPE html><html><head><title>Test</title></head>"
+		"<body><h1>Hello, World!</h1></body></html>\r\n";
+	return response;
+}
+
 /**
  * F_GETFL is FORBIDDEN
  */
@@ -115,47 +128,46 @@ int launchEpoll(const Server &server) {
 	struct epoll_event ev;
 	struct epoll_event events[NB_EVENTS];
 
-	int epollFd = epoll_create(1);
-	if (epollFd == -1) {
-		std::cerr << "epoll_create err" << std::endl;
-		return (1);
+	int epollfd = epoll_create(1);
+	if (epollfd == -1) {
+		std::cerr << "epoll_create:" << strerror(errno) << std::endl;
+		return (EXIT_FAILURE);
 	}
 	setNonBlocking(servfd);
 	ev.events = EPOLLIN | EPOLLET;
 	ev.data.fd = servfd;
-	if (epoll_ctl(epollFd, EPOLL_CTL_ADD, servfd, &ev) == -1) {
-		std::cerr << "epoll_ctl: servfd" << std::endl;
-		return (1);
+	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, servfd, &ev) == -1) {
+		std::cerr << "epoll_ctl:" << strerror(errno) << std::endl;
+		return (EXIT_FAILURE);
 	}
-		
-	int eventsReady;
-	while (1) {
-		printf("Waiting to accept!\n");
 
-		eventsReady = epoll_wait(epollFd, events, MAX_EVENT_WAITED, -1);
+	int eventsReady;
+	Request req(server);
+	while (1) {
+		printf("epoll_waiting\n");
+		eventsReady = epoll_wait(epollfd, events, MAX_EVENT_WAITED, -1);
 		if (eventsReady == -1) {
-			std::cerr << "epoll_wait" << std::endl;
-			return (1);
-		} else {
-			std::cout << eventsReady << " event" << (eventsReady > 1 ? "s" : "") << " ready" << std::endl;
-		}
+			std::cerr << "epoll_wait:" << strerror(errno) << std::endl;
+			return (EXIT_FAILURE);
+		} 
+		std::cout << eventsReady << " event" << (eventsReady > 1 ? "s" : "") << " ready" << std::endl;
 		for (int i = 0; i < eventsReady; ++i) {
 			if (events[i].data.fd == servfd) {
 				struct sockaddr clientAddr;
 				int addrLen = sizeof(clientAddr);
 				int clientFd = accept(servfd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
 				if (clientFd == -1) {
-					std::cerr << "accept" << std::endl;
-					return (1);
+					std::cerr << "accept:" << strerror(errno) << std::endl;
+					return (EXIT_FAILURE);
 				}
 
 				setNonBlocking(clientFd);
 
 				ev.events = EPOLLIN | EPOLLET; //EPOLLET: epoll_wait() will only report an event once
 				ev.data.fd = clientFd;
-				if (epoll_ctl(epollFd, EPOLL_CTL_ADD, clientFd, &ev) == -1) {
-					std::cerr << "epollctl: clientFd" << std::endl;
-					return (1);
+				if (epoll_ctl(epollfd, EPOLL_CTL_ADD, clientFd, &ev) == -1) {
+					std::cerr << "epoll_ctl: " << strerror(errno) << std::endl;
+					return (EXIT_FAILURE);
 				}
 				std::cout << "New connection, fd: " << clientFd << std::endl;
 			} else {
@@ -164,24 +176,30 @@ int launchEpoll(const Server &server) {
 				try {
 					std::string requestContent;
 					readRequest(clientFd, requestContent);
-					// response = getResponse(requestContent);
+					try {
+						req.parseRequest(requestContent);
+					} catch (const std::exception& e) {
+						std::cerr << e.what() << std::endl;
+						continue;
+					}
+
+					response = getTemplateResponse(requestContent);
 
 					if (send(clientFd, response.c_str(), response.size(), 0) == -1)
-						std::cout << "send: error !" << std::endl;
+						std::cout << "send: " << strerror(errno) << std::endl;
 
 					std::cout << "Response sent" << std::endl;
 				} catch (...) {
 					std::cerr << "Error while creating response" << std::endl;
-					epoll_ctl(epollFd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
 					close(events[i].data.fd);
-					return (1) ;
+					return (EXIT_FAILURE);
 				}
 			}
 		}
 		std::cout << "-----\n";
 	}
 
-	epoll_ctl(epollFd, EPOLL_CTL_DEL, servfd, NULL);
+	epoll_ctl(epollfd, EPOLL_CTL_DEL, servfd, NULL);
 	close(servfd);
 
 	
