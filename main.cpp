@@ -56,31 +56,10 @@ int main(int ac, char **av) {
 	const std::vector<Server> servers = ctx.getServers();
 	Server serv = servers[0];
 
-	Location loc;
-	for (std::map<std::string, Location>::iterator it = serv.getLocations().begin(); it != serv.getLocations().end(); it++)
+	if (launchEpoll(serv) == -1)
 	{
-		if (it->first == "/")
-			loc = it->second;
+		return (1);
 	}
 
-	Request req;
-
-
-	req.parseRequest(reqExample);
-	
-	MethodExecutor exec(serv, req, "GET");
-	exec.execute();
-
-	std::cout << std::endl << exec.getResponse().build() << std::endl << std::endl;
-
-	// FtString str("  aa   aab    c   ");
-
-	// std::vector<std::string> vec = str.ft_split(" ");
-	// for (size_t i = 0; i < vec.size(); i++) {
-	// 	std::cout << "'" << vec[i] << "'" << std::endl;
-	// }
-
-	req.displayRequest();
-
-	// return 0;
+	return 0;
 }

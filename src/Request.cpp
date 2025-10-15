@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/15 15:30:55 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 15:52:38 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,16 @@ const std::string& Request::getUri() const {
 	return _uri;
 }
 
+const std::string&  Request::getMethod() const
+{
+	return _method;
+}
+
+const std::string&  Request::getVersion() const
+{
+	return _version;
+}
+
 const char* Request::NoHeaderValueException::what() const throw() {
 	if (_message.empty())
 		return "Request: No header field for this key";
@@ -185,8 +195,3 @@ Request::BadHeaderNameException::BadHeaderNameException(const std::string& heade
 }
 
 Request::BadHeaderNameException::~BadHeaderNameException() throw() {}
-
-std::string Request::getVersion() const
-{
-	return this->_version;
-}

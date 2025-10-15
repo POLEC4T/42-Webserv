@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/15 15:24:31 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 15:57:44 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,14 @@ int handleClient(Server& server, int clientfd) {
 		return (EXIT_FAILURE);
 	}
 
-	std::string response = getTemplateResponse(client.getBuffer());
+	MethodExecutor me(server, req, req.getMethod());
+
+	me.execute();
+
+	
+	std::string response = me.getResponse().build();
+
+	std::cout << "response: \n" << response << std::endl;
 
 	client.clearBuffer();
 

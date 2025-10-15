@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/15 15:30:42 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 16:00:38 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,8 @@ class Request {
 		void 				displayRequest() const;
 		const std::string&	getHeaderValue(const std::string &key) const;
 		const std::string& 	getUri() const;
-		std::string getVersion() const;
+		const std::string& 	getMethod() const;
+		const std::string&	getVersion() const;
 
 	class NoHeaderValueException : public std::exception {
 		private:
