@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/15 15:57:44 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 16:46:50 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,18 +98,24 @@ const std::string& getTemplateResponse(const std::string &requestContent) {
 
 int setNonBlocking(int sockfd) {
 	if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
-		std::cerr << "fcntl" << strerror(errno) <<std::endl;
+		std::cerr << "fcntl: " << strerror(errno) <<std::endl;
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }
 
+/**
+ * erreurs possibles :
+ * 	accept crash -> pas possible car servfd est dit grace a epoll, mais si ca marche pas on ferme le serveur
+ * 	setNonBlocking (= fctnl) crash -> webserv doit exit
+ * 	epoll_ctl(ADD) crash -> webserv doit exit
+ */
 int addClient(Server& server, int servfd, int epollfd) {
 	struct sockaddr clientAddr;
 	int addrLen = sizeof(clientAddr);
 	int clientfd = accept(servfd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
 	if (clientfd == -1) {
-		std::cerr << "accept:" << strerror(errno) << std::endl;
+		std::cerr << "accept: " << strerror(errno) << std::endl;
 		return (EXIT_FAILURE);
 	}
 

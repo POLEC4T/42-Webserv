@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/15 15:08:56 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 16:49:17 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,6 +143,10 @@ Client&		Server::getClient(int fd) {
 }
 
 void	Server::addClient(const Client& client) {
+	if (_mapClients.find(client.getFd()) != _mapClients.end()){
+		std::cout << "Warning: client with fd " << client.getFd() << " already exists, overwriting it" << std::endl;
+		removeClient(client.getFd());
+	}
 	_mapClients[client.getFd()] = client;
 }
 
