@@ -55,11 +55,10 @@ int main(int ac, char **av) {
 
 	const std::vector<Server> servers = ctx.getServers();
 	Server serv = servers[0];
-
+	
 	if (launchEpoll(serv) == -1)
 	{
 		return (1);
 	}
-
 	return 0;
 }
