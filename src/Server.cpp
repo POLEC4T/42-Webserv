@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 18:40:37 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 15:08:56 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ Server::Server(const Server& cpy) {
 	_clientMaxBodySize = cpy._clientMaxBodySize;
 	_mapLocation = cpy._mapLocation;
 	_mapErrorPage = cpy._mapErrorPage;
+	_mapClients = cpy._mapClients;
+
 }
 
 Server&	Server::operator=(const Server& other) {
@@ -34,6 +36,7 @@ Server&	Server::operator=(const Server& other) {
 		this->_clientMaxBodySize = other._clientMaxBodySize;
 		this->_mapLocation = other._mapLocation;
 		this->_mapErrorPage = other._mapErrorPage;
+		this->_mapClients = other._mapClients;
 	}
 	return *this;
 }
@@ -132,6 +135,20 @@ void	Server::addErrorPage(const std::string& name, const std::string& root) {
 		throw (Error::IntExpected(name));
 	errorPage.setCode(code);
 	addErrorPage(errorPage);
+}
+
+
+Client&		Server::getClient(int fd) {
+	return (_mapClients[fd]);
+}
+
+void	Server::addClient(const Client& client) {
+	_mapClients[client.getFd()] = client;
+}
+
+void	Server::removeClient(int fd) {
+	close(fd);
+	_mapClients.erase(fd);
 }
 
 void	Server::parseAndAddLocation(std::vector<std::string>::iterator& it, const std::vector<std::string>::iterator itEnd) {

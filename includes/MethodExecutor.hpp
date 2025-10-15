@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:25:48 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/15 14:19:54 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/15 15:34:02 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "Server.hpp"
 #include "Request.hpp"
 #include "Location.hpp"
+#include <algorithm>
 
 class   MethodExecutor
 {

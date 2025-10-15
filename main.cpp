@@ -3,10 +3,16 @@
 #include "Headers.h"
 #include "Server.hpp"
 #include "MethodExecutor.hpp"
+#include "epoll.hpp"
 
 int main(int ac, char **av) {
 	Context	ctx;
 
+	if (ac != 2)
+	{
+		std::cerr << "Usage: ./webserv [ConfigFile]" << std::endl;
+		return 1;
+	}
 	try {
 		ctx.parseAndSetMapDefaultErrorPage();
 	}
@@ -14,7 +20,7 @@ int main(int ac, char **av) {
 		std::cerr << e.what() << std::endl;
 		return 1;
 	}
-	// std::map<int, ErrorPage> errorPages = ctx.getMapDefaultErrorPage();
+	std::map<int, ErrorPage> errorPages = ctx.getMapDefaultErrorPage();
 	// for (std::map<int, ErrorPage>::iterator it = errorPages.begin(); it != errorPages.end(); it++) {
 	// 	std::cout << "Name: " << it->second.getName() << std::endl;
 	// 	std::cout << "Content: " << it->second.getContent() << std::endl;
@@ -57,7 +63,7 @@ int main(int ac, char **av) {
 			loc = it->second;
 	}
 
-	Request req(serv);
+	Request req;
 
 
 	req.parseRequest(reqExample);

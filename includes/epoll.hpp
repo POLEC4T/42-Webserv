@@ -1,27 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Headers.h                                          :+:      :+:    :+:   */
+/*   epoll.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/03 23:18:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/15 15:27:40 by mniemaz          ###   ########.fr       */
+/*   Created: 2025/10/14 10:11:47 by mniemaz           #+#    #+#             */
+/*   Updated: 2025/10/15 10:40:13 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HEADERS_H
-# define HEADERS_H
+#ifndef EPOLL_HPP
+# define EPOLL_HPP
 
-# include <string>
-# include <vector>
-# include <map>
+# include <sys/socket.h>
+# include <sys/types.h>
+# include <sys/epoll.h>
+# include <netdb.h>
 # include <iostream>
-# include <fstream>
+# include <unistd.h>
 # include <sstream>
-# include "Error.hpp"
+# include <fstream>
+# include <iostream>
+# include <exception>
+# include <cstdlib>
+# include <fcntl.h>
+# include <cstring>
+# include "Server.hpp"
+# include "Request.hpp"
+# include "Client.hpp"
+# include <errno.h>
 
-
-
+int	launchEpoll(Server &server);
 
 #endif
