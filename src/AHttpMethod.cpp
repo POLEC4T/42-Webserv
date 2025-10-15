@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpMethod.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 15:39:10 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/15 14:23:07 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/15 15:59:56 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ std::string	readPage(std::string fileName)
 	while (std::getline(stream, line))
 	{
 		body += line;
-		body += "\n\r";
+		body += "\r\n";
 	}
-	body += "\n\r";
+	body += "\r\n";
 	return (body);
 }
 
@@ -43,6 +43,8 @@ Response AHttpMethod::GET(std::string fileName, Location loc, Request req)
 			if (access(tmp.c_str(), R_OK) == 0)
 			{
 				Response	res(req.getVersion(), 200, "OK", readPage(tmp));
+				res.setHeader("Content-Length", res.getBody().size());
+				res.setHeader("Content-Length", "test/html");
 				return  res;
 			}
 		}
