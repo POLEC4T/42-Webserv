@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/15 16:02:23 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 16:17:51 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,9 @@ Response AHttpMethod::GET(std::string fileName, Location loc, Request req)
 			if (access(tmp.c_str(), R_OK) == 0)
 			{
 				Response	res(req.getVersion(), 200, "OK", readPage(tmp));
-				res.setHeader("Content-Length", res.getBody().size());
-				res.setHeader("Content-Length", "test/html");
-				return  res;
+				res.setHeader("Content-Length", FtString::my_to_string(res.getBody().size()));
+				res.setHeader("Content-Type", "text/html");
+				return res;
 			}
 		}
 		if (loc.getAutoIndex() == true)
