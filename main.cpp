@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 10:19:50 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/14 14:41:59 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 15:24:50 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,16 +44,7 @@ int main(int ac, char **av) {
 		std::cerr << e.what() << std::endl;
 	}
 
-	std::string reqExample;
-	reqExample += "GET / HTTP/1.1\r\n";
-	reqExample += "Host: localhost\r\n";
-	reqExample += "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\r\n";
-	reqExample += "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n";
-	reqExample += "Accept-Language: en-US,en;q=0.5\r\n";
-	reqExample += "Accept-Encoding: gzip, deflate\r\n";
-	reqExample += "Connection: keep-alive\r\n";
-	reqExample += "Cache-Control: max-age=0\r\n";
-	reqExample += "\r\n";
+	
 
 	const std::vector<Server> servers = ctx.getServers();
 	Server serv = servers[0];
@@ -63,7 +54,19 @@ int main(int ac, char **av) {
 		return (EXIT_FAILURE);
 	}
 	
-	// Request req(serv);
+	// std::string reqExample;
+	// reqExample += "GET / HTTP/1.1\r\n";
+	// reqExample += "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\r\n";
+	// reqExample += "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n";
+	// reqExample += "Accept-Language: en-US,en;q=0.5\r\n";
+	// reqExample += "Accept-Encoding: gzip, deflate\r\n";
+	// reqExample += "Connection: keep-alive\r\n";
+	// reqExample += "Cache-Control:\r\n";
+	// reqExample += "Content-Length:10\r\n";
+	// reqExample += "\r\n";
+	// reqExample += "1234567890";
+
+	// Request req();
 	// try {
 	// 	req.parseRequest(reqExample);
 	// } catch (std::exception &e) {
@@ -72,6 +75,8 @@ int main(int ac, char **av) {
 	// }
 
 	// // req.displayRequest();
+
+	//				   0123456 7
 
 	return 0;
 }

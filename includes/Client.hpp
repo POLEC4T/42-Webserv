@@ -6,23 +6,45 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/14 17:23:36 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 14:11:09 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-class Client {
-	public:
-		typedef enum e_status {
-			WAITING,
-			READY
-		} t_status;
+#include <string>
+#include "Request.hpp"
 
+typedef enum e_client_status {
+	WAITING,
+	READY
+} t_client_status;
+
+class Client {
 	private:
-		// t_status status;
-	
+		std::string		_buffer;
+		t_client_status	_status;
+		int 			_fd;
+		int				_getContentLength() const;
+
+	public:
+		Client();
+		Client(int fd);
+		~Client();
+
+		int					getFd() const;
+		const std::string&	getBuffer() const;
+		t_client_status		getStatus() const;
+
+		void				setStatus(t_client_status status);
+
+		void				appendBuffer(char *buffer);
+		void				appendBuffer(const char *buffer);
+		void				clearBuffer();
+		bool				hasReceivedFullReq();
+
+
 };
 
 #endif

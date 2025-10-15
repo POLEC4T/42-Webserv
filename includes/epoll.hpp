@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 10:11:47 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/14 17:17:36 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 10:40:13 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,6 @@
 # include "Client.hpp"
 # include <errno.h>
 
-int	launchEpoll(const Server &server);
+int	launchEpoll(Server &server);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/14 16:28:42 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 11:57:18 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,12 +62,11 @@ class Request {
 		std::string _method;
 		std::string _uri;
 		std::string _version;
-		std::map< std::string, std::vector<std::string> > _headers;
+		std::map<std::string, std::string> _headers;
 		std::string _body;
 
-		const std::string& _getHeaderValue(const std::string &key) const;
 		
-		std::map< std::string, std::vector<std::string> > _extractHeaders(const std::string &req) const;
+		std::map<std::string, std::string> _extractHeaders(const std::string &req) const;
 		std::string _extractBody(const std::string &req) const;
 		void _parseRequestLine(const std::string &reqContent);
 	
@@ -77,6 +76,7 @@ class Request {
 
 		void 				parseRequest(const std::string &reqContent);
 		void 				displayRequest() const;
+		const std::string&	getHeaderValue(const std::string &key) const;
 		const std::string& 	getUri() const;
 
 	class NoHeaderValueException : public std::exception {

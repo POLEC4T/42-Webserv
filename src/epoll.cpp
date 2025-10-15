@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/14 17:16:05 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 15:24:31 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,23 +16,26 @@
 #define NB_EVENTS 1024
 #define BUFFER_SIZE 1024
 
-int readRequest(int clientfd, std::string &requestContent) {
+int readRequest(Server& server, Client &client) {
 	char buffer[BUFFER_SIZE] = { 0 };
 
 	ssize_t sizeRead;
-	sizeRead = recv(clientfd, buffer, BUFFER_SIZE, 0);
+	sizeRead = recv(client.getFd(), buffer, BUFFER_SIZE, 0);
 	if (sizeRead == -1) {
 		std::cerr << "recv:" << strerror(errno) << std::endl;
 		return (EXIT_FAILURE);
 	} else if (sizeRead == 0) {
 		std::cerr << "Client disconnected" << std::endl;
-		close(clientfd);
+		server.removeClient(client.getFd());
 		return (EXIT_FAILURE);
 	}
-	requestContent.append(buffer, sizeRead);
+	client.appendBuffer(buffer);
 	
+	if (client.hasReceivedFullReq())
+		client.setStatus(READY);
+	else
+		client.setStatus(WAITING);
 	return (EXIT_SUCCESS);
-	// std::cout << requestContent << std::endl;
 }
 
 /**
@@ -101,7 +104,7 @@ int setNonBlocking(int sockfd) {
 	return EXIT_SUCCESS;
 }
 
-int addClient(int servfd, int epollfd) {
+int addClient(Server& server, int servfd, int epollfd) {
 	struct sockaddr clientAddr;
 	int addrLen = sizeof(clientAddr);
 	int clientfd = accept(servfd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
@@ -120,25 +123,34 @@ int addClient(int servfd, int epollfd) {
 		std::cerr << "epoll_ctl: " << strerror(errno) << std::endl;
 		return (EXIT_FAILURE);
 	}
+	Client cl(clientfd);
+
+	server.addClient(cl);
 	std::cout << "New connection, fd: " << clientfd << std::endl;
 	return (EXIT_SUCCESS);
 }
 
-int handleClient(int clientfd) {
+int handleClient(Server& server, int clientfd) {
 	Request req;
-	std::string requestContent;
+	Client& client = server.getClient(clientfd);
 	
-	if (readRequest(clientfd, requestContent) == EXIT_FAILURE)
+	if (readRequest(server, client) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 
+	if (client.getStatus() == WAITING)
+		return (EXIT_SUCCESS);
+
 	try {
-		req.parseRequest(requestContent);
+		req.parseRequest(client.getBuffer());
 	} catch (const std::exception& e) {
 		std::cerr << e.what() << std::endl;
+		client.clearBuffer();
 		return (EXIT_FAILURE);
 	}
 
-	std::string response = getTemplateResponse(requestContent);
+	std::string response = getTemplateResponse(client.getBuffer());
+
+	client.clearBuffer();
 
 	if (send(clientfd, response.c_str(), response.size(), 0) == -1)
 		std::cout << "send: " << strerror(errno) << std::endl;
@@ -147,7 +159,7 @@ int handleClient(int clientfd) {
 	return (EXIT_SUCCESS);
 }
 
-int launchEpoll(const Server &server) {
+int launchEpoll(Server &server) {
 	int servfd = createSocket(server);
 	if (servfd == -1)
 		return 1;
@@ -177,13 +189,13 @@ int launchEpoll(const Server &server) {
 			std::cerr << "epoll_wait:" << strerror(errno) << std::endl;
 			return (EXIT_FAILURE);
 		}
-		std::cout << eventsReady << " event" << (eventsReady > 1 ? "s" : "") << " ready" << std::endl;
+		std::cout << eventsReady << " event(s)" << std::endl;
 		for (int i = 0; i < eventsReady; ++i) {
 			if (events[i].data.fd == servfd) {
-				if (addClient(servfd, epollfd) == EXIT_FAILURE)
+				if (addClient(server, servfd, epollfd) == EXIT_FAILURE)
 					return (EXIT_FAILURE);
 			} else {
-				if (handleClient(events[i].data.fd) == EXIT_FAILURE)
+				if (handleClient(server, events[i].data.fd) == EXIT_FAILURE)
 					continue;
 			}
 		}
