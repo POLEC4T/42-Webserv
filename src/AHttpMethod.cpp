@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpMethod.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/15 16:17:51 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 16:58:26 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "AHttpMethod.hpp"
 #include <unistd.h>
+#include "Server.hpp"
 #include <string>
-
 
 std::string	readPage(std::string fileName)
 {
@@ -30,7 +30,7 @@ std::string	readPage(std::string fileName)
 	return (body);
 }
 
-Response AHttpMethod::GET(std::string fileName, Location loc, Request req)
+Response AHttpMethod::GET(std::string fileName, Location loc, Request req, Server serv)
 {
 	std::vector<std::string> vec = loc.getIndex();
 	std::string index;
@@ -58,11 +58,23 @@ Response AHttpMethod::GET(std::string fileName, Location loc, Request req)
 		if (access(fileName.c_str(), R_OK) == 0)
 		{
 			Response	res(req.getVersion(), 200, "OK", readPage(fileName));
+			res.setHeader("Content-Length", FtString::my_to_string(res.getBody().size()));
+			res.setHeader("Content-Type", "text/html");
 			return  res;
 		}
 		else
-			; // return ErrorPage();
+		{
+			ErrorPage	page(serv.getErrorPageByCode(404));
+			std::cout << "OEQWEQEQEQE" << page.getContent() << std::endl;
+			Response res(req.getVersion(), page.getCode(), "Not Found", page.getContent());
+			res.setHeader("Content-Length", FtString::my_to_string(page.getContent().size()));
+			return res;
+
+		}
 	}
-	Response	error(req.getVersion(), 404, "Not Found", "");
-	return error;
+	ErrorPage	page(serv.getErrorPageByCode(404));
+	std::cout << "OEQWEQEQEQE" << page.getContent() << std::endl;
+	Response res(req.getVersion(), page.getCode(), "Not Found", page.getContent());
+	res.setHeader("Content-Length", FtString::my_to_string(page.getContent().size()));
+	return res;
 }

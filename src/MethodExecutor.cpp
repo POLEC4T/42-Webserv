@@ -3,17 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/15 14:19:43 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/15 16:26:53 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
 
 MethodExecutor::MethodExecutor(Server& s, Request& r, std::string m) : _server(s), _request(r), _method(m)
-{   
+{
+    this->execute();
 }
 
 Location& MethodExecutor::getRequestLocation()
@@ -73,11 +74,11 @@ void    MethodExecutor::execute()
 
         
     if (this->_method == "GET" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "GET") != loc.getAllowedMethods().end())
-        this->_response = AHttpMethod::GET(fileName, loc, this->_request);
+        this->_response = AHttpMethod::GET(fileName, loc, this->_request, this->_server);
     else if (this->_method == "POST" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "POST") != loc.getAllowedMethods().end())
-        this->_response = AHttpMethod::GET(fileName, loc, this->_request);
+        this->_response = AHttpMethod::GET(fileName, loc, this->_request, this->_server);
     else if (this->_method == "DELETE" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "DELETE") != loc.getAllowedMethods().end())
-        this->_response = AHttpMethod::GET(fileName, loc, this->_request);
+        this->_response = AHttpMethod::GET(fileName, loc, this->_request, this->_server);
     // std::cout << loc.getCode() << std::endl;
     // AHttpMethod::GET("index.html", loc);
 }

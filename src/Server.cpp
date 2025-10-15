@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/15 15:08:56 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 16:40:12 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ void	Server::addErrorPage(const ErrorPage& errorPage) {
 	_mapErrorPage.insert(std::make_pair(errorPage.getCode(), errorPage));
 }
 
-APage&	Server::getErrorPageByCode(const int code) {
+ErrorPage&	Server::getErrorPageByCode(const int code) {
 	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
 	if (it == _mapErrorPage.end())
 	{
