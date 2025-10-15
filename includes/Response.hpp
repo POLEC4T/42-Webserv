@@ -3,12 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:37:50 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/13 18:05:25 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/15 01:17:54 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifndef __RESPONSE_HPP__
+#define __RESPONSE_HPP__
+
+#include "Headers.h"
 
 class Response
 {
@@ -21,10 +26,18 @@ class Response
     
     public:
         Response();
-        Response(std::string, int, std::string);
+        Response(std::string, int, std::string, std::string);
         Response& operator=(const Response& other);
         ~Response();
         std::string build();
         void    setBody(const std::string& body);
         void    setHeader(const std::string& key, const std::string& value);
+
+        std::string getVersion() const;
+        int getCode() const;
+        std::string getStatus() const;
+        std::string getBody() const;
+        std::map<std::string, std::string> getHeaders() const;
 };
+
+#endif

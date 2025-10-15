@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 19:29:43 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 14:02:30 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,8 @@
 # include <exception>
 # include <cstdlib> 
 # include "FtString.hpp" 
-# include "Server.hpp"
+
+class Server;
 
 class Request {
 	private:
@@ -80,6 +81,7 @@ class Request {
 		void 				parseRequest(const std::string &reqContent);
 		void 				displayRequest() const;
 		const std::string& 	getUri() const;
+		std::string getVersion() const;
 
 	class NoHeaderValueException : public std::exception {
 		private:

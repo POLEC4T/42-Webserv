@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 19:23:41 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/14 22:29:31 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ class	Server {
 		void		addErrorPage(const ErrorPage&);
 		void		addErrorPage(const std::string& code, const std::string& root);
 
-		std::map<std::string, Location>&	getLocations();
+		std::map<std::string, Location>&	getLocations() ;
 
 		//Parser
 		void		parseAndAddLocation(std::vector<std::string>::iterator&, 

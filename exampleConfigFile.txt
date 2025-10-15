@@ -12,7 +12,7 @@ server {
     
     location / {
         allowed_methods GET POST;
-        root /var/www/monsite;
+        root /Users/bde42lyon/Documents/faoriol/webserv;
         
         index index.html index.php;
         

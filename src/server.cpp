@@ -3,202 +3,237 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 19:24:50 by mniemaz          ###   ########.fr       */
+/*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
+/*   Updated: 2025/10/14 22:29:29 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/epoll.h>
-#include <netdb.h>
-#include <iostream>
-#include <unistd.h>
-#include <sstream>
-#include <fstream>
-#include <exception>
-#include <cstdlib>
-#include <fcntl.h>
-#include <cstring>
 #include "Server.hpp"
 
-#define MAX_EVENT_WAITED 1024
-#define NB_EVENTS 1024
-#define BUFFER_SIZE 1024
+Server::Server() {
+	_clientMaxBodySize = 0;
+}
 
-void readRequest(int clientFd, std::string &requestContent) {
-	// todo : read while end != /r/n/r/n
-	char buffer[BUFFER_SIZE] = { 0 };
-	int limit = 0;
+Server::Server(const Server& cpy) {
+	_name = cpy._name;
+	_port = cpy._port;
+	_host = cpy._host;
+	_clientMaxBodySize = cpy._clientMaxBodySize;
+	_mapLocation = cpy._mapLocation;
+	_mapErrorPage = cpy._mapErrorPage;
+}
 
-	ssize_t sizeRead;
-	while (1) {
-		if (limit > 10)
-		{
-			std::cerr << "limit reached " << std::endl;
-			break;
-		}
-		limit++;
-		sizeRead = recv(clientFd, buffer, BUFFER_SIZE, 0);
-		if (sizeRead == -1) {
-			std::cerr << "recv:" << strerror(errno) << std::endl;
-			break;
-		} else if (sizeRead == 0) {
-			std::cerr << "Client disconnected" << std::endl;
-			break;
-		}
-
-		requestContent.append(buffer, sizeRead);
-		if (requestContent.find("\r\n\r\n") != std::string::npos)
-			break;
+Server&	Server::operator=(const Server& other) {
+	if (this != &other)
+	{
+		this->_name = other._name;
+		this->_port = other._port;
+		this->_host = other._host;
+		this->_clientMaxBodySize = other._clientMaxBodySize;
+		this->_mapLocation = other._mapLocation;
+		this->_mapErrorPage = other._mapErrorPage;
 	}
+	return *this;
+}
+
+Server::~Server() {}
+
+
+
+//constructor with assignment values
+Server::Server(int port, int clientMaxBodySize) {
+	_port = port;
+	_clientMaxBodySize = clientMaxBodySize;
+}
+
+Server::Server(std::map<int, ErrorPage> errorPages) {
+	_mapDefaultErrorPage = errorPages;
 }
 
 
-
-/**
- * - Sets up a TCP server socket
- * - Binds it to the specified address and port
- * - Listens for incoming connections
- */
-int createSocket(const Server &server) {
-	int servfd;
-	
-	struct addrinfo *addrinfos;
-	struct addrinfo hints;
-
-	std::memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET; // ipv4 pelo
-	hints.ai_socktype = SOCK_STREAM; // tcp
-	hints.ai_flags = AI_PASSIVE; // for bind()
-
-	int ret = getaddrinfo(server.getHost().c_str(),
-						  server.getPort().c_str(),
-						  &hints,
-						  &addrinfos);
-	if (ret != 0) {
-		std::cerr << "getaddrinfo: " << gai_strerror(ret) << std::endl; // todo: test this
-		return (-1);
-	}
-
-	servfd = socket(addrinfos->ai_family, addrinfos->ai_socktype, addrinfos->ai_protocol);
-	if (servfd == -1) {
-		std::cerr << "createSocket:" << strerror(errno) << std::endl;
-		return (-1);
-	}
-	int opt = 1;
-	setsockopt(servfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
-
-	if (bind(servfd, addrinfos->ai_addr, addrinfos->ai_addrlen) == -1) {
-		std::cerr << "bind: " << strerror(errno) << std::endl;
-		return (-1);
-	}
-	if (listen(servfd, 2) == -1) {
-		std::cerr << "listen: " << strerror(errno) << std::endl;
-		return (-1);
-	}
-	freeaddrinfo(addrinfos);
-	return (servfd);
+//Setter
+void	Server::addName(const std::string& name) {
+	_name.push_back(name);
 }
 
-/**
- * F_GETFL is FORBIDDEN
- */
-int setNonBlocking(int sockfd) {
-	int flags = fcntl(sockfd, F_GETFL, 0); // change this line to not use F_GETFL
-	if (flags == -1) {
-		std::cerr << "fcntl(F_GETFL)" <<std::endl;
-		return -1;
-	}
-	if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
-		std::cerr << "fcntl(F_SETFL)" <<std::endl;
-		return -1;
-	}
-	return 0;
+void	Server::setClientMaxBodySize(int clientMaxBodySize) {
+	_clientMaxBodySize = clientMaxBodySize;
 }
 
-int launchEpoll(const Server &server) {
-	int servfd = createSocket(server);
-	if (servfd == -1)
-		return 1;
+void	Server::setHost(const std::string& host) {
+	_host = host;
+}
 
-	struct epoll_event ev;
-	struct epoll_event events[NB_EVENTS];
+void	Server::setClientMaxBodySize(std::string clientMaxBodySize) {
+	int					maxBodySize = 0;
+	std::istringstream	iss(clientMaxBodySize);
 
-	int epollFd = epoll_create(1);
-	if (epollFd == -1) {
-		std::cerr << "epoll_create err" << std::endl;
-		return (1);
+	iss >> maxBodySize;
+	setClientMaxBodySize(maxBodySize);
+}
+
+void	Server::setPort(const std::string& port) {
+	_port = port;
+}
+
+//Getter
+const std::vector<std::string>&	Server::getNames() const {
+	return _name;
+}
+
+const std::string&	Server::getPort() const {
+	return _port;
+}
+
+int	Server::getClientMaxBodySize() const {
+	return _clientMaxBodySize;
+}
+
+const std::string&	Server::getHost() const {
+	return _host;
+}
+
+//Specific map
+void	Server::addLocation(const Location& location) {
+	_mapLocation.insert(std::make_pair(location.getName(), location));
+}
+
+APage&	Server::getLocationByName(const std::string& name) {
+	std::map<std::string, Location>::iterator it = _mapLocation.find(name);
+	if (it == _mapLocation.end())
+	{
+		return (this->getErrorPageByCode(404));
 	}
-	setNonBlocking(servfd);
-	ev.events = EPOLLIN | EPOLLET;
-	ev.data.fd = servfd;
-	if (epoll_ctl(epollFd, EPOLL_CTL_ADD, servfd, &ev) == -1) {
-		std::cerr << "epoll_ctl: servfd" << std::endl;
-		return (1);
-	}
-		
-	int eventsReady;
-	while (1) {
-		printf("Waiting to accept!\n");
+	return it->second;
+}
 
-		eventsReady = epoll_wait(epollFd, events, MAX_EVENT_WAITED, -1);
-		if (eventsReady == -1) {
-			std::cerr << "epoll_wait" << std::endl;
-			return (1);
-		} else {
-			std::cout << eventsReady << " event" << (eventsReady > 1 ? "s" : "") << " ready" << std::endl;
+void	Server::addErrorPage(const ErrorPage& errorPage) {
+	_mapErrorPage.insert(std::make_pair(errorPage.getCode(), errorPage));
+}
+
+APage&	Server::getErrorPageByCode(const int code) {
+	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
+	if (it == _mapErrorPage.end())
+	{
+		return _mapDefaultErrorPage[code];
+	}
+	return it->second;
+}
+
+void	Server::addErrorPage(const std::string& name, const std::string& root) {
+	ErrorPage			errorPage(name, root);
+	int					code = 0;
+	std::istringstream	iss(name);
+
+	iss >> code;
+	if (iss.fail())
+		throw (Error::IntExpected(name));
+	errorPage.setCode(code);
+	addErrorPage(errorPage);
+}
+
+void	Server::parseAndAddLocation(std::vector<std::string>::iterator& it, const std::vector<std::string>::iterator itEnd) {
+	int	isClosed = 0;
+	Location	newLocation;
+
+	newLocation.setName(*it);
+	++it;
+	while (it != itEnd)
+	{
+		if (*it == "{")
+			isClosed++;
+		else if (*it == "}")
+			isClosed--;
+		else if (*it == "root") {
+			it++;
+			if (it != itEnd)
+				newLocation.setRoot(*it);
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
 		}
-		for (int i = 0; i < eventsReady; ++i) {
-			if (events[i].data.fd == servfd) {
-				struct sockaddr clientAddr;
-				int addrLen = sizeof(clientAddr);
-				int clientFd = accept(servfd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
-				if (clientFd == -1) {
-					std::cerr << "accept" << std::endl;
-					return (1);
-				}
-
-				setNonBlocking(clientFd);
-
-				ev.events = EPOLLIN | EPOLLET; //EPOLLET: epoll_wait() will only report an event once
-				ev.data.fd = clientFd;
-				if (epoll_ctl(epollFd, EPOLL_CTL_ADD, clientFd, &ev) == -1) {
-					std::cerr << "epollctl: clientFd" << std::endl;
-					return (1);
-				}
-				std::cout << "New connection, fd: " << clientFd << std::endl;
-			} else {
-				std::string response;
-				int clientFd = events[i].data.fd;
-				try {
-					std::string requestContent;
-					readRequest(clientFd, requestContent);
-					// response = getResponse(requestContent);
-
-					if (send(clientFd, response.c_str(), response.size(), 0) == -1)
-						std::cout << "send: error !" << std::endl;
-
-					std::cout << "Response sent" << std::endl;
-				} catch (...) {
-					std::cerr << "Error while creating response" << std::endl;
-					epoll_ctl(epollFd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
-					close(events[i].data.fd);
-					return (1) ;
-				}
+		else if (*it == "allowed_methods") {
+			it++;
+			while (it != itEnd && *it != ";") {
+				newLocation.addAllowedMethods(*it);
+				it++;
 			}
+			if (it == itEnd || *it != ";")
+				throw (Error::DidNotFindSemicolon(*it));
 		}
-		std::cout << "-----\n";
+		else if (*it == "index") {
+			it++;
+			while (it != itEnd && *it != ";") {
+				newLocation.addIndex(*it);
+				it++;
+			}
+			if (it == itEnd || *it != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "autoindex") {
+			it++;
+			if (it != itEnd && *it == "on")
+				newLocation.setAutoIndex(true);
+			else if (it != itEnd && *it == "off")
+				newLocation.setAutoIndex(false);
+			else
+				throw (Error::UnknownToken(*it));
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "return") {
+			it++;
+			if (it != itEnd && (it + 1) != itEnd) {
+				newLocation.setReturn(*it + " " + *(it + 1));
+				it++;
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "upload_path") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setUploadPath(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "cgi_extension") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setCgiExtension(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "cgi_path") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setCgiPath(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "client_max_body_size") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setClientMaxBodySize(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it != ";")
+			throw (Error::UnknownToken(*it));
+		if (isClosed == 0)
+			break;
+		it++;
 	}
-
-	epoll_ctl(epollFd, EPOLL_CTL_DEL, servfd, NULL);
-	close(servfd);
-
-	
-	return 0;
+	if (isClosed != 0)
+		throw (Error::ErrorBracketParseFile());
+	addLocation(newLocation);
 }
 
-// todo: une requete peut arriver en plusieurs morceaux -> faire un buffer par client qui persiste
-// pareil pour send
+std::map<std::string, Location>& Server::getLocations() {
+    return _mapLocation;
+}

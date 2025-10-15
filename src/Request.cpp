@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 18:38:18 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 14:02:56 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+#include "Server.hpp"
 
 Request::~Request() {}
 
@@ -189,3 +190,8 @@ Request::BadHeaderNameException::BadHeaderNameException(const std::string& heade
 }
 
 Request::BadHeaderNameException::~BadHeaderNameException() throw() {}
+
+std::string Request::getVersion() const
+{
+	return this->_version;
+}

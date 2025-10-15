@@ -17,8 +17,10 @@ SRCS = main.cpp \
 	$(SRC_DIR)/Request.cpp \
 	$(SRC_DIR)/Context.cpp \
 	$(SRC_DIR)/FtString.cpp \
-	$(SRC_DIR)/server.cpp \
-	$(SRC_DIR)/Error.cpp
+	$(SRC_DIR)/Error.cpp \
+	$(SRC_DIR)/MethodExecutor.cpp \
+	$(SRC_DIR)/Response.cpp \
+	# $(SRC_DIR)/serv.cpp
 
 HEADERS = $(INC_DIR)/AHttpMethod.hpp \
 	$(INC_DIR)/APage.hpp \
@@ -30,7 +32,9 @@ HEADERS = $(INC_DIR)/AHttpMethod.hpp \
 	$(INC_DIR)/Server.hpp \
 	$(INC_DIR)/Context.hpp	\
 	$(INC_DIR)/FtString.hpp	\
-	$(INC_DIR)/Error.hpp
+	$(INC_DIR)/Error.hpp \
+	$(INC_DIR)/Response.hpp \
+	$(INC_DIR)/MethodExecutor.hpp
 
 OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 
