@@ -63,7 +63,7 @@ int main(int ac, char **av) {
 			loc = it->second;
 	}
 
-	Request req(serv);
+	Request req;
 
 
 	req.parseRequest(reqExample);
