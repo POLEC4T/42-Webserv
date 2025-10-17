@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 18:37:54 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/17 13:37:18 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ const std::vector<Server>	Context::getServers() const {
 	return _servers;
 }
 
-const std::map<int, ErrorPage>	Context::getMapDefaultErrorPage() const {
+const std::map<int, ErrorPage>&	Context::getMapDefaultErrorPage() const {
 	return _mapDefaultErrorPage;
 }
 //Setter

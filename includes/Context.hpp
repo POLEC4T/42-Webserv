@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 18:28:27 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/17 13:13:59 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Context {
 		
 		//Getter
 		const std::vector<Server>		getServers() const ;
-		const std::map<int, ErrorPage>	getMapDefaultErrorPage() const ;
+		const std::map<int, ErrorPage>&	getMapDefaultErrorPage() const ;
 		
 		//Setter
 		void	addServer(const Server& server);

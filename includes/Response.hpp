@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:37:50 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/15 01:17:54 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/17 13:51:37 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define __RESPONSE_HPP__
 
 #include "Headers.h"
+#include "ErrorPage.hpp"
 
 class Response
 {
@@ -26,6 +27,7 @@ class Response
     
     public:
         Response();
+        Response(std::string, ErrorPage&);
         Response(std::string, int, std::string, std::string);
         Response& operator=(const Response& other);
         ~Response();

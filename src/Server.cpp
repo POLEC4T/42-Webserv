@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/15 16:40:12 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/17 13:41:11 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ Server::Server(const Server& cpy) {
 	_clientMaxBodySize = cpy._clientMaxBodySize;
 	_mapLocation = cpy._mapLocation;
 	_mapErrorPage = cpy._mapErrorPage;
+	this->_mapDefaultErrorPage = cpy._mapDefaultErrorPage;
 	_mapClients = cpy._mapClients;
 
 }
@@ -36,6 +37,7 @@ Server&	Server::operator=(const Server& other) {
 		this->_clientMaxBodySize = other._clientMaxBodySize;
 		this->_mapLocation = other._mapLocation;
 		this->_mapErrorPage = other._mapErrorPage;
+		this->_mapDefaultErrorPage = other._mapDefaultErrorPage;
 		this->_mapClients = other._mapClients;
 	}
 	return *this;
@@ -120,8 +122,10 @@ ErrorPage&	Server::getErrorPageByCode(const int code) {
 	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
 	if (it == _mapErrorPage.end())
 	{
-		return _mapDefaultErrorPage[code];
+		std::cout << "oui" << std::endl;
+		return _mapDefaultErrorPage.find(code)->second;
 	}
+	std::cout << "non" << std::endl;
 	return it->second;
 }
 
@@ -249,6 +253,11 @@ void	Server::parseAndAddLocation(std::vector<std::string>::iterator& it, const s
 	if (isClosed != 0)
 		throw (Error::ErrorBracketParseFile());
 	addLocation(newLocation);
+}
+
+void	Server::setDefaultMapErrorPage(const std::map<int, ErrorPage>& map)
+{
+	this->_mapDefaultErrorPage = map;
 }
 
 std::map<std::string, Location>& Server::getLocations() {

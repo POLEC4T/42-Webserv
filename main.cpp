@@ -41,6 +41,7 @@ int main(int ac, char **av) {
 		std::cerr << e.what() << std::endl;
 	}
 
+	// std::cout << "BLABLABLA" << ctx.getMapDefaultErrorPage().find(404)->second.getContent() << std::endl;
 
 	std::string reqExample;
 	reqExample += "GET / HTTP/1.1\r\n";
@@ -53,9 +54,12 @@ int main(int ac, char **av) {
 	reqExample += "Cache-Control: max-age=0\r\n";
 	reqExample += "\r\n";
 
-	const std::vector<Server> servers = ctx.getServers();
+	std::vector<Server> servers = ctx.getServers();
+	for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); it++)
+		it->setDefaultMapErrorPage(ctx.getMapDefaultErrorPage());
+
 	Server serv = servers[0];
-	
+
 	if (launchEpoll(serv) == -1)
 	{
 		return (1);
