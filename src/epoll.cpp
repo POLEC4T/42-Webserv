@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/17 14:31:33 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/17 15:03:29 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,6 +202,7 @@ int	createEpoll(int servfd) {
 
 void sigint_handler(int sig) {
 	(void)sig;
+	write(2, "\n", 1);
 }
 
 int launchEpoll(Server &server) {
@@ -215,12 +216,19 @@ int launchEpoll(Server &server) {
 
 	struct epoll_event events[NB_EVENTS];
 	int eventsReady;
-	signal(SIGINT, &sigint_handler);
+
+	if (signal(SIGINT, &sigint_handler) == SIG_ERR) {
+		std::cerr << "signal: " << strerror(errno) << std::endl;
+		close(servfd);
+		close(epollfd);
+		return (EXIT_FAILURE);
+	}
+	
 	while (1) {
 		printf("epoll_waiting\n");
 		eventsReady = epoll_wait(epollfd, events, MAX_EVENT_WAITED, -1);
 		if (eventsReady == -1) {
-			std::cerr << "\nepoll_wait: " << strerror(errno) << std::endl;
+			std::cerr << "epoll_wait: " << strerror(errno) << std::endl;
 			close(servfd);
 			close(epollfd);
 			return (EXIT_FAILURE);

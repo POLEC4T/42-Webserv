@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/17 14:31:17 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/17 14:57:46 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,9 +163,10 @@ void	Server::addClient(const Client& client) {
 void	Server::deleteAllClients() {
 	std::map<int, Client>::iterator it;
 
-	for (it = _mapClients.begin(); it != _mapClients.end(); it++) {
-		deleteClient(it->first);
+	for (it = _mapClients.begin(); it != _mapClients.end(); ++it) {
+		close(it->first);
 	}
+	_mapClients.clear();
 }
 
 void	Server::deleteClient(int fd) {

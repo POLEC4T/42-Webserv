@@ -58,7 +58,7 @@ int main(int ac, char **av) {
 	for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); it++)
 		it->setDefaultMapErrorPage(ctx.getMapDefaultErrorPage());
 
-	Server serv = servers[0];
+	Server &serv = servers[0];
 
 	if (launchEpoll(serv) == -1)
 	{
