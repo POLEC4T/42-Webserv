@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/17 13:41:11 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/17 14:31:17 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,9 @@ Server&	Server::operator=(const Server& other) {
 	return *this;
 }
 
-Server::~Server() {}
+Server::~Server() {
+	deleteAllClients();
+}
 
 
 
@@ -146,11 +148,27 @@ Client&		Server::getClient(int fd) {
 	return (_mapClients[fd]);
 }
 
+/**
+ * @brief adds a new client to the client map
+ * The warning should never happen, but just in case
+ */
 void	Server::addClient(const Client& client) {
+	if (_mapClients.find(client.getFd()) != _mapClients.end()){
+		std::cout << "Warning: client with fd " << client.getFd() << " already exists, overwriting it" << std::endl;
+		deleteClient(client.getFd());
+	}
 	_mapClients[client.getFd()] = client;
 }
 
-void	Server::removeClient(int fd) {
+void	Server::deleteAllClients() {
+	std::map<int, Client>::iterator it;
+
+	for (it = _mapClients.begin(); it != _mapClients.end(); it++) {
+		deleteClient(it->first);
+	}
+}
+
+void	Server::deleteClient(int fd) {
 	close(fd);
 	_mapClients.erase(fd);
 }

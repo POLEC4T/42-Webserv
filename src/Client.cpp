@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/15 15:58:19 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/17 10:45:23 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,6 @@ bool				Client::hasReceivedFullReq() {
 		return (false);
 
 	int contentLength = _getContentLength();
-	std::cout << "contentLength: " << contentLength << std::endl;
 	if (contentLength == -1)
 		return (true);
 

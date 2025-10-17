@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 10:11:47 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/15 15:50:07 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/17 14:15:27 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,12 @@
 # include <cstdlib>
 # include <fcntl.h>
 # include <cstring>
+# include <signal.h>
+# include <errno.h>
 # include "Server.hpp"
 # include "Request.hpp"
 # include "Client.hpp"
 # include "MethodExecutor.hpp"
-# include <errno.h>
 
 int	launchEpoll(Server &server);
 
