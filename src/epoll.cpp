@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/15 16:46:50 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/17 14:24:18 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int readRequest(Server& server, Client &client) {
 		return (EXIT_FAILURE);
 	} else if (sizeRead == 0) {
 		std::cerr << "Client disconnected" << std::endl;
-		server.removeClient(client.getFd());
+		server.deleteClient(client.getFd());
 		return (EXIT_FAILURE);
 	}
 	client.appendBuffer(buffer);
@@ -42,62 +42,67 @@ int readRequest(Server& server, Client &client) {
  * - Sets up a TCP server socket
  * - Binds it to the specified address and port
  * - Listens for incoming connections
+ * STRESS TESTED
  */
 int createSocket(const Server &server) {
-	int servfd;
-	
-	struct addrinfo *addrinfos;
-	struct addrinfo hints;
+	int	servfd;
+	struct addrinfo	*addrinfos;
+	struct addrinfo	hints;
 
 	std::memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET; // ipv4 pelo
 	hints.ai_socktype = SOCK_STREAM; // tcp
 	hints.ai_flags = AI_PASSIVE; // for bind()
 
-	int ret = getaddrinfo(server.getHost().c_str(),
-						  server.getPort().c_str(),
-						  &hints,
-						  &addrinfos);
-	if (ret != 0) {
-		std::cerr << "getaddrinfo: " << gai_strerror(ret) << std::endl; // todo: test this
+	int gai_ret = getaddrinfo(	server.getHost().c_str(),
+						  		server.getPort().c_str(),
+						  		&hints,
+						  		&addrinfos);
+	if (gai_ret != 0) {
+		std::cerr << "getaddrinfo: " << gai_strerror(gai_ret) << std::endl; // todo: test this
 		return (-1);
 	}
 
-	servfd = socket(addrinfos->ai_family, addrinfos->ai_socktype, addrinfos->ai_protocol);
+	servfd = socket(addrinfos->ai_family,
+					addrinfos->ai_socktype,
+					addrinfos->ai_protocol);
 	if (servfd == -1) {
-		std::cerr << "createSocket:" << strerror(errno) << std::endl;
+		freeaddrinfo(addrinfos);
+		std::cerr << "socket: " << strerror(errno) << std::endl;
 		return (-1);
 	}
+	
 	int opt = 1;
-	setsockopt(servfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+	int sso_ret = setsockopt(servfd,
+							SOL_SOCKET,
+							SO_REUSEADDR | SO_REUSEPORT,
+							&opt,
+							sizeof(opt));
+	if (sso_ret == -1) {
+		close(servfd);
+		freeaddrinfo(addrinfos);
+		std::cerr << "setsockopt: " << strerror(errno) << std::endl;
+		return (-1);
+	}
+				
 
 	if (bind(servfd, addrinfos->ai_addr, addrinfos->ai_addrlen) == -1) {
+		close(servfd);
+		freeaddrinfo(addrinfos);
 		std::cerr << "bind: " << strerror(errno) << std::endl;
 		return (-1);
 	}
+	freeaddrinfo(addrinfos);
 	if (listen(servfd, 2) == -1) {
+		close(servfd);
 		std::cerr << "listen: " << strerror(errno) << std::endl;
 		return (-1);
 	}
-	freeaddrinfo(addrinfos);
 	return (servfd);
 }
 
-
-const std::string& getTemplateResponse(const std::string &requestContent) {
-	(void)requestContent;
-	static const std::string response =
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Type: text/html\r\n"
-		"Content-Length: 95\r\n"
-		"\r\n"
-		"<!DOCTYPE html><html><head><title>Test</title></head>"
-		"<body><h1>Hello, World!</h1></body></html>\r\n";
-	return response;
-}
-
-int setNonBlocking(int sockfd) {
-	if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
+int setNonBlocking(int fd) {
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
 		std::cerr << "fcntl: " << strerror(errno) <<std::endl;
 		return EXIT_FAILURE;
 	}
@@ -106,7 +111,7 @@ int setNonBlocking(int sockfd) {
 
 /**
  * erreurs possibles :
- * 	accept crash -> pas possible car servfd est dit grace a epoll, mais si ca marche pas on ferme le serveur
+ * 	accept crash -> pas possible car servfd est dit grace a epoll, mais si ca marche pas webserv doit exit
  * 	setNonBlocking (= fctnl) crash -> webserv doit exit
  * 	epoll_ctl(ADD) crash -> webserv doit exit
  */
@@ -172,41 +177,64 @@ int handleClient(Server& server, int clientfd) {
 	return (EXIT_SUCCESS);
 }
 
-int launchEpoll(Server &server) {
-	int servfd = createSocket(server);
-	if (servfd == -1)
-		return 1;
-
+int	createEpoll(int servfd) {
 	struct epoll_event ev;
-	struct epoll_event events[NB_EVENTS];
 
 	int epollfd = epoll_create(1);
 	if (epollfd == -1) {
-		std::cerr << "epoll_create:" << strerror(errno) << std::endl;
-		return (EXIT_FAILURE);
+		std::cerr << "epoll_create: " << strerror(errno) << std::endl;
+		close(servfd);
+		return (-1);
 	}
-	if (setNonBlocking(servfd) == EXIT_FAILURE)
-		return (EXIT_FAILURE);
+	if (setNonBlocking(servfd) == EXIT_FAILURE) {
+		close(servfd);
+		close(epollfd);
+		return (-1);
+	}
 	ev.events = EPOLLIN | EPOLLET;
 	ev.data.fd = servfd;
 	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, servfd, &ev) == -1) {
-		std::cerr << "epoll_ctl:" << strerror(errno) << std::endl;
-		return (EXIT_FAILURE);
+		std::cerr << "epoll_ctl: " << strerror(errno) << std::endl;
+		close(servfd);
+		close(epollfd);
+		return (-1);
 	}
 
+	return (epollfd);
+}
+
+void sigint_handler(int sig) {
+	(void)sig;
+}
+
+int launchEpoll(Server &server) {
+	int servfd = createSocket(server);
+	if (servfd == -1)
+		return (EXIT_FAILURE);
+
+	int epollfd = createEpoll(servfd);
+	if (epollfd == -1)
+		return (EXIT_FAILURE);
+
+	struct epoll_event events[NB_EVENTS];
 	int eventsReady;
+	signal(SIGINT, &sigint_handler);
 	while (1) {
 		printf("epoll_waiting\n");
 		eventsReady = epoll_wait(epollfd, events, MAX_EVENT_WAITED, -1);
 		if (eventsReady == -1) {
-			std::cerr << "epoll_wait:" << strerror(errno) << std::endl;
+			std::cerr << "\nepoll_wait: " << strerror(errno) << std::endl;
+			close(servfd);
+			close(epollfd);
 			return (EXIT_FAILURE);
 		}
 		std::cout << eventsReady << " event(s)" << std::endl;
 		for (int i = 0; i < eventsReady; ++i) {
 			if (events[i].data.fd == servfd) {
-				if (addClient(server, servfd, epollfd) == EXIT_FAILURE)
+				if (addClient(server, servfd, epollfd) == EXIT_FAILURE) {
+					close(epollfd);
 					return (EXIT_FAILURE);
+				}
 			} else {
 				if (handleClient(server, events[i].data.fd) == EXIT_FAILURE)
 					continue;

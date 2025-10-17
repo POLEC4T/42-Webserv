@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/15 15:30:48 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/17 13:30:51 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,8 @@ class	Server {
 		void		addErrorPage(const std::string& code, const std::string& root);
 		Client&		getClient(int fd);
 		void		addClient(const Client&);
-		void		removeClient(int fd);
+		void		deleteAllClients();
+		void		deleteClient(int fd);
 
 		std::map<std::string, Location>&	getLocations() ;
 

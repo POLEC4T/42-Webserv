@@ -43,7 +43,7 @@ OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 
 CXX = c++
 
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR)
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR) -g3
 RM = rm -rf
 
 all: $(NAME)
