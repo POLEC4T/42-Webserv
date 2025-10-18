@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/15 16:00:38 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/18 17:41:09 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,7 @@ class Request {
 		const std::string& 	getUri() const;
 		const std::string& 	getMethod() const;
 		const std::string&	getVersion() const;
+		const std::string&	getBody() const;
 
 	class NoHeaderValueException : public std::exception {
 		private:

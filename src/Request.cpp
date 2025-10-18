@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/15 15:52:38 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/18 17:41:20 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,11 @@ const std::string&  Request::getMethod() const
 const std::string&  Request::getVersion() const
 {
 	return _version;
+}
+
+const std::string&  Request::getBody() const
+{
+	return _body;
 }
 
 const char* Request::NoHeaderValueException::what() const throw() {

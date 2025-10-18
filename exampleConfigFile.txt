@@ -26,8 +26,9 @@ server {
     }
     
     location /upload {
-        allowed_methods POST;
-        root /var/www/monsite;
+        allowed_methods POST DELETE;
+        root /home/faoriol/Documents/webserv;
+
         
         # Répertoire où sauvegarder les uploads
         upload_path /var/www/uploads;

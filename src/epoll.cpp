@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/18 14:05:50 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/18 17:21:46 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ int handleClient(Server& server, int clientfd) {
 	
 	std::string response = me.getResponse().build();
 
-	std::cout << "response: \n" << response << std::endl;
+	// std::cout << "response: \n" << response << std::endl;
 
 	client.clearBuffer();
 

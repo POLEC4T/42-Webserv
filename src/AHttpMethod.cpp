@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/18 16:10:15 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/18 17:53:02 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,5 +65,19 @@ Response	AHttpMethod::DELETE(std::string filename, Request& req, Server& serv)
 		return Response(req.getVersion(), serv.getErrorPageByCode(403));
 	if (std::remove(filename.c_str()) != 0)
 		return Response(req.getVersion(), serv.getErrorPageByCode(404));
+	return Response(req.getVersion(), 200, "OK", "");
+}
+
+Response AHttpMethod::POST(std::string filename, Request& req, Server& serv)
+{
+	std::cout << "FILENAME : " << filename << std::endl;
+	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
+	std::cout << "DIRECTORY : " << directory << std::endl;
+	if (access(directory.c_str(), W_OK) != 0)
+		return Response(req.getVersion(), serv.getErrorPageByCode(403));
+	std::ofstream	file(filename.c_str(), std::ostream::out);
+	if (!file.is_open())
+		return Response(req.getVersion(), serv.getErrorPageByCode(404));
+	file << req.getBody() << "OEOE";
 	return Response(req.getVersion(), 200, "OK", "");
 }
