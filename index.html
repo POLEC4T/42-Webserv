@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Page de bienvenue</title>
+    <script>
+        function deleteFile() {
+            fetch('/remove/supp', { method: 'DELETE' });
+        }
+    </script>
 </head>
 <body>
-    <h1>Bonjour</h1>
+    <h1>Tie un tigre, Tie un lavabo</h1>
+    <button onclick="deleteFile()">Supprimer le fichier "a"</button>
 </body>
 </html>

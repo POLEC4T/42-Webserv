@@ -11,8 +11,8 @@ server {
     # error_page 500 /errors/500.html;
     
     location / {
-        allowed_methods GET POST;
-        root ./;
+        allowed_methods GET POST DELETE;
+        root /home/faoriol/Documents/webserv;
         
         index index.html index.php;
         
@@ -34,8 +34,8 @@ server {
         client_max_body_size 23123; # 5MB pour les uploads
     }
     
-    location /old-page {
-        return 301 /new-page;
+    location /redir {
+        return 301 https://www.google.com;
     }
     
     # ROUTE 5 : CGI pour PHP

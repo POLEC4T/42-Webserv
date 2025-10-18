@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:47:45 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/17 13:53:58 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/18 14:03:05 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ Response::Response(std::string v, int c, std::string s, std::string b)
     this->_code = c;
     this->_version = v;
     this->_body = b;
-    this->_headers["Content-Length"] = FtString::my_to_string(this->_body.size());
+    this->_headers["Content-Length"] = FtString::my_to_string(b.size());
 }
 
 Response::Response(std::string v, ErrorPage& page)
