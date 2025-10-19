@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/18 14:23:22 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/19 16:05:08 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,10 +124,8 @@ ErrorPage&	Server::getErrorPageByCode(const int code) {
 	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
 	if (it == _mapErrorPage.end())
 	{
-		std::cout << "oui" << std::endl;
 		return _mapDefaultErrorPage.find(code)->second;
 	}
-	std::cout << "non" << std::endl;
 	return it->second;
 }
 

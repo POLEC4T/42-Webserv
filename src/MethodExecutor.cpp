@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/18 19:53:40 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/19 16:04:50 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,6 @@ void    MethodExecutor::execute()
     if (returnHandler(this->_response, loc, this->_request) == 0)
         return ;
     std::string fileName(loc.getRoot());
-    std::cout << "BEFORE : " << fileName << std::endl;
     fileName += this->_request.getUri();
 
     if (this->_method == "GET" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "GET") != loc.getAllowedMethods().end())
