@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 10:11:47 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/17 17:16:38 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/20 19:57:17 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,5 +35,6 @@
 # include "CodeDefines.h"
 
 int	launchEpoll(Server &server);
+int my_epoll_ctl(int epollfd, int op, uint32_t events, int fd);
 
 #endif

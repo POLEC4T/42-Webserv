@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 17:05:38 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/20 20:59:02 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <string>
 #include "Request.hpp"
 #include "Server.hpp"
+#include "epoll.hpp"
 
 typedef enum e_client_status {
 	WAITING,
@@ -25,10 +26,12 @@ typedef enum e_client_status {
 class Client {
 	private:
 		Request			_request;
-		std::string		_buffer;
+		std::string		_recvBuffer;
+		std::string		_sendBuffer;
+		size_t			_sentIdx;
 		t_client_status	_status;
 		int 			_fd;
-		int				_getContentLength() const;
+		
 
 	public:
 		Client();
@@ -40,6 +43,7 @@ class Client {
 		t_client_status		getStatus() const;
 
 		void				setStatus(t_client_status status);
+		void				setSendBuffer(const std::string& buf);
 
 		void				appendBuffer(char *buffer);
 		void				appendBuffer(const char *buffer);
@@ -51,6 +55,8 @@ class Client {
 		Request&			getRequest();
 		void				parseRequest();
 		void 				resetForNextRequest();
+
+		int					sendPendingResponse(int epollfd);
 };
 
 #endif
