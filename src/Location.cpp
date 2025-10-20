@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/14 23:26:05 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/20 16:11:00 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 
 Location::Location(): APage() {
-	_clientMaxBodySize = 0;
+	_clientMaxBodySize = -1;
 	_autoIndex = false;
 }
 
@@ -55,11 +55,10 @@ Location::~Location() {}
 
 
 //constructor with assignement values
-Location::Location(std::string name, std::string root): APage(name, root) {}
+Location::Location(std::string name, std::string root): APage(name, root) { this->_clientMaxBodySize = -1;}
 
 Location::Location(std::string name, std::string root,
-				std::string content, int code): APage(name, root, content, code) {}
-
+				std::string content, int code): APage(name, root, content, code) { this->_clientMaxBodySize = -1;}
 
 
 //Setter
@@ -121,7 +120,7 @@ const std::string&	Location::getCgiPath() {
 	return _cgiPath;
 }
 
-size_t	Location::getClientMaxBodySize() {
+long long	Location::getClientMaxBodySize() {
 	return _clientMaxBodySize;
 }
 

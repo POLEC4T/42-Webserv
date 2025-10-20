@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:37:42 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/17 13:31:22 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/18 19:53:30 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ class	AHttpMethod {
 		
 	public:
 		static Response	GET(std::string, Location&, Request&, Server&);
-		// Response	POST(std::string, Location);
-		// Response	DELETE(std::string, Location);
+		static Response	DELETE(std::string, Request&, Server&);
+		static Response POST(std::string filename, Location& loc, Request& req, Server& serv);
 };
 
 #endif

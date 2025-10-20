@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 17:05:19 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/20 18:39:35 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,11 @@ bool				Request::parsedBody() const {
 	return _parsedBody;	
 }
 
+
+const std::string&  Request::getBody() const
+{
+	return _body;
+}
 
 const char* Request::NoHeaderValueException::what() const throw() {
 	if (_message.empty())

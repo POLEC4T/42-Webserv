@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 17:15:24 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/20 18:38:04 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ class Request {
 		bool				parsedRequestLine() const;
 		bool				parsedHeaders() const;
 		bool				parsedBody() const;
+		const std::string&	getBody() const;
 
 	class NoHeaderValueException : public std::exception {
 		private:
