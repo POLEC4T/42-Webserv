@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/17 14:31:02 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/20 15:57:48 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,12 @@ class	Server {
 		std::vector<std::string>		_name;
 		std::string						_host;
 		std::string						_port;
-		int								_clientMaxBodySize;
+		long long						_clientMaxBodySize;
 		std::map<std::string, Location>	_mapLocation;
 		std::map<int, ErrorPage>		_mapErrorPage;
 		std::map<int, ErrorPage>		_mapDefaultErrorPage;
 		std::map<int, Client>			_mapClients;
+		int								_timedOut;
 	
 	public:
 		//Canonical constructor
@@ -50,7 +51,8 @@ class	Server {
 		//Getter
 		const std::vector<std::string>&		getNames() const ;
 		const std::string&					getPort() const;
-		int									getClientMaxBodySize() const ;
+		long long							getClientMaxBodySize() const ;
+		int									getTimedOutValue() const ;
 		const std::string&					getHost() const;
 		
 		//Specific map

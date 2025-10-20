@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/07 13:38:13 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/20 15:57:11 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ class	Location : public APage {
 		std::vector<std::string>	_allowedMethods;
 		std::vector<std::string>	_index;
 		bool						_autoIndex;
-		size_t						_clientMaxBodySize;
+		long long					_clientMaxBodySize;
 		std::string					_uploadPath;
 		std::string					_return;
 		std::string					_cgiExtension;
@@ -56,7 +56,7 @@ class	Location : public APage {
 		const std::vector<std::string>	getIndex();
 	
 		bool							getAutoIndex();
-		size_t							getClientMaxBodySize();
+		long long						getClientMaxBodySize();
 
 		const std::string&				getCgiExtension();
 		const std::string&				getCgiPath();

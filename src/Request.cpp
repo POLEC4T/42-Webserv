@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/18 17:41:20 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/20 15:52:23 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ const std::string& Request::getHeaderValue(const std::string &key) const {
 }
 
 std::string Request::_extractBody(const std::string &req) const {
-	std::string bodySize = getHeaderValue("Content-Size");
+	std::string bodySize = getHeaderValue("Content-Length");
 
 	size_t startBody = req.find("\r\n\r\n") + 4;
 	size_t sizeBody = atoi(bodySize.c_str());
@@ -131,7 +131,7 @@ void Request::_parseRequestLine(const std::string &reqContent) {
 void Request::parseRequest(const std::string &reqContent) {
 	_parseRequestLine(reqContent);
 	_headers = _extractHeaders(reqContent);
-	if (_headers["Content-Size"].empty() == false) {
+	if (_headers["Content-Length"].empty() == false) {
 		_body = _extractBody(reqContent);
 	}
 }

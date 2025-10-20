@@ -6,14 +6,14 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/19 16:05:08 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/20 16:14:23 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 Server::Server() {
-	_clientMaxBodySize = 0;
+	_clientMaxBodySize = -1;
 }
 
 Server::Server(const Server& cpy) {
@@ -56,6 +56,7 @@ Server::Server(int port, int clientMaxBodySize) {
 }
 
 Server::Server(std::map<int, ErrorPage> errorPages) {
+	_clientMaxBodySize = -1;
 	_mapDefaultErrorPage = errorPages;
 }
 
@@ -94,9 +95,15 @@ const std::string&	Server::getPort() const {
 	return _port;
 }
 
-int	Server::getClientMaxBodySize() const {
+long long	Server::getClientMaxBodySize() const {
 	return _clientMaxBodySize;
 }
+
+int	Server::getTimedOutValue() const {
+	return _timedOut;
+}
+
+
 
 const std::string&	Server::getHost() const {
 	return _host;

@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/19 16:02:21 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/20 16:16:00 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,16 @@
 #include "Server.hpp"
 #include <string>
 #include <dirent.h>
+
+long long getMaxBodySize(Location& loc, Server& serv)
+{
+	long long	defaultV = 1048576;
+	if (loc.getClientMaxBodySize() != -1)
+		return loc.getClientMaxBodySize();
+	if (serv.getClientMaxBodySize() != -1)
+		return serv.getClientMaxBodySize();
+	return defaultV;	
+}
 
 std::string	readPage(std::string fileName)
 {
@@ -93,7 +103,9 @@ Response	AHttpMethod::DELETE(std::string filename, Request& req, Server& serv)
 
 Response AHttpMethod::POST(std::string filename, Location& loc, Request& req, Server& serv)
 {
-	if (req.getBody().size() * sizeof(char) > loc.getClientMaxBodySize())
+	long long realBodySize(req.getBody().size() * sizeof(char));
+	
+	if (realBodySize > getMaxBodySize(loc, serv))
 		return Response(req.getVersion(), serv.getErrorPageByCode(413));
 		
 	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
@@ -103,7 +115,7 @@ Response AHttpMethod::POST(std::string filename, Location& loc, Request& req, Se
 	std::ofstream	file(filename.c_str(), std::ostream::out);
 	if (!file.is_open())
 		return Response(req.getVersion(), serv.getErrorPageByCode(404));
-	file << req.getBody() << "OEOE";
+	file << req.getBody();
 	
 	return Response(req.getVersion(), 200, "OK", "");
 }

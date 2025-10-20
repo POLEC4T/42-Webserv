@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:47:45 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/19 15:10:20 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/20 18:07:54 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ Response::Response(std::string v, int c, std::string s, std::string b)
     this->_version = v;
     this->_body = b;
     this->_headers["Content-Length"] = FtString::my_to_string(b.size());
-    this->_headers["Content-type"] = "text/html";
+    // this->_headers["Content-type"] = "text/html";
 }
 
 Response::Response(std::string v, ErrorPage& page)
@@ -33,7 +33,7 @@ Response::Response(std::string v, ErrorPage& page)
     this->_version = v;
     this->_body = page.getContent();
     this->_headers["Content-Length"] = FtString::my_to_string(page.getContent().size());
-    this->_headers["Content-type"] = "text/html";
+    // this->_headers["Content-type"] = "text/html";
 }
 
 

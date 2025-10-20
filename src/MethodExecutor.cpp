@@ -6,12 +6,13 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/19 16:04:50 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/20 16:14:39 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
 #include "unistd.h"
+#include <ctime>
 
 std::string	readPage(std::string fileName);
 
@@ -94,8 +95,6 @@ void    MethodExecutor::execute()
         this->_response = AHttpMethod::DELETE(fileName, this->_request, this->_server);
     else
         this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(405));
-    // std::cout << loc.getCode() << std::endl;
-    // AHttpMethod::GET("index.html", loc);
 }
 
 MethodExecutor::~MethodExecutor() {}
