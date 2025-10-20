@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/17 14:31:02 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/17 18:03:07 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include "Client.hpp"
 # include <unistd.h>
 
+class	Client;
 class	Server {
 	private:
 		std::vector<std::string>		_name;

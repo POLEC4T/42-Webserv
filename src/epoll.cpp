@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/17 15:03:29 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/20 18:33:15 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 
 int readRequest(Server& server, Client &client) {
 	char buffer[BUFFER_SIZE] = { 0 };
-
 	ssize_t sizeRead;
+
 	sizeRead = recv(client.getFd(), buffer, BUFFER_SIZE, 0);
 	if (sizeRead == -1) {
 		std::cerr << "recv:" << strerror(errno) << std::endl;
@@ -30,11 +30,6 @@ int readRequest(Server& server, Client &client) {
 		return (EXIT_FAILURE);
 	}
 	client.appendBuffer(buffer);
-	
-	if (client.hasReceivedFullReq())
-		client.setStatus(READY);
-	else
-		client.setStatus(WAITING);
 	return (EXIT_SUCCESS);
 }
 
@@ -92,6 +87,7 @@ int createSocket(const Server &server) {
 		std::cerr << "bind: " << strerror(errno) << std::endl;
 		return (-1);
 	}
+	
 	freeaddrinfo(addrinfos);
 	if (listen(servfd, 2) == -1) {
 		close(servfd);
@@ -124,52 +120,49 @@ int addClient(Server& server, int servfd, int epollfd) {
 		return (EXIT_FAILURE);
 	}
 
-	if (setNonBlocking(clientfd) == EXIT_FAILURE)
+	if (setNonBlocking(clientfd) == EXIT_FAILURE) {
+		close(clientfd);
 		return (EXIT_FAILURE);
+	}
 
 	struct epoll_event ev;
 	ev.events = EPOLLIN | EPOLLET; //EPOLLET: epoll_wait() will only report an event once
 	ev.data.fd = clientfd;
 	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, clientfd, &ev) == -1) {
 		std::cerr << "epoll_ctl: " << strerror(errno) << std::endl;
+		close(clientfd);
 		return (EXIT_FAILURE);
 	}
+	
 	Client cl(clientfd);
-
 	server.addClient(cl);
 	std::cout << "New connection, fd: " << clientfd << std::endl;
 	return (EXIT_SUCCESS);
 }
 
 int handleClient(Server& server, int clientfd) {
-	Request req;
 	Client& client = server.getClient(clientfd);
-	
+
 	if (readRequest(server, client) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 
-	if (client.getStatus() == WAITING)
-		return (EXIT_SUCCESS);
-
+	std::string response;
 	try {
-		req.parseRequest(client.getBuffer());
+		client.parseRequest();
+		if (client.getStatus() == WAITING)
+			return (EXIT_SUCCESS);
+		MethodExecutor me(server, client.getRequest(), client.getRequest().getMethod());
+		response = me.getResponse().build();
 	} catch (const std::exception& e) {
-		std::cerr << e.what() << std::endl;
-		client.clearBuffer();
-		return (EXIT_FAILURE);
+		response = Response("HTTP/1.1", server.getErrorPageByCode(BAD_REQUEST)).build();
 	}
 
-	MethodExecutor me(server, req, req.getMethod());
-	
-	std::string response = me.getResponse().build();
-
-	std::cout << "response: \n" << response << std::endl;
-
-	client.clearBuffer();
 
 	if (send(clientfd, response.c_str(), response.size(), 0) == -1)
 		std::cout << "send: " << strerror(errno) << std::endl;
 
+	client.resetForNextRequest();
+	
 	std::cout << "Response sent" << std::endl;
 	return (EXIT_SUCCESS);
 }
@@ -237,6 +230,7 @@ int launchEpoll(Server &server) {
 		for (int i = 0; i < eventsReady; ++i) {
 			if (events[i].data.fd == servfd) {
 				if (addClient(server, servfd, epollfd) == EXIT_FAILURE) {
+					close(servfd);
 					close(epollfd);
 					return (EXIT_FAILURE);
 				}

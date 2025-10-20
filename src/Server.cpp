@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/17 14:57:46 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/20 16:36:29 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,6 @@ ErrorPage&	Server::getErrorPageByCode(const int code) {
 	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
 	if (it == _mapErrorPage.end())
 	{
-		std::cout << "oui" << std::endl;
 		return _mapDefaultErrorPage.find(code)->second;
 	}
 	std::cout << "non" << std::endl;
@@ -164,6 +163,7 @@ void	Server::deleteAllClients() {
 	std::map<int, Client>::iterator it;
 
 	for (it = _mapClients.begin(); it != _mapClients.end(); ++it) {
+		std::cout << "Closing client with fd " << it->first << std::endl;
 		close(it->first);
 	}
 	_mapClients.clear();
