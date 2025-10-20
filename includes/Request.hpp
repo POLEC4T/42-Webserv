@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 19:29:43 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/18 17:41:09 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,30 +56,33 @@
 # include <exception>
 # include <cstdlib> 
 # include "FtString.hpp" 
-# include "Server.hpp"
+
+class Server;
 
 class Request {
 	private:
-		const Server& _server;
 		std::string _method;
 		std::string _uri;
 		std::string _version;
-		std::map< std::string, std::vector<std::string> > _headers;
+		std::map<std::string, std::string> _headers;
 		std::string _body;
 
-		const std::string& _getHeaderValue(const std::string &key) const;
 		
-		std::map< std::string, std::vector<std::string> > _extractHeaders(const std::string &req) const;
+		std::map<std::string, std::string> _extractHeaders(const std::string &req) const;
 		std::string _extractBody(const std::string &req) const;
 		void _parseRequestLine(const std::string &reqContent);
 	
 	public:
 		~Request();
-		Request(const Server& server);
+		Request();
 
 		void 				parseRequest(const std::string &reqContent);
 		void 				displayRequest() const;
+		const std::string&	getHeaderValue(const std::string &key) const;
 		const std::string& 	getUri() const;
+		const std::string& 	getMethod() const;
+		const std::string&	getVersion() const;
+		const std::string&	getBody() const;
 
 	class NoHeaderValueException : public std::exception {
 		private:

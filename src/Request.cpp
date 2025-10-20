@@ -3,20 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 18:38:18 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/18 17:41:20 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+#include "Server.hpp"
 
 Request::~Request() {}
 
-Request::Request(const Server& server) : _server(server) {
-	(void) _server;
-}
+Request::Request() {}
 
 /** RFC 7230:
  * - check if header must be unique (Content-Length, Host, etc) 400
@@ -37,8 +36,8 @@ Request::Request(const Server& server) : _server(server) {
  * 		' ' are valid, but only to separate tokens, quoted-strings and comments 
  * - discuter du header Transfer-Encoding, ca a l'air hyper complexe, est ce qu'on doit vraiment le faire ? ou on va s'arreter ?
  */
-std::map< std::string, std::vector<std::string> > Request::_extractHeaders(const std::string &req) const {
-	std::map< std::string, std::vector<std::string> > headers;
+std::map< std::string, std::string> Request::_extractHeaders(const std::string &req) const {
+	std::map< std::string, std::string> headers;
 	size_t startLine = 0;
 	size_t endLine = req.find("\r\n");
 	std::string line = req.substr(startLine, endLine);
@@ -65,20 +64,23 @@ std::map< std::string, std::vector<std::string> > Request::_extractHeaders(const
 		if (value.empty())
 			throw NoHeaderValueException(key);
 
-		headers[key].push_back(value);
+		headers[key] = value;
 	}
 	return headers;
 }
 
-const std::string& Request::_getHeaderValue(const std::string &key) const {
-	std::map<std::string, std::vector<std::string> >::const_iterator it = _headers.find(key);
+/**
+ * @throws if key not found
+ */
+const std::string& Request::getHeaderValue(const std::string &key) const {
+	std::map<std::string, std::string>::const_iterator it = _headers.find(key);
 	if (it == _headers.end())
 		throw NoHeaderValueException(key);
-	return (it->second[0]);
+	return (it->second);
 }
 
 std::string Request::_extractBody(const std::string &req) const {
-	std::string bodySize = _getHeaderValue("Content-Size");
+	std::string bodySize = getHeaderValue("Content-Size");
 
 	size_t startBody = req.find("\r\n\r\n") + 4;
 	size_t sizeBody = atoi(bodySize.c_str());
@@ -129,7 +131,7 @@ void Request::_parseRequestLine(const std::string &reqContent) {
 void Request::parseRequest(const std::string &reqContent) {
 	_parseRequestLine(reqContent);
 	_headers = _extractHeaders(reqContent);
-	if (_headers["Content-Size"].size() > 0 && _headers["Content-Size"][0].size() > 0) {
+	if (_headers["Content-Size"].empty() == false) {
 		_body = _extractBody(reqContent);
 	}
 }
@@ -139,20 +141,29 @@ void Request::displayRequest() const {
 	std::cout << "URI: '" << _uri << "'" << std::endl;
 	std::cout << "Version: '" << _version << "'" << std::endl;
 	std::cout << "Headers: " << std::endl;
-	for (std::map< std::string, std::vector<std::string> >::const_iterator it = _headers.begin(); it != _headers.end(); ++it) {
-		std::cout << "  '" << it->first << "': '";
-		for (size_t i = 0; i < it->second.size(); ++i) {
-			std::cout << it->second[i];
-			if (i < it->second.size() - 1)
-				std::cout << ", ";
-		}
-		std::cout << "'" << std::endl;
+	for (std::map< std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); ++it) {
+		std::cout << "  '" << it->first << "': '" << it->second << "'" << std::endl;
 	}
 	std::cout << "Body: '" << _body << "'" << std::endl;
 }
 
 const std::string& Request::getUri() const {
 	return _uri;
+}
+
+const std::string&  Request::getMethod() const
+{
+	return _method;
+}
+
+const std::string&  Request::getVersion() const
+{
+	return _version;
+}
+
+const std::string&  Request::getBody() const
+{
+	return _body;
 }
 
 const char* Request::NoHeaderValueException::what() const throw() {

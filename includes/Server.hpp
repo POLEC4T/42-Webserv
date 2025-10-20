@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 19:23:41 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/17 14:31:02 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 # include "Location.hpp"
 # include "ErrorPage.hpp"
+# include "Client.hpp"
+# include <unistd.h>
 
 class	Server {
 	private:
@@ -25,6 +27,7 @@ class	Server {
 		std::map<std::string, Location>	_mapLocation;
 		std::map<int, ErrorPage>		_mapErrorPage;
 		std::map<int, ErrorPage>		_mapDefaultErrorPage;
+		std::map<int, Client>			_mapClients;
 	
 	public:
 		//Canonical constructor
@@ -52,13 +55,18 @@ class	Server {
 		
 		//Specific map
 		APage&		getLocationByName(const std::string&);
-		APage&		getErrorPageByCode(const int);
+		ErrorPage&		getErrorPageByCode(const int);
+		void			setDefaultMapErrorPage(const std::map<int, ErrorPage>&);
 
 		void		addLocation(const Location&);
 		void		addErrorPage(const ErrorPage&);
 		void		addErrorPage(const std::string& code, const std::string& root);
+		Client&		getClient(int fd);
+		void		addClient(const Client&);
+		void		deleteAllClients();
+		void		deleteClient(int fd);
 
-		std::map<std::string, Location>&	getLocations();
+		std::map<std::string, Location>&	getLocations() ;
 
 		//Parser
 		void		parseAndAddLocation(std::vector<std::string>::iterator&, 

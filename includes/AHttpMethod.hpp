@@ -3,24 +3,32 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpMethod.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:37:42 by mazakov           #+#    #+#             */
-/*   Updated: 2025/09/27 15:03:44 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/18 19:53:30 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef	AHTTPMETHOD_HPP
 # define AHTTPMETHOD_HPP
 
+#include "Headers.h"
+#include "Response.hpp"
+#include "Location.hpp"
+#include "Request.hpp"
+
+class Location;
+
 class	AHttpMethod {
 	private:
-
-	public:
 		AHttpMethod();
-		AHttpMethod(const AHttpMethod& cpy);
-		AHttpMethod& operator=(const AHttpMethod& other);
 		virtual ~AHttpMethod() = 0;
+		
+	public:
+		static Response	GET(std::string, Location&, Request&, Server&);
+		static Response	DELETE(std::string, Request&, Server&);
+		static Response POST(std::string filename, Location& loc, Request& req, Server& serv);
 };
 
 #endif

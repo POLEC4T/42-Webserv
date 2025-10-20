@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 18:40:37 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/20 11:49:00 by dorianmazar      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,9 @@ Server::Server(const Server& cpy) {
 	_clientMaxBodySize = cpy._clientMaxBodySize;
 	_mapLocation = cpy._mapLocation;
 	_mapErrorPage = cpy._mapErrorPage;
+	this->_mapDefaultErrorPage = cpy._mapDefaultErrorPage;
+	_mapClients = cpy._mapClients;
+
 }
 
 Server&	Server::operator=(const Server& other) {
@@ -34,11 +37,15 @@ Server&	Server::operator=(const Server& other) {
 		this->_clientMaxBodySize = other._clientMaxBodySize;
 		this->_mapLocation = other._mapLocation;
 		this->_mapErrorPage = other._mapErrorPage;
+		this->_mapDefaultErrorPage = other._mapDefaultErrorPage;
+		this->_mapClients = other._mapClients;
 	}
 	return *this;
 }
 
-Server::~Server() {}
+Server::~Server() {
+	deleteAllClients();
+}
 
 
 
@@ -113,11 +120,11 @@ void	Server::addErrorPage(const ErrorPage& errorPage) {
 	_mapErrorPage.insert(std::make_pair(errorPage.getCode(), errorPage));
 }
 
-APage&	Server::getErrorPageByCode(const int code) {
+ErrorPage&	Server::getErrorPageByCode(const int code) {
 	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
 	if (it == _mapErrorPage.end())
 	{
-		return _mapDefaultErrorPage[code];
+		return _mapDefaultErrorPage.find(code)->second;
 	}
 	return it->second;
 }
@@ -132,6 +139,37 @@ void	Server::addErrorPage(const std::string& name, const std::string& root) {
 		throw (Error::IntExpected(name));
 	errorPage.setCode(code);
 	addErrorPage(errorPage);
+}
+
+
+Client&		Server::getClient(int fd) {
+	return (_mapClients[fd]);
+}
+
+/**
+ * @brief adds a new client to the client map
+ * The warning should never happen, but just in case
+ */
+void	Server::addClient(const Client& client) {
+	if (_mapClients.find(client.getFd()) != _mapClients.end()){
+		std::cout << "Warning: client with fd " << client.getFd() << " already exists, overwriting it" << std::endl;
+		deleteClient(client.getFd());
+	}
+	_mapClients[client.getFd()] = client;
+}
+
+void	Server::deleteAllClients() {
+	std::map<int, Client>::iterator it;
+
+	for (it = _mapClients.begin(); it != _mapClients.end(); ++it) {
+		close(it->first);
+	}
+	_mapClients.clear();
+}
+
+void	Server::deleteClient(int fd) {
+	close(fd);
+	_mapClients.erase(fd);
 }
 
 void	Server::parseAndAddLocation(std::vector<std::string>::iterator& it, const std::vector<std::string>::iterator itEnd) {
@@ -232,6 +270,11 @@ void	Server::parseAndAddLocation(std::vector<std::string>::iterator& it, const s
 	if (isClosed != 0)
 		throw (Error::ErrorBracketParseFile());
 	addLocation(newLocation);
+}
+
+void	Server::setDefaultMapErrorPage(const std::map<int, ErrorPage>& map)
+{
+	this->_mapDefaultErrorPage = map;
 }
 
 std::map<std::string, Location>& Server::getLocations() {
