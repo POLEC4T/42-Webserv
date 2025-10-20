@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   epoll.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 18:40:38 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/20 18:56:10 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,8 +78,7 @@ int createSocket(const Server &server) {
 		freeaddrinfo(addrinfos);
 		std::cerr << "setsockopt: " << strerror(errno) << std::endl;
 		return (-1);
-	}
-				
+	}		
 
 	if (bind(servfd, addrinfos->ai_addr, addrinfos->ai_addrlen) == -1) {
 		close(servfd);
@@ -107,9 +106,10 @@ int setNonBlocking(int fd) {
 
 /**
  * erreurs possibles :
- * 	accept crash -> pas possible car servfd est dit grace a epoll, mais si ca marche pas webserv doit exit
- * 	setNonBlocking (= fctnl) crash -> webserv doit exit
- * 	epoll_ctl(ADD) crash -> webserv doit exit
+ * 		accept crash -> pas possible car servfd est dit grace a epoll, mais si ca marche pas webserv doit exit
+ * 		setNonBlocking (= fctnl) crash -> webserv doit exit
+ * 		epoll_ctl(ADD) crash -> webserv doit exit
+ * 	-> dans tous les cas webserv doit exit
  */
 int addClient(Server& server, int servfd, int epollfd) {
 	struct sockaddr clientAddr;
@@ -156,7 +156,6 @@ int handleClient(Server& server, int clientfd) {
 	} catch (const std::exception& e) {
 		response = Response("HTTP/1.1", server.getErrorPageByCode(BAD_REQUEST)).build();
 	}
-
 
 	if (send(clientfd, response.c_str(), response.size(), 0) == -1)
 		std::cout << "send: " << strerror(errno) << std::endl;
