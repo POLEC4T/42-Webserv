@@ -1,9 +1,18 @@
 #include "Context.hpp"
 #include "Request.hpp"
+#include "Headers.h"
+#include "Server.hpp"
+#include "MethodExecutor.hpp"
+#include "epoll.hpp"
 
 int main(int ac, char **av) {
 	Context	ctx;
 
+	if (ac != 2)
+	{
+		std::cerr << "Usage: ./webserv [ConfigFile]" << std::endl;
+		return 1;
+	}
 	try {
 		ctx.parseAndSetMapDefaultErrorPage();
 	}
@@ -11,56 +20,28 @@ int main(int ac, char **av) {
 		std::cerr << e.what() << std::endl;
 		return 1;
 	}
-	// std::map<int, ErrorPage> errorPages = ctx.getMapDefaultErrorPage();
-	// for (std::map<int, ErrorPage>::iterator it = errorPages.begin(); it != errorPages.end(); it++) {
-	// 	std::cout << "Name: " << it->second.getName() << std::endl;
-	// 	std::cout << "Content: " << it->second.getContent() << std::endl;
-	// 	std::cout << "Code: " << it->second.getCode() << std::endl;
-	// }
-	
-	(void) ac;
-	(void) av;
-	// if (ac != 2)
-	// {
-	// 	std::cerr << "Usage: ./webserv [ConfigFile]" << std::endl;
-	// 	return 1;
-	// }
-	// try {
-	// 	ctx.configFileParser(av[1]);
-	// }
-	// catch (std::exception& e) {
-	// 	std::cerr << e.what() << std::endl;
-	// }
+	std::map<int, ErrorPage> errorPages = ctx.getMapDefaultErrorPage();
+	if (ac != 2)
+	{
+		std::cerr << "Usage: ./webserv [ConfigFile]" << std::endl;
+		return 1;
+	}
+	try {
+		ctx.configFileParser(av[1], ctx.getMapDefaultErrorPage());
+	}
+	catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
+	}
 
-	// std::string reqExample;
-	// reqExample += "GET / HTTP/1.1\r\n";
-	// reqExample += "Host: localhost\r\n";
-	// reqExample += "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\r\n";
-	// reqExample += "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n";
-	// reqExample += "Accept-Language: en-US,en;q=0.5\r\n";
-	// reqExample += "Accept-Encoding: gzip, deflate\r\n";
-	// reqExample += "Connection: keep-alive\r\n";
-	// reqExample += "Cache-Control: max-age=0\r\n";
-	// reqExample += "\r\n";
+	std::vector<Server> servers = ctx.getServers();
+	for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); it++)
+		it->setDefaultMapErrorPage(ctx.getMapDefaultErrorPage());
 
-	// const std::vector<Server> servers = ctx.getServers();
-	// Server serv = servers[0];
-	// Request req(serv);
-	// try {
-	// 	req.init(reqExample);
-	// } catch (std::exception &e) {
-		
-	// 	std::cout << e.what() << std::endl;
-	// }
+	Server &serv = servers[0];
 
-	// FtString str("  aa   aab    c   ");
-
-	// std::vector<std::string> vec = str.ft_split(" ");
-	// for (size_t i = 0; i < vec.size(); i++) {
-	// 	std::cout << "'" << vec[i] << "'" << std::endl;
-	// }
-
-	// // req.displayRequest();
-
-	// return 0;
+	if (launchEpoll(serv) == -1)
+	{
+		return (1);
+	}
+	return 0;
 }

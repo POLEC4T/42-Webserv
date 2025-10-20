@@ -6,14 +6,16 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:33:39 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/13 11:02:10 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/15 16:15:26 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FTSTRING_HPP
 #define FTSTRING_HPP
 
+#include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 
 /**
@@ -40,6 +42,13 @@ class FtString : public std::string {
 		bool endsWith(const std::string& str) const;
 		bool startsOrEndsWith(const std::string& str) const;
 		bool hasXElemsSepByDel(int nbElems, const std::string& delimiter) const;
+
+		template <typename T>
+		static std::string my_to_string(T value) {
+			std::ostringstream oss;
+			oss << value;
+			return (oss.str());
+		}
 
 		// modifiers
 		void ltrim();

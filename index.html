@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Page de bienvenue</title>
+
+<script>
+  function sendDelete() {
+    fetch('/upload/post.txt', {
+      method: 'DELETE'
+    })
+  }
+
+  function sendPost() {
+    fetch('/upload/post.txt', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message: 'bonsoir' })
+    })
+  }
+</script>
+</head>
+<body>
+    <h1>Tie un tigre, Tie un lavabo</h1>
+    <button onclick="sendDelete()">DELETE</button>
+    <button onclick="sendPost()">POST</button>
+</body>
+</html>

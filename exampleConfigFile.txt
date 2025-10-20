@@ -6,39 +6,27 @@ server {
     
     client_max_body_size 1048576;  # 1MB
     
-    error_page 404 /errors/404.html;
-    error_page 403 /errors/403.html;
-    error_page 500 /errors/500.html;
+    # error_page 404 ./errors/404.html;
+    # error_page 403 /errors/403.html;
+    # error_page 500 /errors/500.html;
     
     location / {
-        allowed_methods GET POST;
-        root /var/www/monsite;
-        
+        allowed_methods GET POST DELETE;
+        root /home/faoriol/Documents/webserv;
         index index.html index.php;
-        
         autoindex on;
     }
-    
-    location /api {
-        allowed_methods GET POST  DELETE;
-        root /var/www/monsite/api;
-        autoindex off;
-    }
-    
+
     location /upload {
-        allowed_methods POST;
-        root /var/www/monsite;
-        
-        # Répertoire où sauvegarder les uploads
-        upload_path /var/www/uploads;
-        client_max_body_size 23123; # 5MB pour les uploads
+        allowed_methods POST DELETE;
+        root /home/faoriol/Documents/webserv;
+        client_max_body_size 0; # 5MB pour les uploads
+    }
+
+    location /redir {
+        return 301 https://www.google.com;
     }
     
-    location /old-page {
-        return 301 /new-page;
-    }
-    
-    # ROUTE 5 : CGI pour PHP
     location /cgi-bin {
         allowed_methods GET POST; 
         root /var/www/cgi-bin;
@@ -51,20 +39,11 @@ server {
         # pour les chemins relatifs
     }
     
-    # ROUTE 6 : Scripts Python CGI
     location /python {
         allowed_methods GET POST;
         root /var/www/python-scripts;
         cgi_extension .py;
         cgi_path /usr/bin/python3;
-    }
-    
-    # ROUTE 7 : Répertoire avec listing désactivé
-    location /private {
-        allowed_methods GET;
-        root /var/www/private;
-        autoindex off;
-        index forbidden.html;  # Pas d'index par défaut
     }
 }
 
