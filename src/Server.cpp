@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/20 16:14:23 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/20 18:39:45 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,6 +169,7 @@ void	Server::deleteAllClients() {
 	std::map<int, Client>::iterator it;
 
 	for (it = _mapClients.begin(); it != _mapClients.end(); ++it) {
+		std::cout << "Closing client with fd " << it->first << std::endl;
 		close(it->first);
 	}
 	_mapClients.clear();

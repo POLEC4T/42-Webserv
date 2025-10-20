@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/18 17:41:09 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/20 18:38:04 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,22 +66,25 @@ class Request {
 		std::string _version;
 		std::map<std::string, std::string> _headers;
 		std::string _body;
-
-		
-		std::map<std::string, std::string> _extractHeaders(const std::string &req) const;
-		std::string _extractBody(const std::string &req) const;
-		void _parseRequestLine(const std::string &reqContent);
+		bool _parsedRequestLine;
+		bool _parsedHeaders;
+		bool _parsedBody;
 	
 	public:
-		~Request();
 		Request();
+		~Request();
 
-		void 				parseRequest(const std::string &reqContent);
+		void				parseHeaders(const std::string &reqContent);
+		void				parseBody(const std::string &reqContent, int bodyLength);
+		void				parseRequestLine(const std::string &reqContent);
 		void 				displayRequest() const;
 		const std::string&	getHeaderValue(const std::string &key) const;
 		const std::string& 	getUri() const;
 		const std::string& 	getMethod() const;
 		const std::string&	getVersion() const;
+		bool				parsedRequestLine() const;
+		bool				parsedHeaders() const;
+		bool				parsedBody() const;
 		const std::string&	getBody() const;
 
 	class NoHeaderValueException : public std::exception {
@@ -103,11 +106,18 @@ class Request {
 	};
 
 	class RequestLineException : public std::exception {
-		virtual const char* what() const throw();
+		public:
+			virtual const char* what() const throw();
 	};
 
 	class NoHeaderColumnException : public std::exception {
-		virtual const char* what() const throw();
+		public:
+			virtual const char* what() const throw();
+	};
+
+	class MaxBodySizeExceededException : public std::exception {
+		public:
+			virtual const char* what() const throw();
 	};
 };
 

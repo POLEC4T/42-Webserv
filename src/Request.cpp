@@ -6,16 +6,19 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 15:52:23 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/20 18:39:35 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "Server.hpp"
 
-Request::~Request() {}
+Request::Request() :
+_parsedRequestLine(false),
+_parsedHeaders(false),
+_parsedBody(false) {}
 
-Request::Request() {}
+Request::~Request() {}
 
 /** RFC 7230:
  * - check if header must be unique (Content-Length, Host, etc) 400
@@ -36,8 +39,7 @@ Request::Request() {}
  * 		' ' are valid, but only to separate tokens, quoted-strings and comments 
  * - discuter du header Transfer-Encoding, ca a l'air hyper complexe, est ce qu'on doit vraiment le faire ? ou on va s'arreter ?
  */
-std::map< std::string, std::string> Request::_extractHeaders(const std::string &req) const {
-	std::map< std::string, std::string> headers;
+void Request::parseHeaders(const std::string &req) {
 	size_t startLine = 0;
 	size_t endLine = req.find("\r\n");
 	std::string line = req.substr(startLine, endLine);
@@ -47,9 +49,7 @@ std::map< std::string, std::string> Request::_extractHeaders(const std::string &
 		endLine = req.find("\r\n", startLine);
 		line = req.substr(startLine, endLine - startLine);
 
-		size_t columnIdx;
-
-		columnIdx = line.find(':');
+		size_t columnIdx = line.find(':');
 		if (columnIdx == std::string::npos)
 			throw NoHeaderColumnException();
 
@@ -64,9 +64,9 @@ std::map< std::string, std::string> Request::_extractHeaders(const std::string &
 		if (value.empty())
 			throw NoHeaderValueException(key);
 
-		headers[key] = value;
+		_headers[key] = value;
 	}
-	return headers;
+	_parsedHeaders = true;
 }
 
 /**
@@ -79,13 +79,10 @@ const std::string& Request::getHeaderValue(const std::string &key) const {
 	return (it->second);
 }
 
-std::string Request::_extractBody(const std::string &req) const {
-	std::string bodySize = getHeaderValue("Content-Length");
-
+void Request::parseBody(const std::string &req, int bodyLength) {
 	size_t startBody = req.find("\r\n\r\n") + 4;
-	size_t sizeBody = atoi(bodySize.c_str());
-	std::string body = req.substr(startBody, sizeBody);
-	return body;
+	_body = req.substr(startBody, bodyLength);
+	_parsedBody = true;
 }
 
 
@@ -93,9 +90,9 @@ std::string Request::_extractBody(const std::string &req) const {
  * @throws if:
  *		request line is not exactly "<method> <uri> <version>\r\n"
  *		method is not GET, POST or DELETE
- *		version is not be HTTP/1.1 or HTTP/1.0
+ *		version is not HTTP/1.1 or HTTP/1.0
  */
-void Request::_parseRequestLine(const std::string &reqContent) {
+void Request::parseRequestLine(const std::string &reqContent) {
 	std::istringstream reqContentISS(reqContent);
 	FtString reqLine;
 	std::getline(reqContentISS, reqLine);
@@ -126,14 +123,7 @@ void Request::_parseRequestLine(const std::string &reqContent) {
 		throw RequestLineException();
 	if (_version != "HTTP/1.1" && _version != "HTTP/1.0")
 		throw RequestLineException();
-}
-
-void Request::parseRequest(const std::string &reqContent) {
-	_parseRequestLine(reqContent);
-	_headers = _extractHeaders(reqContent);
-	if (_headers["Content-Length"].empty() == false) {
-		_body = _extractBody(reqContent);
-	}
+	_parsedRequestLine = true;
 }
 
 void Request::displayRequest() const {
@@ -160,6 +150,19 @@ const std::string&  Request::getVersion() const
 {
 	return _version;
 }
+
+bool				Request::parsedRequestLine() const {
+	return _parsedRequestLine;
+}
+
+bool				Request::parsedHeaders() const {
+	return _parsedHeaders;	
+}
+
+bool				Request::parsedBody() const {
+	return _parsedBody;	
+}
+
 
 const std::string&  Request::getBody() const
 {
@@ -200,3 +203,8 @@ Request::BadHeaderNameException::BadHeaderNameException(const std::string& heade
 }
 
 Request::BadHeaderNameException::~BadHeaderNameException() throw() {}
+
+
+const char* Request::MaxBodySizeExceededException::what() const throw() {
+	return "Body size exceeded the maximum allowed size.";
+}

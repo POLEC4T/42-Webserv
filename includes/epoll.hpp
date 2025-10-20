@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 10:11:47 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/17 14:15:27 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/17 17:16:38 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 # include "Request.hpp"
 # include "Client.hpp"
 # include "MethodExecutor.hpp"
+# include "CodeDefines.h"
 
 int	launchEpoll(Server &server);
 

@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/15 14:11:09 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/20 17:05:38 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <string>
 #include "Request.hpp"
+#include "Server.hpp"
 
 typedef enum e_client_status {
 	WAITING,
@@ -23,6 +24,7 @@ typedef enum e_client_status {
 
 class Client {
 	private:
+		Request			_request;
 		std::string		_buffer;
 		t_client_status	_status;
 		int 			_fd;
@@ -42,9 +44,13 @@ class Client {
 		void				appendBuffer(char *buffer);
 		void				appendBuffer(const char *buffer);
 		void				clearBuffer();
-		bool				hasReceivedFullReq();
+		bool				receivedRequestLine() const;
+		bool				receivedHeaders() const;
+		bool				receivedBody(int contentLength) const;
 
-
+		Request&			getRequest();
+		void				parseRequest();
+		void 				resetForNextRequest();
 };
 
 #endif
