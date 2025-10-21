@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/17 10:45:23 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/20 13:41:32 by dorianmazar      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,78 +18,58 @@ Client::Client(int fd) : _status(READY), _fd(fd) {};
 
 Client::~Client() {};
 
-int					Client::getFd() const {
-	return (_fd);
-}
+int Client::getFd() const { return (_fd); }
 
-const std::string&	Client::getBuffer() const {
-	return (_buffer);
-}
+const std::string &Client::getBuffer() const { return (_buffer); }
 
-t_client_status		Client::getStatus() const {
-	return (_status);
-}
+t_client_status Client::getStatus() const { return (_status); }
 
-void				Client::setStatus(t_client_status status) {
-	_status = status;
-}
+void Client::setStatus(t_client_status status) { _status = status; }
 
+void Client::appendBuffer(char *buffer) { _buffer.append(buffer); }
 
-void				Client::appendBuffer(char *buffer) {
-	_buffer.append(buffer);
-}
+void Client::appendBuffer(const char *buffer) { _buffer.append(buffer); }
 
-void				Client::appendBuffer(const char *buffer) {
-	_buffer.append(buffer);
-}
-
-void				Client::clearBuffer() {
-	_buffer.clear();
-}
+void Client::clearBuffer() { _buffer.clear(); }
 
 /**
  * @brief gets the value after "Content-Length:"
  */
 int Client::_getContentLength() const {
-	size_t contentLengthPos =  _buffer.find("Content-Length");
-	if (contentLengthPos == std::string::npos)
-		return (-1);
-	size_t colPos = _buffer.find(":", contentLengthPos);
-	if (colPos == std::string::npos)
-		return (-1);
-	size_t endlPos = _buffer.find("\r\n", colPos);
-	if (endlPos == std::string::npos)
-		return (-1);
+  size_t contentLengthPos = _buffer.find("Content-Length");
+  if (contentLengthPos == std::string::npos)
+    return (-1);
+  size_t colPos = _buffer.find(":", contentLengthPos);
+  if (colPos == std::string::npos)
+    return (-1);
+  size_t endlPos = _buffer.find("\r\n", colPos);
+  if (endlPos == std::string::npos)
+    return (-1);
 
-	if (colPos > endlPos)
-		return (-1);
+  if (colPos > endlPos)
+    return (-1);
 
-	std::string clStr = _buffer.substr((colPos + 1), endlPos - (colPos + 1));
+  std::string clStr = _buffer.substr((colPos + 1), endlPos - (colPos + 1));
 
-	int cl = atoi(clStr.c_str());
+  int cl = atoi(clStr.c_str());
 
-	std::cout << "clStr: '" << clStr << "'" << std::endl;
-	std::cout << "cl: '" << cl << "'" << std::endl;
+  std::cout << "clStr: '" << clStr << "'" << std::endl;
+  std::cout << "cl: '" << cl << "'" << std::endl;
 
-	return (cl);	
+  return (cl);
 }
 
-bool				Client::hasReceivedFullReq() {
-	size_t crlfPos = _buffer.find("\r\n\r\n");
-	if (crlfPos == std::string::npos)
-		return (false);
+bool Client::hasReceivedFullReq() {
+  size_t crlfPos = _buffer.find("\r\n\r\n");
+  if (crlfPos == std::string::npos)
+    return (false);
 
-	int contentLength = _getContentLength();
-	if (contentLength == -1)
-		return (true);
+  int contentLength = _getContentLength();
+  if (contentLength == -1)
+    return (true);
 
-	if (_buffer.size() - (crlfPos + 4) < (size_t)contentLength)
-		return (false);
+  if (_buffer.size() - (crlfPos + 4) < (size_t)contentLength)
+    return (false);
 
-	return (true);
+  return (true);
 }
-
-
-
-
-

@@ -3,49 +3,50 @@
 /*                                                        :::      ::::::::   */
 /*   APage.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:56:14 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 17:29:41 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/20 13:42:49 by dorianmazar      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef APAGE_HPP
-# define APAGE_HPP
+#define APAGE_HPP
 
-# include "Headers.h"
+#include "Headers.h"
 
 class APage {
-	protected:
-		std::string	_name;
-		std::string	_root;
-		std::string	_content;
-		int			_code;
+protected:
+  std::string _name;
+  std::string _root;
+  std::string _content;
+  int _code;
 
-	public:
-		//Canonic
-		APage();
-		APage(const APage& cpy);
-		APage& operator=(const APage& other);
-		virtual ~APage() = 0;
+public:
+  // Canonic
+  APage();
+  APage(const APage &cpy);
+  APage &operator=(const APage &other);
+  virtual ~APage() = 0;
 
-		//constructor with assignation values
-		APage(std::string name, std::string root);
-		APage(std::string name, std::string root, std::string content, int code);
-		APage(std::string name, std::string content, int code);
+  // constructor with assignation values
+  APage(int code);
+  APage(std::string name, std::string root);
+  APage(std::string name, std::string root, std::string content, int code);
+  APage(std::string name, std::string content, int code);
 
-		//Setter
-		void	setName(std::string);
-		void	setRoot(std::string);
-		void	setContent(std::string);
-		void	setCode(int code);
-		void	setCode(std::string);
+  // Setter
+  void setName(std::string);
+  void setRoot(std::string);
+  void setContent(std::string);
+  void setCode(int code);
+  void setCode(std::string);
 
-		//Getter
-		virtual const std::string&	getName() const;
-		virtual const std::string&	getRoot() const;
-		virtual const std::string&	getContent() const;
-		virtual int					getCode() const;
+  // Getter
+  virtual const std::string &getName() const;
+  virtual const std::string &getRoot() const;
+  virtual const std::string &getContent() const;
+  virtual int getCode() const;
 };
 
 #endif
