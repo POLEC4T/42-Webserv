@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 23:18:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 18:24:17 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 18:27:36 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@
 #include "CodeDefines.h"
 #include <string>
 
-
+#define ONE_MB 1048576
 
 
 #endif
