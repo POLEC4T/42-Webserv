@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/20 15:57:11 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 16:12:56 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ class	Location : public APage {
 		const std::vector<std::string>	getIndex();
 	
 		bool							getAutoIndex();
-		long long						getClientMaxBodySize();
+		long long						getClientMaxBodySize() const;
 
 		const std::string&				getCgiExtension();
 		const std::string&				getCgiPath();

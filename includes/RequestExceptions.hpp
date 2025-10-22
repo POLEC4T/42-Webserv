@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 10:24:54 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 12:19:43 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 16:10:24 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,28 @@ class UriTooLongException : public RequestException {
 		UriTooLongException();
 		virtual const char* what() const throw();
 		~UriTooLongException() throw();
+};
+
+class ContentTooLargeException : public RequestException {
+	public:
+		ContentTooLargeException();
+		virtual const char* what() const throw();
+		~ContentTooLargeException() throw();
+};
+
+
+class MethodNotAllowedException : public RequestException {
+	public:
+		MethodNotAllowedException();
+		virtual const char* what() const throw();
+		~MethodNotAllowedException() throw();
+};
+
+class PageNotFoundException : public RequestException {
+	public:
+		PageNotFoundException();
+		virtual const char* what() const throw();
+		~PageNotFoundException() throw();
 };
 
 class HttpVersionNotSupportedException : public RequestException {

@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 17:00:55 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 18:24:46 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,7 +175,7 @@ void	Context::parseAndSetMapDefaultErrorPage() {
     std::string	fileName = "htmlFiles/errorPages/default/error_";
 	std::string	errorCodes[] = {"400", "403", "404", "405", "408", "413", "414", "500", "505"};
 	int			codes[] = {400, 403, 404, 405, 408, 413, 414, 500, 505};
-	int			size = 8;
+	int			size = 9;
 
 	for (int i = 0; i < size; i++) {
 		std::string	content;

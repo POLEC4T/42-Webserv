@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/22 16:47:33 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 18:24:34 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,13 +102,8 @@ Response	AHttpMethod::DELETE(std::string filename, Request& req, Server& serv)
 	return Response(req.getVersion(), OK, "OK", "");
 }
 
-Response AHttpMethod::POST(std::string filename, Location& loc, Request& req, Server& serv)
+Response AHttpMethod::POST(std::string filename, Request& req, Server& serv)
 {
-	long long realBodySize(req.getBody().size() * sizeof(char));
-	
-	if (realBodySize > getMaxBodySize(loc, serv))
-		return Response(req.getVersion(), serv.getErrorPageByCode(CONTENT_TOO_LARGE));
-		
 	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
 		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));

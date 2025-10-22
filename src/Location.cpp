@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 17:00:33 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 18:25:04 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ const std::string&	Location::getCgiPath() {
 	return _cgiPath;
 }
 
-long long	Location::getClientMaxBodySize() {
+long long	Location::getClientMaxBodySize() const{
 	return _clientMaxBodySize;
 }
 
