@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 15:59:09 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:09:47 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "epoll.hpp"
 
 Client::Client() : _sentIdx(0), _status(WAITING), _fd(-1) {};
 

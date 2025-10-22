@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:25:48 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 15:58:30 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:09:02 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,22 @@
 #define __METHODEXECUTOR_HPP__
 
 #include "Headers.h"
-#include "Location.hpp"
+#include "Client.hpp"
+#include "Server.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
-#include "Server.hpp"
-#include <algorithm>
 
 class   MethodExecutor
 {
     private:
         Server &_server;
-        Request _request;
+        Client _client;
         std::string _method;
+        Request _request;
         Response    _response;
 
     public:
-        MethodExecutor(Server&, Request&, std::string);
+        MethodExecutor(Server&, Client&);
         void    execute();
         Response& getResponse();
         static Location&    getRequestLocation(Request&, Server&);

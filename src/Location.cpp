@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/22 16:14:57 by dmazari          ###   ########.fr       */
+/*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
+/*   Updated: 2025/10/22 17:10:05 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "Location.hpp"
+#include "Error.hpp"
 
 Location::Location(): APage(200) {
 	_clientMaxBodySize = -1;

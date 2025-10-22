@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   epoll.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 15:59:23 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:10:01 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,7 +167,7 @@ int handleClientIn(Server& server, Client& client, int epollfd) {
 		client.parseRequest(server);
 		if (client.getStatus() == WAITING)
 			return (EXIT_SUCCESS);
-		response = MethodExecutor(server, client.getRequest(), client.getRequest().getMethod()).getResponse().build();
+		response = MethodExecutor(server, client).getResponse().build();
 	}  catch (const RequestException& re) {
 		std::cout << re.what() << std::endl;
 		response = Response("HTTP/1.1", server.getErrorPageByCode(re.getCode())).build();

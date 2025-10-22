@@ -3,20 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 15:57:05 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:08:17 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
+#include "Headers.h"
 #include "Request.hpp"
-#include "RequestExceptions.hpp"
-#include "Server.hpp"
-#include "epoll.hpp"
 
 typedef enum e_client_status { WAITING, READY } t_client_status;
 

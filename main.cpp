@@ -1,7 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/22 16:47:21 by faoriol           #+#    #+#             */
+/*   Updated: 2025/10/22 17:09:12 by faoriol          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Context.hpp"
 #include "Headers.h"
-#include "MethodExecutor.hpp"
-#include "Request.hpp"
 #include "Server.hpp"
 #include "epoll.hpp"
 

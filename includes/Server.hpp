@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 15:58:53 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:09:32 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 #include "Location.hpp"
 #include <unistd.h>
 
-class	Client;
 class	Server {
 	private:
 		std::vector<std::string>		_name;
