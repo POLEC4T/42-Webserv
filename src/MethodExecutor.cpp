@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 15:24:24 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:03:45 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,21 @@ int   returnHandler(Response& response, Location& loc, Request& req)
     return 0;
 }
 
+bool  isCGI(Request& req, Location& loc) {
+  FtString  token = req.getUri();
+  
+  if (loc.getCgiExtension().empty() || loc.getCgiPath().empty())
+    return false;
+  token.ft_split("?");
+  size_t  extensionIndex = token.find('.');
+  if (extensionIndex == token.size())
+    return false; 
+  std::string extension = token.substr(extensionIndex, token.size() - extensionIndex);
+  if (extension == loc.getCgiExtension())
+    return true;
+  return false;
+}
+
 void    MethodExecutor::execute()
 {
     Location loc = this->getRequestLocation(this->_request, this->_server);
@@ -88,6 +103,8 @@ void    MethodExecutor::execute()
     std::string fileName(loc.getRoot());
     fileName += this->_request.getUri();
 
+    if (isCGI(this->_request, loc))
+        this->_response == CGIHandler(this->_request, this->_client, loc);
     if (this->_method == "GET" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "GET") != loc.getAllowedMethods().end())
         this->_response = AHttpMethod::GET(fileName, loc, this->_request, this->_server);
     else if (this->_method == "POST" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "POST") != loc.getAllowedMethods().end())
