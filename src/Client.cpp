@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 20:49:58 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 14:17:58 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,26 @@ bool Client::receivedHeaders() const {
 }
 
 /**
+ * @throws if Content-Length is not a valid positive integer
+ */
+size_t Client::checkAndGetContentLength(const std::string& contentLengthStr) const {
+	if (contentLengthStr.find_first_not_of("0123456789") != std::string::npos) {
+		throw BadHeaderValueException(contentLengthStr);
+	}
+	long long contentLength = std::strtol(contentLengthStr.c_str(), NULL, 10);
+	if (errno == ERANGE) {
+		throw BadHeaderValueException(contentLengthStr);
+	}
+	if (contentLength < 0) {
+		throw BadHeaderValueException(contentLengthStr);
+	}
+	// todo : check max size? Need location
+	return contentLength;
+}
+
+/**
  * @throws
+ * @note sets the client status to READY when the full request has been received / parsed
  */
 void Client::parseRequest() {
 	if (!receivedRequestLine())
@@ -74,34 +93,39 @@ void Client::parseRequest() {
 	if (!_request.parsedHeaders())
 		_request.parseHeaders(_recvBuffer);
 	
-	int contentLength = 0;
-	try {
-		std::string contentLengthStr = _request.getHeaderValue("Content-Length");
-		contentLength = std::atoi(contentLengthStr.c_str());
-	} catch (...) {}
-
-	if (contentLength > 0) {
-		if (!receivedBody(contentLength))
-			return;
-		if (!_request.parsedBody())
-			_request.parseBody(_recvBuffer, contentLength);
+	std::string contentLengthStr = _request.getHeaderValue("Content-Length");
+	if (contentLengthStr.empty()) {
+		_status = READY;
+		return;
 	}
+	size_t contentLength = this->checkAndGetContentLength(contentLengthStr);
+	if (!receivedBody(contentLength))
+		return;
+	if (!_request.parsedBody())
+		_request.parseBody(_recvBuffer, contentLength);
 	_status = READY;
 }
 
-bool Client::receivedBody(int contentLength) const {
+/**
+ * @return true if the body has been completely received.
+ * @note checks from the end of headers ("\r\n\r\n") to contentLength bytes have been received
+ */
+bool Client::receivedBody(size_t contentLength) const {
 	size_t crlfPos = _recvBuffer.find("\r\n\r\n");
 	if (crlfPos == std::string::npos)
 		return (false);
 
 	size_t bodySize = _recvBuffer.size() - (crlfPos + 4);
 
-	if (bodySize < (size_t)contentLength)
+	if (bodySize < contentLength)
 		return (false);
 
 	return (true);
 }
 
+/**
+ * Each time we send a request, the client needs to reset states for next ones.
+ */
 void Client::resetForNextRequest() {
 	_recvBuffer.clear();
 	_sendBuffer.clear();
@@ -114,6 +138,9 @@ Request& Client::getRequest() {
 	return _request;
 }
 
+/**
+ * @brief Sends to the client (in multiple parts if needed) the pending response queued in _sendBuffer.
+ */
 int Client::sendPendingResponse(int epollfd) {
 	
 	ssize_t sentlen = send(_fd,
@@ -129,6 +156,7 @@ int Client::sendPendingResponse(int epollfd) {
 	_sentIdx += sentlen;
 
 	if (_sentIdx >= _sendBuffer.size()) {
+		std::cout << "_sendBuffer completely sent" << std::endl;
 		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLET, _fd) == -1) {
 			return (EXIT_FAILURE);
 		}

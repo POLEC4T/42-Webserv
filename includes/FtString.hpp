@@ -6,17 +6,20 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:33:39 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/15 16:15:26 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 10:05:13 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FTSTRING_HPP
-#define FTSTRING_HPP
+# define FTSTRING_HPP
 
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <vector>
+# include <iostream>
+# include <string>
+# include <sstream>
+# include <vector>
+
+# define WHITESPACES " \n\r\t\f\v"
+# define SP ' '
 
 /**
  * 	@warning NEVER do a new FtString, else, it will leak because std::string

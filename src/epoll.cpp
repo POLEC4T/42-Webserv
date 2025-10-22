@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 20:57:17 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 11:54:57 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,8 +167,12 @@ int handleClientIn(Server& server, Client& client, int epollfd) {
 			return (EXIT_SUCCESS);
 		MethodExecutor me(server, client.getRequest(), client.getRequest().getMethod());
 		response = me.getResponse().build();
+	}  catch (const RequestException& re) {
+		std::cout << re.what() << std::endl;
+		response = Response("HTTP/1.1", server.getErrorPageByCode(re.getCode())).build();
 	} catch (const std::exception& e) {
-		response = Response("HTTP/1.1", server.getErrorPageByCode(BAD_REQUEST)).build();
+		std::cerr << "Unhandled exception: " << e.what() << std::endl;
+		return (EXIT_FAILURE);
 	}
 
 	if (queueResponse(client, response, epollfd) == EXIT_FAILURE) {

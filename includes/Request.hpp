@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 18:38:04 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 11:55:35 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,9 @@
 # include <exception>
 # include <cstdlib> 
 # include "FtString.hpp" 
+# include "RequestExceptions.hpp"
+
+# define MAX_URI_LENGTH 2
 
 class Server;
 
@@ -75,10 +78,10 @@ class Request {
 		~Request();
 
 		void				parseHeaders(const std::string &reqContent);
-		void				parseBody(const std::string &reqContent, int bodyLength);
+		void				parseBody(const std::string &reqContent, size_t bodyLength);
 		void				parseRequestLine(const std::string &reqContent);
 		void 				displayRequest() const;
-		const std::string&	getHeaderValue(const std::string &key) const;
+		std::string			getHeaderValue(const std::string &key) const;
 		const std::string& 	getUri() const;
 		const std::string& 	getMethod() const;
 		const std::string&	getVersion() const;
@@ -87,38 +90,6 @@ class Request {
 		bool				parsedBody() const;
 		const std::string&	getBody() const;
 
-	class NoHeaderValueException : public std::exception {
-		private:
-			std::string _message;
-		public:
-			virtual const char* what() const throw();
-			NoHeaderValueException(const std::string& key);
-			~NoHeaderValueException() throw();
-	};
-
-	class BadHeaderNameException : public std::exception {
-		private:
-			std::string _message;
-		public:
-			virtual const char* what() const throw();
-			BadHeaderNameException(const std::string& key);
-			~BadHeaderNameException() throw();
-	};
-
-	class RequestLineException : public std::exception {
-		public:
-			virtual const char* what() const throw();
-	};
-
-	class NoHeaderColumnException : public std::exception {
-		public:
-			virtual const char* what() const throw();
-	};
-
-	class MaxBodySizeExceededException : public std::exception {
-		public:
-			virtual const char* what() const throw();
-	};
 };
 
 #endif

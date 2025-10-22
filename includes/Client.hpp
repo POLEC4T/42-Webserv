@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 20:59:02 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 11:22:20 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <string>
 #include "Request.hpp"
+#include "RequestExceptions.hpp"
 #include "Server.hpp"
 #include "epoll.hpp"
 
@@ -31,6 +32,7 @@ class Client {
 		size_t			_sentIdx;
 		t_client_status	_status;
 		int 			_fd;
+		size_t checkAndGetContentLength(const std::string& contentLengthStr) const;
 		
 
 	public:
@@ -50,7 +52,7 @@ class Client {
 		void				clearBuffer();
 		bool				receivedRequestLine() const;
 		bool				receivedHeaders() const;
-		bool				receivedBody(int contentLength) const;
+		bool				receivedBody(size_t contentLength) const;
 
 		Request&			getRequest();
 		void				parseRequest();

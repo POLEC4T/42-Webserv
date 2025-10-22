@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpMethod.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/20 16:16:00 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 11:27:16 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ long long getMaxBodySize(Location& loc, Server& serv)
 		return loc.getClientMaxBodySize();
 	if (serv.getClientMaxBodySize() != -1)
 		return serv.getClientMaxBodySize();
-	return defaultV;	
+	return defaultV;
 }
 
 std::string	readPage(std::string fileName)

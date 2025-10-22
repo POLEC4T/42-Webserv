@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:47:45 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/20 18:07:54 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 10:06:06 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ std::string Response::build()
     std::stringstream   stream; stream << this->_code;
     std::string str; stream >> str;
     
-    res = this->_version + ' ' + str + ' ' + this->_status + "\r\n";
+    res = this->_version + SP + str + SP + this->_status + "\r\n";
     for (std::map<std::string, std::string>::iterator it = this->_headers.begin(); it != this->_headers.end(); it++)
     {
         res += it->first;

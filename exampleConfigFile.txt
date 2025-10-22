@@ -12,7 +12,7 @@ server {
     
     location / {
         allowed_methods GET POST DELETE;
-        root /home/faoriol/Documents/webserv/site-1;
+        root /home/mniemaz/travail/cmn_core/webserv/site-1;
         client_max_body_size 1;
         index index.html index.php;
         autoindex on;
@@ -20,7 +20,7 @@ server {
 
     location /upload {
         allowed_methods POST DELETE;
-        root /home/faoriol/Documents/webserv/;
+        root /home/mniemaz/travail/cmn_core/webserv/;
     }
 
     location /redir {
