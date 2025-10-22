@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 11:54:57 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 15:21:59 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ int createSocket(const Server &server) {
 						  		&hints,
 						  		&addrinfos);
 	if (gai_ret != 0) {
-		std::cerr << "getaddrinfo: " << gai_strerror(gai_ret) << std::endl; // todo: test this
+		std::cerr << "getaddrinfo: " << gai_strerror(gai_ret) << std::endl;
 		return (-1);
 	}
 
@@ -145,6 +145,7 @@ int addClient(Server& server, int servfd, int epollfd) {
 		close(clientfd);
 		return (EXIT_FAILURE);
 	}
+	
 	if (my_epoll_ctl(epollfd, EPOLL_CTL_ADD, EPOLLIN | EPOLLET, clientfd) == -1) {
 		return (EXIT_FAILURE);
 	}
@@ -162,7 +163,7 @@ int handleClientIn(Server& server, Client& client, int epollfd) {
 
 	std::string response;
 	try {
-		client.parseRequest();
+		client.parseRequest(server);
 		if (client.getStatus() == WAITING)
 			return (EXIT_SUCCESS);
 		MethodExecutor me(server, client.getRequest(), client.getRequest().getMethod());
@@ -261,6 +262,3 @@ int launchEpoll(Server &server) {
 	close(servfd);
 	return 0;
 }
-
-// todo: une requete peut arriver en plusieurs morceaux -> faire un buffer par client qui persiste
-// pareil pour send

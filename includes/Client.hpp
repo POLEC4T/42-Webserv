@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 11:22:20 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 15:25:35 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class Client {
 		size_t			_sentIdx;
 		t_client_status	_status;
 		int 			_fd;
-		size_t checkAndGetContentLength(const std::string& contentLengthStr) const;
+		size_t checkAndGetContentLength(Server& serv, const std::string& contentLengthStr) const;
 		
 
 	public:
@@ -55,7 +55,7 @@ class Client {
 		bool				receivedBody(size_t contentLength) const;
 
 		Request&			getRequest();
-		void				parseRequest();
+		void				parseRequest(Server& serv);
 		void 				resetForNextRequest();
 
 		int					sendPendingResponse(int epollfd);

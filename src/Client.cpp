@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 14:17:58 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 15:25:36 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ bool Client::receivedHeaders() const {
 /**
  * @throws if Content-Length is not a valid positive integer
  */
-size_t Client::checkAndGetContentLength(const std::string& contentLengthStr) const {
+size_t Client::checkAndGetContentLength(Server& serv, const std::string& contentLengthStr) const {
 	if (contentLengthStr.find_first_not_of("0123456789") != std::string::npos) {
 		throw BadHeaderValueException(contentLengthStr);
 	}
@@ -75,6 +75,11 @@ size_t Client::checkAndGetContentLength(const std::string& contentLengthStr) con
 		throw BadHeaderValueException(contentLengthStr);
 	}
 	// todo : check max size? Need location
+
+	(void) serv;	
+	
+
+
 	return contentLength;
 }
 
@@ -82,7 +87,7 @@ size_t Client::checkAndGetContentLength(const std::string& contentLengthStr) con
  * @throws
  * @note sets the client status to READY when the full request has been received / parsed
  */
-void Client::parseRequest() {
+void Client::parseRequest(Server& serv) {
 	if (!receivedRequestLine())
 		return;
 	if (!_request.parsedRequestLine())
@@ -98,7 +103,7 @@ void Client::parseRequest() {
 		_status = READY;
 		return;
 	}
-	size_t contentLength = this->checkAndGetContentLength(contentLengthStr);
+	size_t contentLength = this->checkAndGetContentLength(serv, contentLengthStr);
 	if (!receivedBody(contentLength))
 		return;
 	if (!_request.parsedBody())
