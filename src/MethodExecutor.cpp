@@ -3,15 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/20 13:40:47 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 15:59:42 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
+#include "CodeDefines.h"
 #include "unistd.h"
+#include <ctime>
 
 std::string readPage(std::string fileName);
 
@@ -21,9 +23,10 @@ MethodExecutor::MethodExecutor(Server &s, Request &r, std::string m,
   this->execute();
 }
 
-Location &MethodExecutor::getRequestLocation() {
-  std::string path(this->_request.getUri());
-  std::map<std::string, Location> &locations = this->_server.getLocations();
+Location& MethodExecutor::getRequestLocation(Request& req, Server& serv)
+{
+    std::string path(req.getUri());
+    std::map<std::string, Location>& locations = serv.getLocations();
 
   std::map<std::string, Location>::iterator it = locations.find(path);
   if (it != locations.end())
@@ -51,9 +54,9 @@ Location &MethodExecutor::getRequestLocation() {
       break;
   }
 
-  Location *error = new Location();
-  error->setCode(404);
-  return *error;
+    Location* error = new Location();
+    error->setCode(PAGE_NOT_FOUND);
+    return *error;
 }
 
 Response &MethodExecutor::getResponse() { return this->_response; }
@@ -70,40 +73,27 @@ int returnHandler(Response &response, Location &loc, Request &req) {
   return 0;
 }
 
-void MethodExecutor::execute() {
-  Location loc = this->getRequestLocation();
-  if (loc.getCode() == 404) {
-    this->_response = Response(this->_request.getVersion(),
-                               this->_server.getErrorPageByCode(404));
-    return;
-  }
-  if (returnHandler(this->_response, loc, this->_request) == 0)
-    return;
-  std::string fileName(loc.getRoot());
-  fileName += this->_request.getUri();
+void    MethodExecutor::execute()
+{
+    Location loc = this->getRequestLocation(this->_request, this->_server);
+    if (loc.getCode() == PAGE_NOT_FOUND)
+    {
+        this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(PAGE_NOT_FOUND));
+        return ;
+    }
+    if (returnHandler(this->_response, loc, this->_request) == 0)
+        return ;
+    std::string fileName(loc.getRoot());
+    fileName += this->_request.getUri();
 
-  if (this->_method == "GET" &&
-      std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(),
-                "GET") != loc.getAllowedMethods().end())
-    this->_response =
-        AHttpMethod::GET(fileName, loc, this->_request, this->_server);
-  else if (this->_method == "POST" &&
-           std::find(loc.getAllowedMethods().begin(),
-                     loc.getAllowedMethods().end(),
-                     "POST") != loc.getAllowedMethods().end())
-    this->_response =
-        AHttpMethod::POST(fileName, loc, this->_request, this->_server);
-  else if (this->_method == "DELETE" &&
-           std::find(loc.getAllowedMethods().begin(),
-                     loc.getAllowedMethods().end(),
-                     "DELETE") != loc.getAllowedMethods().end())
-    this->_response =
-        AHttpMethod::DELETE(fileName, this->_request, this->_server);
-  else
-    this->_response = Response(this->_request.getVersion(),
-                               this->_server.getErrorPageByCode(405));
-  // std::cout << loc.getCode() << std::endl;
-  // AHttpMethod::GET("index.html", loc);
+    if (this->_method == "GET" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "GET") != loc.getAllowedMethods().end())
+        this->_response = AHttpMethod::GET(fileName, loc, this->_request, this->_server);
+    else if (this->_method == "POST" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "POST") != loc.getAllowedMethods().end())
+        this->_response = AHttpMethod::POST(fileName, loc, this->_request, this->_server);
+    else if (this->_method == "DELETE" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "DELETE") != loc.getAllowedMethods().end())
+        this->_response = AHttpMethod::DELETE(fileName, this->_request, this->_server);
+    else
+        this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(METHOD_NOT_ALLOWED));
 }
 
 MethodExecutor::~MethodExecutor() {}

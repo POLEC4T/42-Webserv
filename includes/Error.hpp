@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:34:04 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/20 13:42:25 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 15:57:58 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,10 +78,10 @@ public:
     ~IntExpected() throw();
   };
 
-  class NoServerInConfigFile : public std::exception {
-  public:
-    const char *what() const throw();
-  };
+		class NoServerInConfigFile: public std::exception {
+			public:
+				const char* what() const throw() ;
+		};
 };
 
 #endif

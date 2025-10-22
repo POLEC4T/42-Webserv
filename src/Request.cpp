@@ -3,19 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 15:06:38 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 15:59:55 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "Server.hpp"
 
-Request::~Request() {}
+Request::Request() :
+_parsedRequestLine(false),
+_parsedHeaders(false),
+_parsedBody(false) {}
 
-Request::Request() {}
+Request::~Request() {}
 
 /** RFC 7230:
  * - check if header must be unique (Content-Length, Host, etc) 400
@@ -40,23 +43,24 @@ Request::Request() {}
  * - discuter du header Transfer-Encoding, ca a l'air hyper complexe, est ce
  qu'on doit vraiment le faire ? ou on va s'arreter ?
  */
-std::map<std::string, std::string>
-Request::_extractHeaders(const std::string &req) const {
-  std::map<std::string, std::string> headers;
-  size_t startLine = 0;
-  size_t endLine = req.find("\r\n");
-  std::string line = req.substr(startLine, endLine);
+/**
+ * @throws if no ':' found in a header line
+ * @throws if header name is invalid (empty or ends with space)
+ * @throws if header value is empty
+ */
+void Request::parseHeaders(const std::string &req) {
+	size_t startLine = 0;
+	size_t endLine = req.find("\r\n");
+	std::string line = req.substr(startLine, endLine);
 
   while (req.find("\r\n", endLine + 2) != endLine + 2) {
     startLine = endLine + 2;
     endLine = req.find("\r\n", startLine);
     line = req.substr(startLine, endLine - startLine);
 
-    size_t columnIdx;
-
-    columnIdx = line.find(':');
-    if (columnIdx == std::string::npos)
-      throw NoHeaderColumnException();
+		size_t columnIdx = line.find(':');
+		if (columnIdx == std::string::npos)
+			throw NoHeaderColumnException();
 
     FtString key = line.substr(0, columnIdx);
     FtString value = line.substr(columnIdx + 1, line.size() - (columnIdx + 1));
@@ -69,47 +73,46 @@ Request::_extractHeaders(const std::string &req) const {
     if (value.empty())
       throw NoHeaderValueException(key);
 
-    headers[key] = value;
-  }
-  return headers;
+		_headers[key] = value;
+	}
+	_parsedHeaders = true;
 }
 
 /**
- * @throws if key not found
+ * @returns empty string if header not found
  */
-const std::string &Request::getHeaderValue(const std::string &key) const {
-  std::map<std::string, std::string>::const_iterator it = _headers.find(key);
-  if (it == _headers.end())
-    return std::string emptyString;
-  return (it->second);
+std::string Request::getHeaderValue(const std::string &key) const {
+	std::map<std::string, std::string>::const_iterator it = _headers.find(key);
+	if (it != _headers.end())
+		return (it->second);
+	return "";
 }
 
-std::string Request::_extractBody(const std::string &req) const {
-  std::string bodySize = getHeaderValue("Content-Size");
-
-  size_t startBody = req.find("\r\n\r\n") + 4;
-  size_t sizeBody = atoi(bodySize.c_str());
-  std::string body = req.substr(startBody, sizeBody);
-  return body;
+void Request::parseBody(const std::string &req, size_t bodyLength) {
+	size_t startBody = req.find("\r\n\r\n") + 4;
+	_body = req.substr(startBody, bodyLength);
+	_parsedBody = true;
 }
+
 
 /**
- * @throws if:
- *		request line is not exactly "<method> <uri> <version>\r\n"
- *		method is not GET, POST or DELETE
- *		version is not be HTTP/1.1 or HTTP/1.0
+ * @throws if request line does not end with \r\n
+ * @throws if request line starts or ends with space
+ * @throws if request line is not exactly "<method> <uri> <version>\r\n"
+ * @throws if method is not GET, POST or DELETE
+ * @throws if version is not HTTP/1.1 or HTTP/1.0
  */
-void Request::_parseRequestLine(const std::string &reqContent) {
-  std::istringstream reqContentISS(reqContent);
-  FtString reqLine;
-  std::getline(reqContentISS, reqLine);
+void Request::parseRequestLine(const std::string &reqContent) {
+	std::istringstream reqContentISS(reqContent);
+	FtString reqLine;
+	std::getline(reqContentISS, reqLine);
 
   if (reqLine.find('\r') != reqLine.size() - 1)
     throw RequestLineException();
   reqLine.erase(reqLine.end() - 1);
 
-  if (reqLine.startsOrEndsWith(" "))
-    throw RequestLineException();
+	if (reqLine.startsOrEndsWith(WHITESPACES))
+		throw RequestLineException();
 
   size_t firstSpace = reqLine.find(" ");
   size_t lastSpace = reqLine.rfind(" ");
@@ -125,20 +128,13 @@ void Request::_parseRequestLine(const std::string &reqContent) {
   _version =
       reqLine.substr((lastSpace + 1), (reqLine.size()) - (lastSpace + 1));
 
-  if (_uri.empty() || _uri.find(' ') != std::string::npos)
-    throw RequestLineException();
-  if (_method != "GET" && _method != "POST" && _method != "DELETE")
-    throw RequestLineException();
-  if (_version != "HTTP/1.1" && _version != "HTTP/1.0")
-    throw RequestLineException();
-}
-
-void Request::parseRequest(const std::string &reqContent) {
-  _parseRequestLine(reqContent);
-  _headers = _extractHeaders(reqContent);
-  if (_headers["Content-Size"].empty() == false) {
-    _body = _extractBody(reqContent);
-  }
+	if (_uri.size() > MAX_URI_LENGTH)
+		throw UriTooLongException();
+	if (_uri.empty() || _uri.find(SP) != std::string::npos)
+		throw RequestLineException();
+	if (_version != "HTTP/1.1" && _version != "HTTP/1.0")
+		throw HttpVersionNotSupportedException();
+	_parsedRequestLine = true;
 }
 
 void Request::displayRequest() const {
@@ -157,43 +153,25 @@ const std::string &Request::getUri() const { return _uri; }
 
 const std::string &Request::getMethod() const { return _method; }
 
-const std::string &Request::getVersion() const { return _version; }
-
-const std::string &Request::getBody() const { return _body; }
-
-const char *Request::NoHeaderValueException::what() const throw() {
-  if (_message.empty())
-    return "Request: No header field for this key";
-  return _message.c_str();
+const std::string&  Request::getVersion() const
+{
+	return _version;
 }
 
-Request::NoHeaderValueException::NoHeaderValueException(
-    const std::string &missingKey) {
-  _message = "Request: No header field for \"" + missingKey + "\"";
+bool				Request::parsedRequestLine() const {
+	return _parsedRequestLine;
 }
 
-Request::NoHeaderValueException::~NoHeaderValueException() throw() {}
-
-const char *Request::RequestLineException::what() const throw() {
-  return "Request: Error in the request line.";
+bool				Request::parsedHeaders() const {
+	return _parsedHeaders;	
 }
 
-const char *Request::NoHeaderColumnException::what() const throw() {
-  return "Request: A header column is missing.";
+bool				Request::parsedBody() const {
+	return _parsedBody;	
 }
 
-const char *Request::BadHeaderNameException::what() const throw() {
-  if (_message.empty())
-    return "Request: bad header name";
-  return _message.c_str();
-}
 
-Request::BadHeaderNameException::BadHeaderNameException(
-    const std::string &headerName) {
-  if (headerName.empty())
-    _message = "Request: bad header name: empty";
-  else
-    _message = "Request: bad header name: \"" + headerName + "\"";
+const std::string&  Request::getBody() const
+{
+	return _body;
 }
-
-Request::BadHeaderNameException::~BadHeaderNameException() throw() {}

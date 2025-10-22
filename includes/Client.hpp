@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 13:42:44 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 15:57:05 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,22 @@
 #define CLIENT_HPP
 
 #include "Request.hpp"
-#include <string>
+#include "RequestExceptions.hpp"
+#include "Server.hpp"
+#include "epoll.hpp"
 
 typedef enum e_client_status { WAITING, READY } t_client_status;
 
 class Client {
-private:
-  std::string _buffer;
-  t_client_status _status;
-  int _fd;
-  int _getContentLength() const;
+	private:
+		Request			_request;
+		std::string		_recvBuffer;
+		std::string		_sendBuffer;
+		size_t			_sentIdx;
+		t_client_status	_status;
+		int 			_fd;
+		size_t checkAndGetContentLength(Server& serv, const std::string& contentLengthStr) const;
+		
 
 public:
   Client();
@@ -34,12 +40,21 @@ public:
   const std::string &getBuffer() const;
   t_client_status getStatus() const;
 
-  void setStatus(t_client_status status);
+		void				setStatus(t_client_status status);
+		void				setSendBuffer(const std::string& buf);
 
-  void appendBuffer(char *buffer);
-  void appendBuffer(const char *buffer);
-  void clearBuffer();
-  bool hasReceivedFullReq();
+		void				appendBuffer(char *buffer);
+		void				appendBuffer(const char *buffer);
+		void				clearBuffer();
+		bool				receivedRequestLine() const;
+		bool				receivedHeaders() const;
+		bool				receivedBody(size_t contentLength) const;
+
+		Request&			getRequest();
+		void				parseRequest(Server& serv);
+		void 				resetForNextRequest();
+
+		int					sendPendingResponse(int epollfd);
 };
 
 #endif

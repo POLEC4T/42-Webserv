@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/20 13:42:14 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 15:58:24 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,19 @@
 #include "AHttpMethod.hpp"
 #include "APage.hpp"
 
-// class Location inherit from APage got the private attribute _name, _content,
-// _root, with the associated functions
-class Location : public APage {
-private:
-  // std::vector<AHttpMethod*>	_allowedMethods;
-  std::vector<std::string> _allowedMethods;
-  std::vector<std::string> _index;
-  bool _autoIndex;
-  size_t _clientMaxBodySize;
-  std::string _uploadPath;
-  std::string _return;
-  std::string _cgiExtension;
-  std::string _cgiPath;
+//class Location inherit from APage got the private attribute _name, _content, _root, with the associated functions
+class	Location : public APage {
+	private:
+		// std::vector<AHttpMethod*>	_allowedMethods;
+		std::vector<std::string>	_allowedMethods;
+		std::vector<std::string>	_index;
+		bool						_autoIndex;
+		long long					_clientMaxBodySize;
+		std::string					_uploadPath;
+		std::string					_return;
+		std::string					_cgiExtension;
+		std::string					_cgiPath;
+
 
 public:
   // Canonical constructor
@@ -52,12 +52,12 @@ public:
   void setReturn(const std::string &);
   void setUploadPath(const std::string &);
 
-  // Getter
-  //  std::vector<AHttpMethod*>	getAllowedMethods();
-  const std::vector<std::string> getIndex();
-
-  bool getAutoIndex();
-  size_t getClientMaxBodySize();
+		//Getter
+		// std::vector<AHttpMethod*>	getAllowedMethods();
+		const std::vector<std::string>	getIndex();
+	
+		bool							getAutoIndex();
+		long long						getClientMaxBodySize();
 
   const std::string &getCgiExtension();
   const std::string &getCgiPath();

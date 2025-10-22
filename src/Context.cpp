@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/20 13:41:31 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 15:59:16 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,15 +158,15 @@ void Context::configFileParser(const std::string &fileName,
     throw(Error::NoServerInConfigFile());
 }
 
-void Context::parseAndSetMapDefaultErrorPage() {
-  std::string fileName = "htmlFiles/errorPages/default/error_";
-  std::string errorCodes[] = {"400", "403", "404", "405", "408", "413", "500"};
-  int codes[] = {400, 403, 404, 405, 408, 413, 500};
-  int size = 7;
+void	Context::parseAndSetMapDefaultErrorPage() {
+    std::string	fileName = "htmlFiles/errorPages/default/error_";
+	std::string	errorCodes[] = {"400", "403", "404", "405", "408", "413", "414", "500", "505"};
+	int			codes[] = {400, 403, 404, 405, 408, 413, 414, 500, 505};
+	int			size = 8;
 
-  for (int i = 0; i < size; i++) {
-    std::string content;
-    std::string name = "error_" + errorCodes[i];
+	for (int i = 0; i < size; i++) {
+		std::string	content;
+		std::string	name = "error_" + errorCodes[i];
 
     getContent(fileName + errorCodes[i] + ".html", content, '\n');
     ErrorPage errorPage(name, content, codes[i]);

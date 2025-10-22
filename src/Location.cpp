@@ -5,16 +5,17 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 15:54:04 by dmazari          ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/10/22 15:56:23 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+
 #include "Location.hpp"
 
-Location::Location() : APage(200) {
-  _clientMaxBodySize = 0;
-  _autoIndex = false;
+Location::Location(): APage() {
+	_clientMaxBodySize = -1;
+	_autoIndex = false;
 }
 
 Location::Location(const Location &cpy) : APage(cpy) {
@@ -51,12 +52,14 @@ Location &Location::operator=(const Location &other) {
 
 Location::~Location() {}
 
-// constructor with assignement values
-Location::Location(std::string name, std::string root) : APage(name, root) {}
 
-Location::Location(std::string name, std::string root, std::string content,
-                   int code)
-    : APage(name, root, content, code) {}
+
+//constructor with assignement values
+Location::Location(std::string name, std::string root): APage(name, root) { this->_clientMaxBodySize = -1;}
+
+Location::Location(std::string name, std::string root,
+				std::string content, int code): APage(name, root, content, code) { this->_clientMaxBodySize = -1;}
+
 
 // Setter
 
@@ -102,7 +105,9 @@ const std::string &Location::getCgiExtension() { return _cgiExtension; }
 
 const std::string &Location::getCgiPath() { return _cgiPath; }
 
-size_t Location::getClientMaxBodySize() { return _clientMaxBodySize; }
+long long	Location::getClientMaxBodySize() {
+	return _clientMaxBodySize;
+}
 
 const std::string &Location::getUploadPath() { return _uploadPath; }
 

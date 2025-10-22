@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 14:14:38 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/22 15:58:45 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,68 +49,47 @@
 // of [Kri2001] for details.)
 // -> special case for Set-Cookie
 
-#include "FtString.hpp"
-#include <cstdlib>
-#include <exception>
-#include <iostream>
-#include <map>
-#include <sstream>
-#include <vector>
+# include <map>
+# include <iostream>
+# include <sstream>
+# include <vector>
+# include <exception>
+# include <cstdlib> 
+# include "FtString.hpp" 
+# include "RequestExceptions.hpp"
+
+# define MAX_URI_LENGTH 8194
 
 class Server;
 
 class Request {
-private:
-  std::string _method;
-  std::string _uri;
-  std::string _version;
-  std::map<std::string, std::string> _headers;
-  std::string _body;
+	private:
+		std::string _method;
+		std::string _uri;
+		std::string _version;
+		std::map<std::string, std::string> _headers;
+		std::string _body;
+		bool _parsedRequestLine;
+		bool _parsedHeaders;
+		bool _parsedBody;
+	
+	public:
+		Request();
+		~Request();
 
-  std::map<std::string, std::string>
-  _extractHeaders(const std::string &req) const;
-  std::string _extractBody(const std::string &req) const;
-  void _parseRequestLine(const std::string &reqContent);
+		void				parseHeaders(const std::string &reqContent);
+		void				parseBody(const std::string &reqContent, size_t bodyLength);
+		void				parseRequestLine(const std::string &reqContent);
+		void 				displayRequest() const;
+		std::string			getHeaderValue(const std::string &key) const;
+		const std::string& 	getUri() const;
+		const std::string& 	getMethod() const;
+		const std::string&	getVersion() const;
+		bool				parsedRequestLine() const;
+		bool				parsedHeaders() const;
+		bool				parsedBody() const;
+		const std::string&	getBody() const;
 
-public:
-  ~Request();
-  Request();
-
-  void parseRequest(const std::string &reqContent);
-  void displayRequest() const;
-  const std::string &getHeaderValue(const std::string &key) const;
-  const std::string &getUri() const;
-  const std::string &getMethod() const;
-  const std::string &getVersion() const;
-  const std::string &getBody() const;
-
-  class NoHeaderValueException : public std::exception {
-  private:
-    std::string _message;
-
-  public:
-    virtual const char *what() const throw();
-    NoHeaderValueException(const std::string &key);
-    ~NoHeaderValueException() throw();
-  };
-
-  class BadHeaderNameException : public std::exception {
-  private:
-    std::string _message;
-
-  public:
-    virtual const char *what() const throw();
-    BadHeaderNameException(const std::string &key);
-    ~BadHeaderNameException() throw();
-  };
-
-  class RequestLineException : public std::exception {
-    virtual const char *what() const throw();
-  };
-
-  class NoHeaderColumnException : public std::exception {
-    virtual const char *what() const throw();
-  };
 };
 
 #endif

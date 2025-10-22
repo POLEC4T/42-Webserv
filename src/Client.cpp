@@ -3,73 +3,172 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 13:41:32 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 15:59:09 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client() : _status(READY), _fd(-1) {};
+Client::Client() : _sentIdx(0), _status(WAITING), _fd(-1) {};
 
-Client::Client(int fd) : _status(READY), _fd(fd) {};
+Client::Client(int fd) : _sentIdx(0), _status(WAITING), _fd(fd){};
 
 Client::~Client() {};
 
-int Client::getFd() const { return (_fd); }
+int 	Client::getFd() const {
+	return (_fd);
+}
 
-const std::string &Client::getBuffer() const { return (_buffer); }
+const std::string&	Client::getBuffer() const {
+	return (_recvBuffer);
+}
 
 t_client_status Client::getStatus() const { return (_status); }
 
-void Client::setStatus(t_client_status status) { _status = status; }
-
-void Client::appendBuffer(char *buffer) { _buffer.append(buffer); }
-
-void Client::appendBuffer(const char *buffer) { _buffer.append(buffer); }
-
-void Client::clearBuffer() { _buffer.clear(); }
-
-/**
- * @brief gets the value after "Content-Length:"
- */
-int Client::_getContentLength() const {
-  size_t contentLengthPos = _buffer.find("Content-Length");
-  if (contentLengthPos == std::string::npos)
-    return (-1);
-  size_t colPos = _buffer.find(":", contentLengthPos);
-  if (colPos == std::string::npos)
-    return (-1);
-  size_t endlPos = _buffer.find("\r\n", colPos);
-  if (endlPos == std::string::npos)
-    return (-1);
-
-  if (colPos > endlPos)
-    return (-1);
-
-  std::string clStr = _buffer.substr((colPos + 1), endlPos - (colPos + 1));
-
-  int cl = atoi(clStr.c_str());
-
-  std::cout << "clStr: '" << clStr << "'" << std::endl;
-  std::cout << "cl: '" << cl << "'" << std::endl;
-
-  return (cl);
+void Client::setSendBuffer(const std::string& buf) {
+	_sendBuffer = buf;
 }
 
-bool Client::hasReceivedFullReq() {
-  size_t crlfPos = _buffer.find("\r\n\r\n");
-  if (crlfPos == std::string::npos)
-    return (false);
 
-  int contentLength = _getContentLength();
-  if (contentLength == -1)
-    return (true);
+void Client::setStatus(t_client_status status) {
+	_status = status;
+}
 
-  if (_buffer.size() - (crlfPos + 4) < (size_t)contentLength)
-    return (false);
+
+void Client::appendBuffer(char *buffer) {
+	_recvBuffer.append(buffer);
+}
+
+void Client::appendBuffer(const char *buffer) {
+	_recvBuffer.append(buffer);
+}
+
+void Client::clearBuffer() {
+	_recvBuffer.clear();
+}
+
+bool Client::receivedRequestLine() const {
+	return (_recvBuffer.find("\r\n") != std::string::npos);
+}
+
+bool Client::receivedHeaders() const {
+	return (_recvBuffer.find("\r\n\r\n") != std::string::npos);
+}
+
+/**
+ * @throws if Content-Length is not a valid positive integer
+ */
+size_t Client::checkAndGetContentLength(Server& serv, const std::string& contentLengthStr) const {
+	if (contentLengthStr.find_first_not_of("0123456789") != std::string::npos) {
+		throw BadHeaderValueException(contentLengthStr);
+	}
+	long long contentLength = std::strtol(contentLengthStr.c_str(), NULL, 10);
+	if (errno == ERANGE) {
+		throw BadHeaderValueException(contentLengthStr);
+	}
+	if (contentLength < 0) {
+		throw BadHeaderValueException(contentLengthStr);
+	}
+	// todo : check max size? Need location
+
+	(void) serv;	
+	
+
+
+	return contentLength;
+}
+
+/**
+ * @throws
+ * @note sets the client status to READY when the full request has been received / parsed
+ */
+void Client::parseRequest(Server& serv) {
+	if (!receivedRequestLine())
+		return;
+	if (!_request.parsedRequestLine())
+		_request.parseRequestLine(_recvBuffer);
+
+	if (!receivedHeaders())
+		return;
+	if (!_request.parsedHeaders())
+		_request.parseHeaders(_recvBuffer);
+	
+	std::string contentLengthStr = _request.getHeaderValue("Content-Length");
+	if (contentLengthStr.empty()) {
+		_status = READY;
+		return;
+	}
+	size_t contentLength = this->checkAndGetContentLength(serv, contentLengthStr);
+	if (!receivedBody(contentLength))
+		return;
+	if (!_request.parsedBody())
+		_request.parseBody(_recvBuffer, contentLength);
+	_status = READY;
+}
+
+/**
+ * @return true if the body has been completely received.
+ * @note checks from the end of headers ("\r\n\r\n") to contentLength bytes have been received
+ */
+bool Client::receivedBody(size_t contentLength) const {
+	size_t crlfPos = _recvBuffer.find("\r\n\r\n");
+	if (crlfPos == std::string::npos)
+		return (false);
+
+	size_t bodySize = _recvBuffer.size() - (crlfPos + 4);
+
+	if (bodySize < contentLength)
+		return (false);
 
   return (true);
 }
+
+/**
+ * Each time we send a request, the client needs to reset states for next ones.
+ */
+void Client::resetForNextRequest() {
+	_recvBuffer.clear();
+	_sendBuffer.clear();
+	_status = WAITING;
+	_sentIdx = 0;
+	_request = Request();
+}
+
+Request& Client::getRequest() {
+	return _request;
+}
+
+/**
+ * @brief Sends to the client (in multiple parts if needed) the pending response queued in _sendBuffer.
+ */
+int Client::sendPendingResponse(int epollfd) {
+	
+	ssize_t sentlen = send(_fd,
+		_sendBuffer.c_str() + _sentIdx,
+		_sendBuffer.size() - _sentIdx,
+		0);
+
+	if (sentlen == -1) {
+		std::cout << "send: " << strerror(errno) << std::endl;
+		return (EXIT_FAILURE);
+	}
+
+	_sentIdx += sentlen;
+
+	if (_sentIdx >= _sendBuffer.size()) {
+		std::cout << "_sendBuffer completely sent" << std::endl;
+		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLET, _fd) == -1) {
+			return (EXIT_FAILURE);
+		}
+		this->resetForNextRequest();
+	}
+	return (EXIT_SUCCESS);
+}
+
+
+
+
+

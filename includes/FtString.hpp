@@ -3,20 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   FtString.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:33:39 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 13:42:18 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 15:58:14 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FTSTRING_HPP
-#define FTSTRING_HPP
+# define FTSTRING_HPP
 
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
+# include <iostream>
+# include <string>
+# include <sstream>
+# include <vector>
+
+# define WHITESPACES " \n\r\t\f\v"
+# define SP ' '
 
 /**
  * 	@warning NEVER do a new FtString, else, it will leak because std::string

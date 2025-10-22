@@ -3,16 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/20 13:41:08 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 16:00:07 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server() { _clientMaxBodySize = 0; }
+Server::Server() {
+	_clientMaxBodySize = -1;
+}
 
 Server::Server(const Server &cpy) {
   _name = cpy._name;
@@ -48,7 +50,8 @@ Server::Server(int port, int clientMaxBodySize) {
 }
 
 Server::Server(std::map<int, ErrorPage> errorPages) {
-  _mapDefaultErrorPage = errorPages;
+	_clientMaxBodySize = -1;
+	_mapDefaultErrorPage = errorPages;
 }
 
 // Setter
@@ -75,7 +78,15 @@ const std::vector<std::string> &Server::getNames() const { return _name; }
 
 const std::string &Server::getPort() const { return _port; }
 
-int Server::getClientMaxBodySize() const { return _clientMaxBodySize; }
+long long	Server::getClientMaxBodySize() const {
+	return _clientMaxBodySize;
+}
+
+int	Server::getTimedOutValue() const {
+	return _timedOut;
+}
+
+
 
 const std::string &Server::getHost() const { return _host; }
 
@@ -134,10 +145,11 @@ void Server::addClient(const Client &client) {
 void Server::deleteAllClients() {
   std::map<int, Client>::iterator it;
 
-  for (it = _mapClients.begin(); it != _mapClients.end(); ++it) {
-    close(it->first);
-  }
-  _mapClients.clear();
+	for (it = _mapClients.begin(); it != _mapClients.end(); ++it) {
+		std::cout << "Closing client with fd " << it->first << std::endl;
+		close(it->first);
+	}
+	_mapClients.clear();
 }
 
 void Server::deleteClient(int fd) {
@@ -151,90 +163,101 @@ void Server::parseAndAddLocation(
   int isClosed = 0;
   Location newLocation;
 
-  newLocation.setName(*it);
-  ++it;
-  while (it != itEnd) {
-    if (*it == "{")
-      isClosed++;
-    else if (*it == "}")
-      isClosed--;
-    else if (*it == "root") {
-      it++;
-      if (it != itEnd)
-        newLocation.setRoot(*it);
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "allowed_methods") {
-      it++;
-      while (it != itEnd && *it != ";") {
-        newLocation.addAllowedMethods(*it);
-        it++;
-      }
-      if (it == itEnd || *it != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "index") {
-      it++;
-      while (it != itEnd && *it != ";") {
-        newLocation.addIndex(*it);
-        it++;
-      }
-      if (it == itEnd || *it != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "autoindex") {
-      it++;
-      if (it != itEnd && *it == "on")
-        newLocation.setAutoIndex(true);
-      else if (it != itEnd && *it == "off")
-        newLocation.setAutoIndex(false);
-      else
-        throw(Error::UnknownToken(*it));
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "return") {
-      it++;
-      if (it != itEnd && (it + 1) != itEnd) {
-        newLocation.setReturn(*it + " " + *(it + 1));
-        it++;
-      }
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "upload_path") {
-      it++;
-      if (it != itEnd) {
-        newLocation.setUploadPath(*it);
-      }
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "cgi_extension") {
-      it++;
-      if (it != itEnd) {
-        newLocation.setCgiExtension(*it);
-      }
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "cgi_path") {
-      it++;
-      if (it != itEnd) {
-        newLocation.setCgiPath(*it);
-      }
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "client_max_body_size") {
-      it++;
-      if (it != itEnd) {
-        newLocation.setClientMaxBodySize(*it);
-      }
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it != ";")
-      throw(Error::UnknownToken(*it));
-    if (isClosed == 0)
-      break;
-    it++;
-  }
-  if (isClosed != 0)
-    throw(Error::ErrorBracketParseFile());
-  addLocation(newLocation);
+	newLocation.setName(*it);
+	++it;
+	while (it != itEnd)
+	{
+		if (*it == "{")
+			isClosed++;
+		else if (*it == "}")
+			isClosed--;
+		else if (*it == "root") {
+			it++;
+			if (it != itEnd)
+				newLocation.setRoot(*it);
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "allowed_methods") {
+			it++;
+			while (it != itEnd && *it != ";") {
+				newLocation.addAllowedMethods(*it);
+				it++;
+			}
+			if (it == itEnd || *it != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "index") {
+			it++;
+			while (it != itEnd && *it != ";") {
+				newLocation.addIndex(*it);
+				it++;
+			}
+			if (it == itEnd || *it != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "autoindex") {
+			it++;
+			if (it != itEnd && *it == "on")
+				newLocation.setAutoIndex(true);
+			else if (it != itEnd && *it == "off")
+				newLocation.setAutoIndex(false);
+			else
+				throw (Error::UnknownToken(*it));
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "return") {
+			it++;
+			if (it != itEnd && (it + 1) != itEnd) {
+				newLocation.setReturn(*it + " " + *(it + 1));
+				it++;
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*(it)));
+			it++;
+		}
+		else if (*it == "upload_path") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setUploadPath(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "cgi_extension") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setCgiExtension(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "cgi_path") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setCgiPath(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it == "client_max_body_size") {
+			it++;
+			if (it != itEnd) {
+				newLocation.setClientMaxBodySize(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw (Error::DidNotFindSemicolon(*it));
+		}
+		else if (*it != ";")
+			throw (Error::UnknownToken(*it));
+		if (isClosed == 0)
+			break;
+		it++;
+	}
+	if (isClosed != 0)
+		throw (Error::ErrorBracketParseFile());
+	addLocation(newLocation);
 }
 
 void Server::setDefaultMapErrorPage(const std::map<int, ErrorPage> &map) {
