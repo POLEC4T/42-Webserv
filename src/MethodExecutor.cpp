@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 17:05:05 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:05:43 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,8 +111,8 @@ void    MethodExecutor::execute()
     std::string fileName(loc.getRoot());
     fileName += this->_request.getUri();
 
-    if (isCGI(this->_request, loc))
-        this->_response == CGIHandler(this->_request, this->_client, loc);
+    // if (isCGI(this->_request, loc))
+        // this->_response == CGIHandler(this->_request, this->_client, loc);
     if (this->_method == "GET" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "GET") != loc.getAllowedMethods().end())
         this->_response = AHttpMethod::GET(fileName, loc, this->_request, this->_server);
     else if (this->_method == "POST")
