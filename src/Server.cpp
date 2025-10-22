@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/20 18:39:45 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 15:20:19 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -235,7 +235,8 @@ void	Server::parseAndAddLocation(std::vector<std::string>::iterator& it, const s
 				it++;
 			}
 			if ((it + 1) == itEnd || *(it + 1) != ";")
-				throw (Error::DidNotFindSemicolon(*it));
+				throw (Error::DidNotFindSemicolon(*(it)));
+			it++;
 		}
 		else if (*it == "upload_path") {
 			it++;

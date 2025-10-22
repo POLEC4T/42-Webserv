@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 15:21:59 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 15:26:41 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,8 +166,7 @@ int handleClientIn(Server& server, Client& client, int epollfd) {
 		client.parseRequest(server);
 		if (client.getStatus() == WAITING)
 			return (EXIT_SUCCESS);
-		MethodExecutor me(server, client.getRequest(), client.getRequest().getMethod());
-		response = me.getResponse().build();
+		response = MethodExecutor(server, client.getRequest(), client.getRequest().getMethod()).getResponse().build();
 	}  catch (const RequestException& re) {
 		std::cout << re.what() << std::endl;
 		response = Response("HTTP/1.1", server.getErrorPageByCode(re.getCode())).build();

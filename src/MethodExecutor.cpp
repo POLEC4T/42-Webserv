@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/20 18:43:59 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 15:24:24 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,10 @@ MethodExecutor::MethodExecutor(Server& s, Request& r, std::string m) : _server(s
     this->execute();
 }
 
-Location& MethodExecutor::getRequestLocation()
+Location& MethodExecutor::getRequestLocation(Request& req, Server& serv)
 {
-    std::string path(this->_request.getUri());
-    std::map<std::string, Location>& locations = this->_server.getLocations();
+    std::string path(req.getUri());
+    std::map<std::string, Location>& locations = serv.getLocations();
 
     std::map<std::string, Location>::iterator it = locations.find(path);
     if (it != locations.end())
@@ -77,7 +77,7 @@ int   returnHandler(Response& response, Location& loc, Request& req)
 
 void    MethodExecutor::execute()
 {
-    Location loc = this->getRequestLocation();
+    Location loc = this->getRequestLocation(this->_request, this->_server);
     if (loc.getCode() == PAGE_NOT_FOUND)
     {
         this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(PAGE_NOT_FOUND));
