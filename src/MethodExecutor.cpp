@@ -6,11 +6,12 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/20 16:14:39 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/20 18:43:59 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
+#include "CodeDefines.h"
 #include "unistd.h"
 #include <ctime>
 
@@ -54,7 +55,7 @@ Location& MethodExecutor::getRequestLocation()
     }
 
     Location* error = new Location();
-    error->setCode(404);
+    error->setCode(PAGE_NOT_FOUND);
     return *error;
 }
 
@@ -77,9 +78,9 @@ int   returnHandler(Response& response, Location& loc, Request& req)
 void    MethodExecutor::execute()
 {
     Location loc = this->getRequestLocation();
-    if (loc.getCode() == 404)
+    if (loc.getCode() == PAGE_NOT_FOUND)
     {
-        this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(404));
+        this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(PAGE_NOT_FOUND));
         return ;
     }
     if (returnHandler(this->_response, loc, this->_request) == 0)
@@ -94,7 +95,7 @@ void    MethodExecutor::execute()
     else if (this->_method == "DELETE" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "DELETE") != loc.getAllowedMethods().end())
         this->_response = AHttpMethod::DELETE(fileName, this->_request, this->_server);
     else
-        this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(405));
+        this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(METHOD_NOT_ALLOWED));
 }
 
 MethodExecutor::~MethodExecutor() {}
