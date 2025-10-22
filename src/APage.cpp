@@ -6,11 +6,12 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:22:06 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/17 13:24:41 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:00:21 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "APage.hpp"
+#include "Error.hpp"
 
 //Canonic
 APage::APage(): _code(0) {}

@@ -6,19 +6,18 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 15:24:24 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 16:53:33 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
-#include "CodeDefines.h"
-#include "unistd.h"
-#include <ctime>
 
 std::string	readPage(std::string fileName);
 
-MethodExecutor::MethodExecutor(Server& s, Request& r, std::string m) : _server(s), _request(r), _method(m)
+MethodExecutor::MethodExecutor(Server& s, Client& c) : _server(s), _client(c)
 {
+    this->_request = this->_client.getRequest();
+    this->_method = this->_request.getMethod();
     this->execute();
 }
 
@@ -64,13 +63,22 @@ Response& MethodExecutor::getResponse()
     return this->_response;
 }
 
-int   returnHandler(Response& response, Location& loc, Request& req)
+int   returnHandler(Response& response, Location& loc, Request& req, Server& serv)
 {
     if (loc.getReturn().size() == 0)
         return 1;
     
     std::vector<std::string>split = static_cast<FtString>(loc.getReturn()).ft_split(" ");
-    response = Response(req.getVersion(), std::atoi(split[0].c_str()), "Permanent Redirection", "");
+    int i = 0;
+    std::istringstream   stream(split[0]);
+    stream >> i;
+    if (!stream.eof()  || (i < 300 || i > 308))
+    {
+        response = Response(req.getVersion(), serv.getErrorPageByCode(BAD_REQUEST));
+        return 0;
+    }
+
+    response = Response(req.getVersion(), std::atoi(split[0].c_str()), "Redirection", "");
     response.setHeader("Location", split[1]);
     return 0;
 }
@@ -83,16 +91,16 @@ void    MethodExecutor::execute()
         this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(PAGE_NOT_FOUND));
         return ;
     }
-    if (returnHandler(this->_response, loc, this->_request) == 0)
+    if (returnHandler(this->_response, loc, this->_request, this->_server) == 0)
         return ;
     std::string fileName(loc.getRoot());
     fileName += this->_request.getUri();
 
-    if (this->_method == "GET" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "GET") != loc.getAllowedMethods().end())
+    if (this->_method == "GET")
         this->_response = AHttpMethod::GET(fileName, loc, this->_request, this->_server);
-    else if (this->_method == "POST" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "POST") != loc.getAllowedMethods().end())
+    else if (this->_method == "POST")
         this->_response = AHttpMethod::POST(fileName, loc, this->_request, this->_server);
-    else if (this->_method == "DELETE" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "DELETE") != loc.getAllowedMethods().end())
+    else if (this->_method == "DELETE")
         this->_response = AHttpMethod::DELETE(fileName, this->_request, this->_server);
     else
         this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(METHOD_NOT_ALLOWED));

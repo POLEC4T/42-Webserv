@@ -6,11 +6,12 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/20 16:11:00 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:00:33 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
+#include "Error.hpp"
 
 Location::Location(): APage() {
 	_clientMaxBodySize = -1;

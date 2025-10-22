@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/20 18:38:19 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 16:56:59 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 # include "Client.hpp"
 # include <unistd.h>
 
-class	Client;
 class	Server {
 	private:
 		std::vector<std::string>		_name;

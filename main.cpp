@@ -1,8 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/22 16:47:21 by faoriol           #+#    #+#             */
+/*   Updated: 2025/10/22 16:59:42 by faoriol          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Context.hpp"
-#include "Request.hpp"
 #include "Headers.h"
 #include "Server.hpp"
-#include "MethodExecutor.hpp"
 #include "epoll.hpp"
 
 int main(int ac, char **av) {
