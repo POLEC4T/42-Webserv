@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 15:05:32 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 14:14:38 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ private:
   _extractHeaders(const std::string &req) const;
   std::string _extractBody(const std::string &req) const;
   void _parseRequestLine(const std::string &reqContent);
-e
+
 public:
   ~Request();
   Request();

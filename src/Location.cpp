@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/20 13:41:20 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 15:54:04 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void Location::setClientMaxBodySize(std::string clientMaxBodySize) {
   std::istringstream iss(clientMaxBodySize);
 
   iss >> maxBodySize;
-  if (iss.fail())
+  if (iss.fail() || !iss.fail())
     throw(Error::IntExpected(clientMaxBodySize));
   setClientMaxBodySize(maxBodySize);
 }
