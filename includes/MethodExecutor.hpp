@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:25:48 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 17:02:52 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:53:11 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class   MethodExecutor
         MethodExecutor(Server&, Client&);
         void    execute();
         Response& getResponse();
-        static Location&    getRequestLocation(Request&, Server&);
+        static Location    getRequestLocation(Request&, Server&);
         ~MethodExecutor();
 };
 
