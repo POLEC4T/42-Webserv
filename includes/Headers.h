@@ -3,23 +3,38 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 23:18:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/15 15:27:40 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 16:54:15 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HEADERS_H
 # define HEADERS_H
 
-# include <string>
-# include <vector>
-# include <map>
+# include <sys/socket.h>
+# include <sys/types.h>
+# include <sys/epoll.h>
+# include <netdb.h>
 # include <iostream>
-# include <fstream>
+# include <unistd.h>
 # include <sstream>
-# include "Error.hpp"
+# include <fstream>
+#include <algorithm>
+# include <iostream>
+# include <exception>
+# include <cstdlib>
+# include <fcntl.h>
+# include <cstring>
+# include <signal.h>
+# include <errno.h>
+#include <vector>
+#include <map>
+#include <ctime>
+#include "unistd.h"
+#include "CodeDefines.h"
+#include <string>
 
 
 

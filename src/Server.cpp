@@ -6,11 +6,12 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 15:20:19 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:00:45 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Error.hpp"
 
 Server::Server() {
 	_clientMaxBodySize = -1;

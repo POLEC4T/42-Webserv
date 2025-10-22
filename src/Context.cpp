@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 12:21:47 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:00:55 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "Context.hpp"
+#include "Error.hpp"
 
 Context::Context() {}
 

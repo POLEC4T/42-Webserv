@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:25:48 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 15:23:18 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:02:52 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,22 @@
 #define __METHODEXECUTOR_HPP__
 
 #include "Headers.h"
-#include "Response.hpp"
+#include "Client.hpp"
 #include "Server.hpp"
 #include "Request.hpp"
-#include "Location.hpp"
-#include <algorithm>
+#include "Response.hpp"
 
 class   MethodExecutor
 {
     private:
         Server &_server;
-        Request _request;
+        Client _client;
         std::string _method;
+        Request _request;
         Response    _response;
 
     public:
-        MethodExecutor(Server&, Request&, std::string);
+        MethodExecutor(Server&, Client&);
         void    execute();
         Response& getResponse();
         static Location&    getRequestLocation(Request&, Server&);

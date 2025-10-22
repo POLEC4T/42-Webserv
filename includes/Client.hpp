@@ -3,21 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 11:22:20 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 16:59:14 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include <string>
+#include "Headers.h"
 #include "Request.hpp"
-#include "RequestExceptions.hpp"
-#include "Server.hpp"
-#include "epoll.hpp"
 
 typedef enum e_client_status {
 	WAITING,
