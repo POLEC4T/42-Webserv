@@ -3,20 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:36:12 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/20 14:46:08 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/22 16:27:35 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "Response.hpp"
+#include "Location.hpp"
 
 class CGIHandler {
 private:
-  const Request &_request;
+  Request &_request;
+  Location& _location;
+
 public:
-  CGIHandler(const Request &req);
+  CGIHandler(const Request &req, const Location& loc);
   ~CGIHandler();
 };
