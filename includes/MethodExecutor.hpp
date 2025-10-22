@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:25:48 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/18 18:07:31 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 15:23:18 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,12 @@ class   MethodExecutor
         Request _request;
         std::string _method;
         Response    _response;
-        Location&    getRequestLocation();
 
     public:
         MethodExecutor(Server&, Request&, std::string);
         void    execute();
         Response& getResponse();
+        static Location&    getRequestLocation(Request&, Server&);
         ~MethodExecutor();
 };
 
