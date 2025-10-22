@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/22 11:27:16 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 14:19:35 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "Server.hpp"
 #include <string>
 #include <dirent.h>
+#include "CodeDefines.h"
 
 long long getMaxBodySize(Location& loc, Server& serv)
 {
@@ -46,7 +47,7 @@ Response	LoadAutoIndex(Request& req, Location& loc, Server& serv)
 	std::string page = "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"><title>auto-index</title><style>body {font-family: Arial, sans-serif;background-color: #f4f4f4;padding: 30px;}h1 {color: #333;}.file-list {margin-top: 20px;}.file-list a {display: block;text-decoration: none;color: #1a73e8;padding: 4px 12px;margin-bottom: 5px;border-radius: 4px;background-color: #ffffff;transition: background-color 0.2s;}.file-lista:hover{background-color: #e8f0fe;}.directory{font-weight:bold;color: #2e7d32;}.file{color: #1a237e;}</style></head><body><h1>auto-index</h1><div class=\"file-list\">";
 	DIR* directory = opendir(loc.getRoot().c_str());
 	if (directory == NULL)
-		return Response(req.getVersion(), serv.getErrorPageByCode(404));
+		return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
 	struct dirent* list;
 	while ((list = readdir(directory)) != NULL)
 	{
@@ -58,7 +59,7 @@ Response	LoadAutoIndex(Request& req, Location& loc, Server& serv)
 	}
 	page += "</div></body></html>";
 	closedir(directory);
-	return Response(req.getVersion(), 200, "OK", page);
+	return Response(req.getVersion(), OK, "OK", page);
 }
 
 Response AHttpMethod::GET(std::string fileName, Location& loc, Request& req, Server& serv)
@@ -72,33 +73,33 @@ Response AHttpMethod::GET(std::string fileName, Location& loc, Request& req, Ser
 		{
 			std::string tmp(fileName + *it);
 			if (access(tmp.c_str(), R_OK) == 0)
-				return Response(req.getVersion(), 200, "OK", readPage(tmp));
+				return Response(req.getVersion(), OK, "OK", readPage(tmp));
 		}
 		if (loc.getAutoIndex() == true)
 			return LoadAutoIndex(req, loc, serv);
 		else
-			return Response(req.getVersion(), serv.getErrorPageByCode(404));
+			return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
 	}
 	else
 	{
 		if (access(fileName.c_str(), R_OK) == 0)
-			return Response(req.getVersion(), 200, "OK", readPage(fileName));
+			return Response(req.getVersion(), OK, "OK", readPage(fileName));
 		else
-			return Response(req.getVersion(), serv.getErrorPageByCode(404));
+			return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
 	}
-	return Response(req.getVersion(), serv.getErrorPageByCode(404));
+	return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
 }
 
 Response	AHttpMethod::DELETE(std::string filename, Request& req, Server& serv)
 {
 	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
-		return Response(req.getVersion(), serv.getErrorPageByCode(403));
+		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
 
 	if (std::remove(filename.c_str()) != 0)
-		return Response(req.getVersion(), serv.getErrorPageByCode(404));
+		return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
 		
-	return Response(req.getVersion(), 200, "OK", "");
+	return Response(req.getVersion(), OK, "OK", "");
 }
 
 Response AHttpMethod::POST(std::string filename, Location& loc, Request& req, Server& serv)
@@ -106,16 +107,16 @@ Response AHttpMethod::POST(std::string filename, Location& loc, Request& req, Se
 	long long realBodySize(req.getBody().size() * sizeof(char));
 	
 	if (realBodySize > getMaxBodySize(loc, serv))
-		return Response(req.getVersion(), serv.getErrorPageByCode(413));
+		return Response(req.getVersion(), serv.getErrorPageByCode(CONTENT_TOO_LARGE));
 		
 	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
-		return Response(req.getVersion(), serv.getErrorPageByCode(403));
+		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
 		
 	std::ofstream	file(filename.c_str(), std::ostream::out);
 	if (!file.is_open())
-		return Response(req.getVersion(), serv.getErrorPageByCode(404));
+		return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
 	file << req.getBody();
 	
-	return Response(req.getVersion(), 200, "OK", "");
+	return Response(req.getVersion(), OK, "OK", "");
 }
