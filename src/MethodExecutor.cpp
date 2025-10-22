@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 15:59:42 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/22 16:05:27 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,8 @@
 
 std::string readPage(std::string fileName);
 
-MethodExecutor::MethodExecutor(Server &s, Request &r, std::string m,
-                               int clientFd)
-    : _server(s), _request(r), _method(m), _clientFd(clientFd) {
+MethodExecutor::MethodExecutor(Server &s, Request &r, std::string m)
+    : _server(s), _request(r), _method(m) {
   this->execute();
 }
 

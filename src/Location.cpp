@@ -6,14 +6,14 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/22 15:56:23 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/22 16:14:57 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "Location.hpp"
 
-Location::Location(): APage() {
+Location::Location(): APage(200) {
 	_clientMaxBodySize = -1;
 	_autoIndex = false;
 }
@@ -80,7 +80,7 @@ void Location::setClientMaxBodySize(std::string clientMaxBodySize) {
   std::istringstream iss(clientMaxBodySize);
 
   iss >> maxBodySize;
-  if (iss.fail() || !iss.fail())
+  if (!iss.eof())
     throw(Error::IntExpected(clientMaxBodySize));
   setClientMaxBodySize(maxBodySize);
 }

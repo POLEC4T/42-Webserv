@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 16:00:07 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/22 16:15:50 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,8 @@ void Server::setClientMaxBodySize(std::string clientMaxBodySize) {
   std::istringstream iss(clientMaxBodySize);
 
   iss >> maxBodySize;
+  if (!iss.eof())
+	throw (Error::IntExpected(clientMaxBodySize));
   setClientMaxBodySize(maxBodySize);
 }
 
@@ -121,7 +123,7 @@ void Server::addErrorPage(const std::string &name, const std::string &root) {
   std::istringstream iss(name);
 
   iss >> code;
-  if (iss.fail())
+  if (!iss.eof())
     throw(Error::IntExpected(name));
   errorPage.setCode(code);
   addErrorPage(errorPage);
