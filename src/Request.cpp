@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 12:54:46 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:21:34 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ void Request::parseRequestLine(const std::string &reqContent) {
 	_uri = reqLine.substr(firstSpace + 1, lastSpace - (firstSpace + 1));
 	_version = reqLine.substr((lastSpace + 1), (reqLine.size()) - (lastSpace + 1));
 
-	if (_uri.size() > MAX_URI_LENGTH)
+	if (_uri.size() > MAX_URI_LENGTH) 
 		throw UriTooLongException();
 	if (_uri.empty() || _uri.find(SP) != std::string::npos)
 		throw RequestLineException();

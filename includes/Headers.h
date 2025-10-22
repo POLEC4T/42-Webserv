@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 23:18:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/15 15:27:40 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 16:46:24 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 # include <fstream>
 # include <sstream>
 # include "Error.hpp"
+
+# define ONE_MB 1048576
 
 
 

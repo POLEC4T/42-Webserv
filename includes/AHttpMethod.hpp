@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpMethod.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:37:42 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 15:21:04 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 16:33:51 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class	AHttpMethod {
 	public:
 		static Response	GET(std::string, Location&, Request&, Server&);
 		static Response	DELETE(std::string, Request&, Server&);
-		static Response POST(std::string filename, Location& loc, Request& req, Server& serv);
+		static Response POST(std::string filename, Request& req, Server& serv);
 };
 
 #endif

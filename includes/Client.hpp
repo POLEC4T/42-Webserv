@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 15:25:35 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 18:22:00 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "RequestExceptions.hpp"
 #include "Server.hpp"
 #include "epoll.hpp"
+#include <limits.h>
 
 typedef enum e_client_status {
 	WAITING,
@@ -32,7 +33,7 @@ class Client {
 		size_t			_sentIdx;
 		t_client_status	_status;
 		int 			_fd;
-		size_t checkAndGetContentLength(Server& serv, const std::string& contentLengthStr) const;
+		size_t checkAndGetContentLength(Server& serv, const std::string& contentLengthStr);
 		
 
 	public:

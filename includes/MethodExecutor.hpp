@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:25:48 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 15:23:18 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:51:05 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class   MethodExecutor
         MethodExecutor(Server&, Request&, std::string);
         void    execute();
         Response& getResponse();
-        static Location&    getRequestLocation(Request&, Server&);
+        static Location    getRequestLocation(Request&, Server&);
         ~MethodExecutor();
 };
 

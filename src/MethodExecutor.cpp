@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 15:24:24 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:58:33 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ MethodExecutor::MethodExecutor(Server& s, Request& r, std::string m) : _server(s
     this->execute();
 }
 
-Location& MethodExecutor::getRequestLocation(Request& req, Server& serv)
+Location MethodExecutor::getRequestLocation(Request& req, Server& serv)
 {
     std::string path(req.getUri());
     std::map<std::string, Location>& locations = serv.getLocations();
@@ -54,9 +54,9 @@ Location& MethodExecutor::getRequestLocation(Request& req, Server& serv)
             break ;
     }
 
-    Location* error = new Location();
-    error->setCode(PAGE_NOT_FOUND);
-    return *error;
+	Location loc;
+	loc.setCode(404);
+    return loc;
 }
 
 Response& MethodExecutor::getResponse()
@@ -91,7 +91,7 @@ void    MethodExecutor::execute()
     if (this->_method == "GET" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "GET") != loc.getAllowedMethods().end())
         this->_response = AHttpMethod::GET(fileName, loc, this->_request, this->_server);
     else if (this->_method == "POST" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "POST") != loc.getAllowedMethods().end())
-        this->_response = AHttpMethod::POST(fileName, loc, this->_request, this->_server);
+        this->_response = AHttpMethod::POST(fileName, this->_request, this->_server);
     else if (this->_method == "DELETE" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "DELETE") != loc.getAllowedMethods().end())
         this->_response = AHttpMethod::DELETE(fileName, this->_request, this->_server);
     else
