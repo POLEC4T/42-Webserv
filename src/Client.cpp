@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 18:27:47 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/23 14:28:21 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,12 @@ const std::string&	Client::getBuffer() const {
 	return (_recvBuffer);
 }
 
+/**
+ * The status is set either WAITING or READY.
+ * WAITING means the client did not receive the full request.
+ * READY means the client received the full request and is therefore
+ * ready to send the response
+ */
 t_client_status		Client::getStatus() const {
 	return (_status);
 }
@@ -91,6 +97,8 @@ size_t Client::checkAndGetContentLength(Server& serv, const std::string& content
 	if (contentLength < 0)
 		throw BadHeaderValueException(contentLengthStr);
 	Location loc = MethodExecutor::getRequestLocation(_request, serv);
+	std::cout << "Max body size allowed: " << getMaxBodySize(loc, serv) << std::endl;
+	std::cout << "Content-Length received: " << contentLength << std::endl;
 	if (contentLength > getMaxBodySize(loc, serv))
 		throw ContentTooLargeException();
 	return contentLength;
@@ -100,18 +108,16 @@ size_t Client::checkAndGetContentLength(Server& serv, const std::string& content
  * @throws
  * @note sets the client status to READY when the full request has been received / parsed
  */
-void Client::parseRequest(Server& serv) {
+void Client::parsePacket(Server& serv) {
 	if (!receivedRequestLine())
 		return;
-	if (!_request.parsedRequestLine()) {
+	if (!_request.parsedRequestLine())
 		_request.parseRequestLine(_recvBuffer);
-	}
 
 	if (!receivedHeaders())
 		return;
-	if (!_request.parsedHeaders()) {
+	if (!_request.parsedHeaders())
 		_request.parseHeaders(_recvBuffer);
-	}
 	
 	std::string contentLengthStr = _request.getHeaderValue("Content-Length");
 	if (contentLengthStr.empty()) {
@@ -119,6 +125,7 @@ void Client::parseRequest(Server& serv) {
 		return;
 	}
 
+	// todo: save content length somewhere? To avoid re-checking it each time
 	size_t contentLength = this->checkAndGetContentLength(serv, contentLengthStr);
 	if (!receivedBody(contentLength))
 		return;
@@ -164,10 +171,10 @@ Request& Client::getRequest() {
  */
 int Client::sendPendingResponse(int epollfd) {
 	
-	ssize_t sentlen = send(_fd,
-		_sendBuffer.c_str() + _sentIdx,
-		_sendBuffer.size() - _sentIdx,
-		0);
+	ssize_t sentlen = send(	_fd,
+							_sendBuffer.c_str() + _sentIdx,
+							_sendBuffer.size() - _sentIdx,
+							0);
 
 	if (sentlen == -1) {
 		std::cout << "send: " << strerror(errno) << std::endl;
@@ -178,7 +185,7 @@ int Client::sendPendingResponse(int epollfd) {
 
 	if (_sentIdx >= _sendBuffer.size()) {
 		std::cout << "_sendBuffer completely sent" << std::endl;
-		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLET, _fd) == -1) {
+		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN, _fd) == -1) {
 			return (EXIT_FAILURE);
 		}
 		this->resetForNextRequest();
@@ -187,6 +194,19 @@ int Client::sendPendingResponse(int epollfd) {
 }
 
 
+int Client::readPacket(Server& server) {
+	char buffer[MAX_RECV] = { 0 };
+	ssize_t sizeRead;
 
-
-
+	sizeRead = recv(_fd, buffer, MAX_RECV, 0);
+	if (sizeRead == -1) {
+		std::cerr << "recv:" << strerror(errno) << std::endl;
+		return (EXIT_FAILURE);
+	} else if (sizeRead == 0) {
+		std::cerr << "Client disconnected, fd: " << _fd << std::endl;
+		server.deleteClient(_fd);
+		return (EXIT_FAILURE);
+	}
+	_recvBuffer.append(buffer, sizeRead);
+	return (EXIT_SUCCESS);
+}

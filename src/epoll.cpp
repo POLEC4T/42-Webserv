@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   epoll.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 18:24:55 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/23 14:30:19 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 #define MAX_EVENT_WAITED 1024
 #define NB_EVENTS 1024
 #define BUFFER_SIZE 1024
-
 
 int my_epoll_ctl(int epollfd, int op, uint32_t events, int fd) {
 	struct epoll_event ev;
@@ -28,30 +27,14 @@ int my_epoll_ctl(int epollfd, int op, uint32_t events, int fd) {
 	return (EXIT_SUCCESS);
 }
 
-
+/**
+ * @note If the modification to EPOLLOUT fails, the connection will be closed
+ */
 int queueResponse(Client &client, std::string& response, int epollfd) {
-
-	if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLOUT | EPOLLET, client.getFd()) == EXIT_FAILURE)
+	if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLOUT, client.getFd()) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 	client.setSendBuffer(response);
 	return(EXIT_SUCCESS);
-}
-
-int readRequest(Server& server, Client &client) {
-	char buffer[BUFFER_SIZE] = { 0 };
-	ssize_t sizeRead;
-
-	sizeRead = recv(client.getFd(), buffer, BUFFER_SIZE, 0);
-	if (sizeRead == -1) {
-		std::cerr << "recv:" << strerror(errno) << std::endl;
-		return (EXIT_FAILURE);
-	} else if (sizeRead == 0) {
-		std::cerr << "Client disconnected" << std::endl;
-		server.deleteClient(client.getFd());
-		return (EXIT_FAILURE);
-	}
-	client.appendBuffer(buffer);
-	return (EXIT_SUCCESS);
 }
 
 /**
@@ -126,11 +109,7 @@ int setNonBlocking(int fd) {
 }
 
 /**
- * erreurs possibles :
- * 		accept crash -> pas possible car servfd est dit grace a epoll, mais si ca marche pas webserv doit exit
- * 		setNonBlocking (= fctnl) crash -> webserv doit exit
- * 		epoll_ctl(ADD) crash -> webserv doit exit
- * 	-> dans tous les cas webserv doit exit
+ * @note If any step of adding the client to epoll fails, the connection is closed and the client is not added to the server
  */
 int addClient(Server& server, int servfd, int epollfd) {
 	struct sockaddr clientAddr;
@@ -146,7 +125,8 @@ int addClient(Server& server, int servfd, int epollfd) {
 		return (EXIT_FAILURE);
 	}
 	
-	if (my_epoll_ctl(epollfd, EPOLL_CTL_ADD, EPOLLIN | EPOLLET, clientfd) == -1) {
+	if (my_epoll_ctl(epollfd, EPOLL_CTL_ADD, EPOLLIN, clientfd) == -1) {
+		close(clientfd);
 		return (EXIT_FAILURE);
 	}
 	
@@ -156,29 +136,35 @@ int addClient(Server& server, int servfd, int epollfd) {
 	return (EXIT_SUCCESS);
 }
 
+/**
+ * @note If any error occurs, the function returns EXIT_FAILURE to signal the caller to delete the client
+ * Possible errors:
+ * 	- readPacket fail -> client disconnected or read error -> delete the client
+ * 	- parsePacket fail -> send Bad Request
+ * 	- MethodExecutor fail -> Fabien handles it
+ *  - queueResponse fail -> send error -> delete the client
+ */
 int handleClientIn(Server& server, Client& client, int epollfd) {
 
-	if (readRequest(server, client) == EXIT_FAILURE)
+	if (client.readPacket(server) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 
 	std::string response;
+	
 	try {
-		client.parseRequest(server);
+		client.parsePacket(server);
 		if (client.getStatus() == WAITING)
 			return (EXIT_SUCCESS);
 		response = MethodExecutor(server, client).getResponse().build();
-	}  catch (const RequestException& re) {
-		std::cout << re.what() << std::endl;
+	} catch (const RequestException& re) {
+		std::cerr << re.what() << std::endl;
 		response = Response("HTTP/1.1", server.getErrorPageByCode(re.getCode())).build();
 	} catch (const std::exception& e) {
-		std::cerr << "Unhandled exception: " << e.what() << std::endl;
-		return (EXIT_FAILURE);
+		std::cerr << "Unhandled exception (should never happen): " << e.what() << std::endl;
+		response = Response("HTTP/1.1", server.getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
 	}
 
-	if (queueResponse(client, response, epollfd) == EXIT_FAILURE) {
-		return (EXIT_FAILURE);
-	}
-	return (EXIT_SUCCESS);
+	return (queueResponse(client, response, epollfd) == EXIT_FAILURE);
 }
 
 int createEpoll(int servfd) {
@@ -193,7 +179,7 @@ int createEpoll(int servfd) {
 		return (-1);
 	}
 
-	if (my_epoll_ctl(epollfd, EPOLL_CTL_ADD, EPOLLIN | EPOLLET, servfd) == -1) {
+	if (my_epoll_ctl(epollfd, EPOLL_CTL_ADD, EPOLLIN, servfd) == -1) {
 		close(epollfd);
 		return (-1);
 	}
@@ -239,20 +225,23 @@ int launchEpoll(Server &server) {
 		for (int i = 0; i < eventsReady; ++i) {
 			if (events[i].data.fd == servfd) {
 				if (addClient(server, servfd, epollfd) == EXIT_FAILURE) {
-					close(servfd);
-					close(epollfd);
-					return (EXIT_FAILURE);
+					continue;
 				}
 			} else {
 				Client& client = server.getClient(events[i].data.fd);
 				if (events[i].events & EPOLLIN) {
-					if (handleClientIn(server, client, epollfd) == EXIT_FAILURE)
+					std::cout << "EPOLLIN fd: " << client.getFd() << std::endl;
+					if (handleClientIn(server, client, epollfd) == EXIT_FAILURE) {
+						server.deleteClient(client.getFd());
 						continue;
+					}
 				}
 				if (events[i].events & EPOLLOUT) {
-					std::cout << "Sending response to client fd: " << client.getFd() << std::endl;
-					if (client.sendPendingResponse(epollfd) == EXIT_FAILURE)
+					std::cout << "EPOLLOUT fd: " << client.getFd() << std::endl;
+					if (client.sendPendingResponse(epollfd) == EXIT_FAILURE) {
+						server.deleteClient(client.getFd());
 						continue;
+					}
 				}
 			}
 		}

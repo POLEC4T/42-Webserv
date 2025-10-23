@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 17:00:45 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/23 12:06:38 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,6 +177,7 @@ void	Server::deleteAllClients() {
 }
 
 void	Server::deleteClient(int fd) {
+	std::cout << "Closing client with fd " << fd << std::endl;
 	close(fd);
 	_mapClients.erase(fd);
 }
