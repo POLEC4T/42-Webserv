@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/24 10:13:36 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/24 11:36:59 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,6 @@ Location MethodExecutor::getRequestLocation(Request& req, Server& serv)
         else
             break ;
     }
-
     Location loc; loc.setCode(404);
     return loc;
 }
