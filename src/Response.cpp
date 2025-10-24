@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:47:45 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 16:00:01 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/24 16:09:45 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,9 @@
 #include "ErrorPage.hpp"
 #include "FtString.hpp"
 
-Response::Response() {}
+Response::Response() {
+	_code = 0;
+}
 
 Response::Response(std::string v, int c, std::string s, std::string b)
 {

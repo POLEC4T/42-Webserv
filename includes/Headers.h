@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 23:18:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 17:08:40 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/24 16:01:24 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <sys/socket.h>
 # include <sys/types.h>
 # include <sys/epoll.h>
+# include <sys/wait.h>
 # include <netdb.h>
 # include <iostream>
 # include <unistd.h>
