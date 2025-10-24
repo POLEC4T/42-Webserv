@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/22 18:24:34 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/24 10:12:55 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <string>
 #include <dirent.h>
 #include "CodeDefines.h"
+#include <sys/stat.h>
 
 long long getMaxBodySize(Location& loc, Server& serv)
 {
@@ -42,19 +43,27 @@ std::string	readPage(std::string fileName)
 	return body;
 }
 
-Response	LoadAutoIndex(Request& req, Location& loc, Server& serv)
+Response	LoadAutoIndex(Request& req, std::string& path, Server& serv, std::string root)
 {
 	std::string page = "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"><title>auto-index</title><style>body {font-family: Arial, sans-serif;background-color: #f4f4f4;padding: 30px;}h1 {color: #333;}.file-list {margin-top: 20px;}.file-list a {display: block;text-decoration: none;color: #1a73e8;padding: 4px 12px;margin-bottom: 5px;border-radius: 4px;background-color: #ffffff;transition: background-color 0.2s;}.file-lista:hover{background-color: #e8f0fe;}.directory{font-weight:bold;color: #2e7d32;}.file{color: #1a237e;}</style></head><body><h1>auto-index</h1><div class=\"file-list\">";
-	DIR* directory = opendir(loc.getRoot().c_str());
+	DIR* directory = opendir(path.c_str());
 	if (directory == NULL)
 		return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
 	struct dirent* list;
 	while ((list = readdir(directory)) != NULL)
 	{
+		if (!strcmp(list->d_name, "..") || !strcmp(list->d_name, "."))
+			continue;
+		int pos = path.find(root);
 		page += "<a href=\"";
+		std::string tmp = path.substr(pos + root.size(), path.size() - (pos + root.size()));
+		if (tmp.size() != 1)
+			page += tmp + "/";
 		page += list->d_name;
 		page += "\">";
 		page += list->d_name;
+		if (list->d_type == DT_DIR)
+			page += "/";
 		page += "</a><br>";
 	}
 	page += "</div></body></html>";
@@ -66,6 +75,7 @@ Response AHttpMethod::GET(std::string fileName, Location& loc, Request& req, Ser
 {
 	std::vector<std::string> vec = loc.getIndex();
 	std::string index;
+	struct	stat infos;
 	
 	if (fileName[fileName.size() - 1] == '/')
 	{
@@ -76,12 +86,16 @@ Response AHttpMethod::GET(std::string fileName, Location& loc, Request& req, Ser
 				return Response(req.getVersion(), OK, "OK", readPage(tmp));
 		}
 		if (loc.getAutoIndex() == true)
-			return LoadAutoIndex(req, loc, serv);
+			return LoadAutoIndex(req, fileName, serv, loc.getRoot());
 		else
 			return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
 	}
 	else
 	{
+		if (stat(fileName.c_str(), &infos) != 0)
+			return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
+		if (loc.getAutoIndex() == true && S_ISDIR(infos.st_mode))
+			return LoadAutoIndex(req, fileName, serv, loc.getRoot());
 		if (access(fileName.c_str(), R_OK) == 0)
 			return Response(req.getVersion(), OK, "OK", readPage(fileName));
 		else
