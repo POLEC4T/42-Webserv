@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/24 16:09:06 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/24 16:15:57 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,15 +202,20 @@ Response CGIHandler(Request &req, Client &client, Location &loc, Server &serv) {
     close(pipeFd[1]);
   }
   pid = fork();
-  if (pid == -1)
-    return Response(req.getVersion(),
-                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
+  if (pid == -1) {
+	freeCharArray(env);
+	freeCharArray(args);
+	  return Response(req.getVersion(),
+					  serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
+  }
   if (pid == 0) {
     if (method == "POST")
       executeChild(pipeFd[0], client.getFd(), args, env);
     else
       executeChild(0, client.getFd(), args, env);
   }
+  freeCharArray(env);
+  freeCharArray(args);
   if (req.getMethod() == "POST")
     close(pipeFd[0]);
   waitpid(pid, &status, 0);
