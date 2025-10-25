@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 15:59:55 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:38:06 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ void Request::parseRequestLine(const std::string &reqContent) {
   _version =
       reqLine.substr((lastSpace + 1), (reqLine.size()) - (lastSpace + 1));
 
-	if (_uri.size() > MAX_URI_LENGTH)
+	if (_uri.size() > MAX_URI_LENGTH) 
 		throw UriTooLongException();
 	if (_uri.empty() || _uri.find(SP) != std::string::npos)
 		throw RequestLineException();

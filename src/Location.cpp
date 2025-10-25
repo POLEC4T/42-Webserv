@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 17:10:05 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:38:02 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ const std::string &Location::getCgiExtension() { return _cgiExtension; }
 
 const std::string &Location::getCgiPath() { return _cgiPath; }
 
-long long	Location::getClientMaxBodySize() {
+long long	Location::getClientMaxBodySize() const{
 	return _clientMaxBodySize;
 }
 

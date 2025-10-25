@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 10:27:07 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 12:20:18 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:20:53 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@ int RequestException::getCode() const {
 }
 
 RequestException::~RequestException() throw() {}
-
-
 
 const char* NoHeaderValueException::what() const throw() {
 	if (_message.empty())
@@ -66,6 +64,30 @@ UriTooLongException::~UriTooLongException() throw() {}
 
 const char* UriTooLongException::what() const throw() {
 	return "Request: URI too long.";
+}
+
+ContentTooLargeException::ContentTooLargeException() : RequestException(CONTENT_TOO_LARGE) {}
+
+ContentTooLargeException::~ContentTooLargeException() throw() {}
+
+const char* ContentTooLargeException::what() const throw() {
+	return "Request: Content too large";
+}
+
+MethodNotAllowedException::MethodNotAllowedException() : RequestException(METHOD_NOT_ALLOWED) {}
+
+MethodNotAllowedException::~MethodNotAllowedException() throw() {}
+
+const char* MethodNotAllowedException::what() const throw() {
+	return "Request: Method not allowed";
+}
+
+PageNotFoundException::PageNotFoundException() : RequestException(PAGE_NOT_FOUND) {}
+
+PageNotFoundException::~PageNotFoundException() throw() {}
+
+const char* PageNotFoundException::what() const throw() {
+	return "Request: Page not found";
 }
 
 const char* BadHeaderValueException::what() const throw() {

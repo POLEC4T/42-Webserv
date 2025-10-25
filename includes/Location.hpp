@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 15:58:24 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:37:25 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ public:
 		const std::vector<std::string>	getIndex();
 	
 		bool							getAutoIndex();
-		long long						getClientMaxBodySize();
+		long long						getClientMaxBodySize() const;
 
   const std::string &getCgiExtension();
   const std::string &getCgiPath();

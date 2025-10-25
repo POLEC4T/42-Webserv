@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/24 16:15:57 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:36:59 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,10 @@ MethodExecutor::MethodExecutor(Server &s, Client &c) : _server(s), _client(c) {
   this->execute();
 }
 
-Location &MethodExecutor::getRequestLocation(Request &req, Server &serv) {
-  std::string path(req.getUri());
-  std::map<std::string, Location> &locations = serv.getLocations();
+Location MethodExecutor::getRequestLocation(Request& req, Server& serv)
+{
+    std::string path(req.getUri());
+    std::map<std::string, Location>& locations = serv.getLocations();
 
   std::map<std::string, Location>::iterator it = locations.find(path);
   if (it != locations.end())
@@ -41,18 +42,16 @@ Location &MethodExecutor::getRequestLocation(Request &req, Server &serv) {
     if (path.empty() || path == "/")
       break;
 
-    l = path.find_last_of('/');
-    if (l == 0)
-      path = "/";
-    else if (l != std::string::npos)
-      path = path.substr(0, l);
-    else
-      break;
-  }
-
-  Location *error = new Location();
-  error->setCode(PAGE_NOT_FOUND);
-  return *error;
+        l = path.find_last_of('/');
+        if (l == 0)
+            path = "/";
+       else if (l != std::string::npos)
+            path = path.substr(0, l);
+        else
+            break ;
+    }
+    Location loc; loc.setCode(404);
+    return loc;
 }
 
 Response &MethodExecutor::getResponse() { return this->_response; }

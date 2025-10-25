@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 17:08:17 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:37:16 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ class Client {
 		size_t			_sentIdx;
 		t_client_status	_status;
 		int 			_fd;
-		size_t checkAndGetContentLength(Server& serv, const std::string& contentLengthStr) const;
+		size_t checkAndGetContentLength(Server& serv, const std::string& contentLengthStr);
 		
 
 public:

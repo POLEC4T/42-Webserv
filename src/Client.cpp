@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 17:09:47 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:37:45 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "epoll.hpp"
+#include "limits.h"
 
 Client::Client() : _sentIdx(0), _status(WAITING), _fd(-1) {};
 
@@ -60,25 +61,36 @@ bool Client::receivedHeaders() const {
 }
 
 /**
- * @throws if Content-Length is not a valid positive integer
+ * Client max body size is either specified in the config file
+ * location, in the config file (out of a location scope), or the
+ * default for a server: 1MB
  */
-size_t Client::checkAndGetContentLength(Server& serv, const std::string& contentLengthStr) const {
-	if (contentLengthStr.find_first_not_of("0123456789") != std::string::npos) {
-		throw BadHeaderValueException(contentLengthStr);
-	}
-	long long contentLength = std::strtol(contentLengthStr.c_str(), NULL, 10);
-	if (errno == ERANGE) {
-		throw BadHeaderValueException(contentLengthStr);
-	}
-	if (contentLength < 0) {
-		throw BadHeaderValueException(contentLengthStr);
-	}
-	// todo : check max size? Need location
+long long getMaxBodySize(const Location& loc, const Server& serv)
+{
+	long long	defaultV = ONE_MB;
+	if (loc.getClientMaxBodySize() != -1)
+		return loc.getClientMaxBodySize();
+	if (serv.getClientMaxBodySize() != -1)
+		return serv.getClientMaxBodySize();
+	return defaultV;
+}
 
-	(void) serv;	
-	
-
-
+/**
+ * @throws if Content-Length is negative
+ * @throws if Content-Length is not a number
+ * @throws if Content-Length is larger than the allowed max body size
+ */
+size_t Client::checkAndGetContentLength(Server& serv, const std::string& contentLengthStr) {
+	if (contentLengthStr.find_first_not_of("0123456789") != std::string::npos)
+		throw BadHeaderValueException(contentLengthStr);
+	long long contentLength = std::strtoll(contentLengthStr.c_str(), NULL, 10);
+	if (contentLength == LONG_LONG_MAX || contentLength == LONG_LONG_MIN)
+		throw BadHeaderValueException(contentLengthStr);
+	if (contentLength < 0)
+		throw BadHeaderValueException(contentLengthStr);
+	Location loc = MethodExecutor::getRequestLocation(_request, serv);
+	if (contentLength > getMaxBodySize(loc, serv))
+		throw ContentTooLargeException();
 	return contentLength;
 }
 
@@ -89,19 +101,22 @@ size_t Client::checkAndGetContentLength(Server& serv, const std::string& content
 void Client::parseRequest(Server& serv) {
 	if (!receivedRequestLine())
 		return;
-	if (!_request.parsedRequestLine())
+	if (!_request.parsedRequestLine()) {
 		_request.parseRequestLine(_recvBuffer);
+	}
 
 	if (!receivedHeaders())
 		return;
-	if (!_request.parsedHeaders())
+	if (!_request.parsedHeaders()) {
 		_request.parseHeaders(_recvBuffer);
+	}
 	
 	std::string contentLengthStr = _request.getHeaderValue("Content-Length");
 	if (contentLengthStr.empty()) {
 		_status = READY;
 		return;
 	}
+
 	size_t contentLength = this->checkAndGetContentLength(serv, contentLengthStr);
 	if (!receivedBody(contentLength))
 		return;

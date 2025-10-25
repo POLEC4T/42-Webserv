@@ -11,7 +11,7 @@ server {
     # error_page 500 /errors/500.html;
     
     location / {
-        allowed_methods GET POST DELETE;
+        allowed_methods GET POST;
         root /home/faoriol/Documents/webserv/site-1;
         client_max_body_size 10000;
         index index.html index.php;
@@ -19,8 +19,9 @@ server {
     }
 
     location /upload {
-        allowed_methods POST DELETE;
+        allowed_methods POST GET;
         root /home/faoriol/Documents/webserv;
+        autoindex on;
     }
 
     location /redir {

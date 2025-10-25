@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 23:18:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/24 16:01:24 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:37:20 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@
 #include "CodeDefines.h"
 #include <string>
 
-
+#define ONE_MB 1048576
 
 
 #endif
