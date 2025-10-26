@@ -6,11 +6,20 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/25 14:36:59 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/26 15:08:58 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
+
+typedef struct s_CGIContext {
+  char **env;
+  char **args;
+  int pipeFdIn[2];
+  int pipeFdOut[2];
+  int pid;
+  int status;
+} t_CGIContext;
 
 std::string readPage(std::string fileName);
 
@@ -20,10 +29,9 @@ MethodExecutor::MethodExecutor(Server &s, Client &c) : _server(s), _client(c) {
   this->execute();
 }
 
-Location MethodExecutor::getRequestLocation(Request& req, Server& serv)
-{
-    std::string path(req.getUri());
-    std::map<std::string, Location>& locations = serv.getLocations();
+Location MethodExecutor::getRequestLocation(Request &req, Server &serv) {
+  std::string path(req.getUri());
+  std::map<std::string, Location> &locations = serv.getLocations();
 
   std::map<std::string, Location>::iterator it = locations.find(path);
   if (it != locations.end())
@@ -42,16 +50,17 @@ Location MethodExecutor::getRequestLocation(Request& req, Server& serv)
     if (path.empty() || path == "/")
       break;
 
-        l = path.find_last_of('/');
-        if (l == 0)
-            path = "/";
-       else if (l != std::string::npos)
-            path = path.substr(0, l);
-        else
-            break ;
-    }
-    Location loc; loc.setCode(404);
-    return loc;
+    l = path.find_last_of('/');
+    if (l == 0)
+      path = "/";
+    else if (l != std::string::npos)
+      path = path.substr(0, l);
+    else
+      break;
+  }
+  Location loc;
+  loc.setCode(404);
+  return loc;
 }
 
 Response &MethodExecutor::getResponse() { return this->_response; }
@@ -154,7 +163,13 @@ void freeCharArray(char **strs) {
     delete[] strs;
 }
 
-int getContext(char ***env, char ***args, Location &loc, Request &req) {
+void ftClose(int *fd) {
+  if (*fd != -1)
+    close(*fd);
+  *fd = -1;
+}
+
+int getContext(t_CGIContext &ctx, Location &loc, Request &req) {
   std::vector<std::string> envVec;
   std::vector<std::string> argsVec;
   std::vector<std::string> tokens;
@@ -165,10 +180,10 @@ int getContext(char ***env, char ***args, Location &loc, Request &req) {
   envVec = setEnvCGI(tokens, req);
   argsVec.push_back(loc.getCgiPath());
   argsVec.push_back(tokens[0]);
-  *env = vectorToCharArray(envVec);
+  ctx.env = vectorToCharArray(envVec);
   if (!*env)
     return (EXIT_FAILURE);
-  *args = vectorToCharArray(argsVec);
+  ctx.args = vectorToCharArray(argsVec);
   if (!*args) {
     freeCharArray(*env);
     return (EXIT_FAILURE);
@@ -176,56 +191,77 @@ int getContext(char ***env, char ***args, Location &loc, Request &req) {
   return (EXIT_SUCCESS);
 }
 
-Response CGIHandler(Request &req, Client &client, Location &loc, Server &serv) {
-  int pid;
-  int status;
-  int pipeFd[2];
-  std::string method = req.getMethod();
-  char **env;
-  char **args;
+void initCGIContext(t_CGIContext &ctx) {
+  ctx.args = NULL;
+  ctx.env = NULL;
+  ctx.pipeFdIn[0] = -1;
+  ctx.pipeFdIn[1] = -1;
+  ctx.pipeFdOut[0] = -1;
+  ctx.pipeFdOut[1] = -1;
+}
 
+void freeCGIContext(t_CGIContext &ctx) {
+  if (ctx.args)
+    freeCharArray(ctx.args);
+  if (ctx.env)
+    freeCharArray(ctx.env);
+  ftClose(&ctx.pipeFdIn[0]);
+  ftClose(&ctx.pipeFdIn[1]);
+  ftClose(&ctx.pipeFdOut[0]);
+  ftClose(&ctx.pipeFdOut[1]);
+}
+
+Response CGIHandler(Request &req, Client &client, Location &loc, Server &serv) {
+  t_CGIContext ctx;
+  std::string method = req.getMethod();
   FtString uriToken = req.getUri();
   std::vector<std::string> uriParts = uriToken.ft_split("?");
   std::string scriptPath = uriParts.size() ? uriParts[0] : std::string();
+
+  initCGIContext(ctx);
   if (scriptPath.empty() || access(loc.getCgiPath().c_str(), X_OK) == -1 ||
       access(scriptPath.c_str(), X_OK) == -1)
     return Response(req.getVersion(), serv.getErrorPageByCode(BAD_REQUEST));
-  if (getContext(&env, &args, loc, req))
+  if (getContext(ctx, loc, req))
     return Response(req.getVersion(),
                     serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
+  if (pipe(ctx.pipeFdOut)) {
+    freeCGIContext(ctx);
+    return Response(req.getVersion(),
+                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
+  }
   if (method == "POST") {
-    if (pipe(pipeFd))
+    if (pipe(ctx.pipeFdIn)) {
+      freeCGIContext(ctx);
       return Response(req.getVersion(),
                       serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
-    write(pipeFd[1], req.getBody().c_str(), req.getBody().size());
-    close(pipeFd[1]);
+    }
+    write(pipeFdIn[1], req.getBody().c_str(), req.getBody().size());
+    ftClose(&pipeFdIn[1]);
   }
-  pid = fork();
-  if (pid == -1) {
-	freeCharArray(env);
-	freeCharArray(args);
-	  return Response(req.getVersion(),
-					  serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
-  }
-  if (pid == 0) {
-    if (method == "POST")
-      executeChild(pipeFd[0], client.getFd(), args, env);
-    else
-      executeChild(0, client.getFd(), args, env);
-  }
-  freeCharArray(env);
-  freeCharArray(args);
-  if (req.getMethod() == "POST")
-    close(pipeFd[0]);
-  waitpid(pid, &status, 0);
-  if (WIFEXITED(status))
+  ctx.pid = fork();
+  if (ctx.pid == -1) {
+    freeCGIContext(ctx);
     return Response(req.getVersion(),
-                   serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
+                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
+  }
+  if (ctx.pid == 0) {
+    if (method == "POST")
+      executeChild(ctx.pipeFdIn[0], ctx.pipeFdOut[1], args, env);
+    else
+      executeChild(0, ctx.pipeFdOut[1], args, env);
+  }
+  freeCGIContext(ctx);
+  waitpid(pid, ctx.status, 0);
+  if (WIFEXITED(ctx.status))
+    return Response(req.getVersion(),
+                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
   return Response();
   ;
 }
 
 void MethodExecutor::execute() {
+  std::cout << "URI " << _request.getUri() << std::endl;
   Location loc = this->getRequestLocation(this->_request, this->_server);
   if (loc.getCode() == PAGE_NOT_FOUND) {
     this->_response =
@@ -249,7 +285,7 @@ void MethodExecutor::execute() {
         AHttpMethod::GET(fileName, loc, this->_request, this->_server);
   else if (this->_method == "POST")
     this->_response =
-        AHttpMethod::POST(fileName, loc, this->_request, this->_server);
+        AHttpMethod::POST(fileName, this->_request, this->_server);
   else if (this->_method == "DELETE")
     this->_response =
         AHttpMethod::DELETE(fileName, this->_request, this->_server);

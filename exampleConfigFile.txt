@@ -11,16 +11,17 @@ server {
     # error_page 500 /errors/500.html;
     
     location / {
+		autoindex on;
         allowed_methods GET POST;
-        root /home/faoriol/Documents/webserv/site-1;
+        root /home/mazakov/Documents/42-Webserv/site-1;
         client_max_body_size 10000;
-        index index.html index.php;
+        #index index.html index.php;
         autoindex on;
     }
 
     location /upload {
         allowed_methods POST GET;
-        root /home/faoriol/Documents/webserv;
+        root /home/mazakov/Documents/42-Webserv;
         autoindex on;
     }
 
@@ -33,6 +34,7 @@ server {
         root /var/www/cgi-bin;
         
         # Configuration CGI
+		autoindex on;
         cgi_extension .php;
         cgi_path /usr/bin/php-cgi;  # Chemin complet vers l'exécutable CGI
         
@@ -41,8 +43,9 @@ server {
     }
     
     location /python {
+		autoindex on;
         allowed_methods GET POST;
-        root /var/www/python-scripts;
+        root /home/mazakov/Documents/42-Webserv/python;
         cgi_extension .py;
         cgi_path /usr/bin/python3;
     }
