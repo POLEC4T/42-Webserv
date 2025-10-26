@@ -22,7 +22,8 @@ SRCS = main.cpp \
 	$(SRC_DIR)/Response.cpp \
 	$(SRC_DIR)/epoll.cpp \
 	$(SRC_DIR)/Client.cpp \
-	$(SRC_DIR)/Error.cpp
+	$(SRC_DIR)/Error.cpp \
+	$(SRC_DIR)/CGIHandler.cpp
 
 HEADERS = $(INC_DIR)/AHttpMethod.hpp \
 	$(INC_DIR)/APage.hpp \

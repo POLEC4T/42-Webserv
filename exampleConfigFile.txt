@@ -15,6 +15,8 @@ server {
         allowed_methods GET POST;
         root /home/mazakov/Documents/42-Webserv/site-1;
         client_max_body_size 10000;
+		cgi_extension .py;
+		cgi_path /bin/python3.12;
         #index index.html index.php;
         autoindex on;
     }
@@ -40,14 +42,6 @@ server {
         
         # Le serveur doit exécuter le CGI dans le bon répertoire
         # pour les chemins relatifs
-    }
-    
-    location /python {
-		autoindex on;
-        allowed_methods GET POST;
-        root /home/mazakov/Documents/42-Webserv/python;
-        cgi_extension .py;
-        cgi_path /usr/bin/python3;
     }
 }
 
