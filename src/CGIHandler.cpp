@@ -3,14 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/26 21:56:34 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/27 16:49:31 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
+#include "sys/time.h"
+
+#define TIMEDOUT 1
 
 typedef struct s_CGIContext {
   char **env;
@@ -19,6 +22,7 @@ typedef struct s_CGIContext {
   int pipeFdOut[2];
   int pid;
   int status;
+  int timedOut;
 } t_CGIContext;
 
 bool isCGI(Request &req, Location &loc) {
@@ -51,8 +55,8 @@ std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
   env.push_back("SCRIPT_PATH=" + tokens[0]);
   env.push_back("SERVER_PROTOCOL=HTTP/1.1");
   env.push_back("GATEWAY_INTERFACE=CGI/1.1");
-  env.push_back("CONTENT_TYPE=" + req.getHeaderValue("content-type"));
-  env.push_back("CONTENT_LENGTH=" + req.getHeaderValue("content-length"));
+  env.push_back("CONTENT_TYPE=" + req.getHeaderValue("Content-Type"));
+  env.push_back("CONTENT_LENGTH=" + req.getHeaderValue("Content-Length"));
   return (env);
 }
 
@@ -108,7 +112,7 @@ int getContext(t_CGIContext &ctx, Location &loc, Request &req) {
   ctx.args = vectorToCharArray(argsVec);
   if (!ctx.args) {
     freeCharArray(ctx.env);
-    return (EXIT_FAILURE);
+    return (EXIT_FAILURE); 
   }
   return (EXIT_SUCCESS);
 }
@@ -121,6 +125,7 @@ void initCGIContext(t_CGIContext &ctx) {
   ctx.pipeFdOut[0] = -1;
   ctx.pipeFdOut[1] = -1;
   ctx.status = 0;
+  ctx.timedOut = 0;
 }
 
 void closeFdOfContext(t_CGIContext &ctx) {
@@ -155,6 +160,41 @@ std::string readToHTTPBody(int fd) {
   return content;
 }
 
+void handle_alarm(int signo) {
+  (void)signo;
+}
+
+
+int  timedOutHandling(t_CGIContext& ctx, int timedOut) {
+  int waitPidRet;
+  itimerval timer_value;
+  errno = 0;
+
+  struct sigaction sa;
+  sa.sa_handler = handle_alarm;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  sigaction(SIGALRM, &sa, NULL);
+
+  timer_value.it_value.tv_sec = 0;
+  if (timedOut == -1)
+    timer_value.it_value.tv_usec = 500000;
+  else
+    timer_value.it_value.tv_usec = timedOut;
+  timer_value.it_interval.tv_sec = 0;
+  timer_value.it_interval.tv_usec = 0;
+  setitimer(ITIMER_REAL, &timer_value, NULL);
+  waitPidRet = waitpid(ctx.pid, &ctx.status, 0);
+  if (waitPidRet > 0)
+    alarm(0);
+  else if (waitPidRet == -1 && errno == EINTR) {
+    kill(ctx.pid, SIGKILL);
+    waitpid(ctx.pid, NULL, 0);
+    return (TIMEDOUT);
+  }
+  return (EXIT_SUCCESS);
+}
+
 int executeChild(t_CGIContext ctx) {
   if (ctx.pipeFdIn[0] != -1) {
     if (dup2(ctx.pipeFdIn[0], STDIN_FILENO) == -1) {
@@ -163,7 +203,8 @@ int executeChild(t_CGIContext ctx) {
       std::exit(1);
     }
   }
-  if (dup2(ctx.pipeFdOut[1], STDOUT_FILENO) == -1) {
+  if (dup2(ctx.pipeFdOut[1], STDOUT_FILENO) == -1 ||
+     dup2(ctx.pipeFdOut[1], STDERR_FILENO) == -1) {
     std::cerr << "CGI: dup2 pipeFdOut[1] error" << std::endl;
     freeCGIContext(ctx);
     std::exit(1);
@@ -214,8 +255,15 @@ Response CGIHandler(Request &req, Location &loc, Server &serv) {
   if (ctx.pid == 0) {
     executeChild(ctx);
   }
-  waitpid(ctx.pid, &ctx.status, 0);
-  ftClose(&ctx.pipeFdOut[1]);
+  else {
+    ftClose(&ctx.pipeFdOut[1]);
+    ctx.timedOut = timedOutHandling(ctx, serv.getTimedOutValue());
+  }
+  if (ctx.timedOut == TIMEDOUT) {
+    std::cerr << "CGI: timed out" << std::endl;
+    return Response(req.getVersion(),
+                    serv.getErrorPageByCode(REQUEST_TIMEOUT));
+  }
   if (!WIFEXITED(ctx.status)) {
     freeCGIContext(ctx);
     std::cerr << "CGI: child exit error" << std::endl;

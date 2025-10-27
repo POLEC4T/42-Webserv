@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 17:09:32 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/27 14:25:28 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ class	Server {
 		void	setClientMaxBodySize(std::string);
 		void	setHost(const std::string&);
 		void	setPort(const std::string&);
+		void	setTimeOut(const std::string);
 		
 		//Getter
 		const std::vector<std::string>&		getNames() const ;

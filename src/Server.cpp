@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 17:10:28 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/27 15:20:33 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,12 @@
 
 Server::Server() {
 	_clientMaxBodySize = -1;
+	_timedOut = -1;
 }
 
 Server::Server(const Server &cpy) {
   _name = cpy._name;
+  _timedOut = cpy._timedOut;
   _port = cpy._port;
   _host = cpy._host;
   _clientMaxBodySize = cpy._clientMaxBodySize;
@@ -30,6 +32,7 @@ Server::Server(const Server &cpy) {
 
 Server &Server::operator=(const Server &other) {
   if (this != &other) {
+	this->_timedOut = other._timedOut;
     this->_name = other._name;
     this->_port = other._port;
     this->_host = other._host;
@@ -48,11 +51,13 @@ Server::~Server() { deleteAllClients(); }
 Server::Server(int port, int clientMaxBodySize) {
   _port = port;
   _clientMaxBodySize = clientMaxBodySize;
+  _timedOut = -1;
 }
 
 Server::Server(std::map<int, ErrorPage> errorPages) {
 	_clientMaxBodySize = -1;
 	_mapDefaultErrorPage = errorPages;
+	_timedOut = -1;
 }
 
 // Setter
@@ -75,6 +80,16 @@ void Server::setClientMaxBodySize(std::string clientMaxBodySize) {
 }
 
 void Server::setPort(const std::string &port) { _port = port; }
+
+void Server::setTimeOut(const std::string time) {
+	int timedOut = 0;
+  std::istringstream iss(time);
+
+  iss >> timedOut;
+  if (!iss.eof())
+	throw (Error::IntExpected(time));
+  _timedOut = timedOut;
+}
 
 // Getter
 const std::vector<std::string> &Server::getNames() const { return _name; }

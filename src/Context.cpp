@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/25 14:37:51 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/27 14:25:11 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,12 @@ void Context::parseAndAddServer(std::vector<std::string>::iterator &it,
       ++it;
       if (it != itEnd)
         newServer.setClientMaxBodySize(*it);
+      if ((it + 1) == itEnd || *(it + 1) != ";")
+        throw(Error::DidNotFindSemicolon(*it));
+    } else if (*it == "timed_out") {
+      ++it;
+      if (it != itEnd)
+        newServer.setTimeOut(*it);
       if ((it + 1) == itEnd || *(it + 1) != ";")
         throw(Error::DidNotFindSemicolon(*it));
     } else if (*it == "server_name") {
