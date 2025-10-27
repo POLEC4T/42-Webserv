@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpMethod.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/25 14:37:38 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/27 16:52:38 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,17 +26,21 @@ long long getMaxBodySize(Location& loc, Server& serv)
 	return defaultV;
 }
 
-std::string readPage(std::string fileName) {
-  std::string body;
-  std::ifstream stream(fileName.c_str());
-  std::string line;
-
-  while (std::getline(stream, line)) {
-    body += line;
-    body += "\r\n";
-  }
-  body += "\r\n";
-  return body;
+std::string	readPage(std::string fileName)
+{
+	std::string body;
+	std::ifstream stream(fileName.c_str() , std::ios::in | std::ios::binary);
+	if (!stream)
+		return "";
+	stream.seekg(0, std::ios::end);
+	std::streampos size = stream.tellg();
+	stream.seekg(0, std::ios::beg);
+	
+	body.resize(static_cast<size_t>(size));
+	
+	if (size > 0)
+        stream.read(&body[0], size);
+	return body;
 }
 
 Response	LoadAutoIndex(Request& req, std::string& path, Server& serv, std::string root)
@@ -56,7 +60,7 @@ Response	LoadAutoIndex(Request& req, std::string& path, Server& serv, std::strin
 		if (tmp.size() != 1)
 			page += tmp + "/";
 		page += list->d_name;
-		page += "\">";
+		page += "\" download>";
 		page += list->d_name;
 		if (list->d_type == DT_DIR)
 			page += "/";
