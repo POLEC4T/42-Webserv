@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 17:00:45 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/27 15:20:33 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,86 +15,86 @@
 
 Server::Server() {
 	_clientMaxBodySize = -1;
+	_timedOut = -1;
 }
 
-Server::Server(const Server& cpy) {
-	_name = cpy._name;
-	_port = cpy._port;
-	_host = cpy._host;
-	_clientMaxBodySize = cpy._clientMaxBodySize;
-	_mapLocation = cpy._mapLocation;
-	_mapErrorPage = cpy._mapErrorPage;
-	this->_mapDefaultErrorPage = cpy._mapDefaultErrorPage;
-	_mapClients = cpy._mapClients;
-
+Server::Server(const Server &cpy) {
+  _name = cpy._name;
+  _timedOut = cpy._timedOut;
+  _port = cpy._port;
+  _host = cpy._host;
+  _clientMaxBodySize = cpy._clientMaxBodySize;
+  _mapLocation = cpy._mapLocation;
+  _mapErrorPage = cpy._mapErrorPage;
+  this->_mapDefaultErrorPage = cpy._mapDefaultErrorPage;
+  _mapClients = cpy._mapClients;
 }
 
-Server&	Server::operator=(const Server& other) {
-	if (this != &other)
-	{
-		this->_name = other._name;
-		this->_port = other._port;
-		this->_host = other._host;
-		this->_clientMaxBodySize = other._clientMaxBodySize;
-		this->_mapLocation = other._mapLocation;
-		this->_mapErrorPage = other._mapErrorPage;
-		this->_mapDefaultErrorPage = other._mapDefaultErrorPage;
-		this->_mapClients = other._mapClients;
-	}
-	return *this;
+Server &Server::operator=(const Server &other) {
+  if (this != &other) {
+	this->_timedOut = other._timedOut;
+    this->_name = other._name;
+    this->_port = other._port;
+    this->_host = other._host;
+    this->_clientMaxBodySize = other._clientMaxBodySize;
+    this->_mapLocation = other._mapLocation;
+    this->_mapErrorPage = other._mapErrorPage;
+    this->_mapDefaultErrorPage = other._mapDefaultErrorPage;
+    this->_mapClients = other._mapClients;
+  }
+  return *this;
 }
 
-Server::~Server() {
-	deleteAllClients();
-}
+Server::~Server() { deleteAllClients(); }
 
-
-
-//constructor with assignment values
+// constructor with assignment values
 Server::Server(int port, int clientMaxBodySize) {
-	_port = port;
-	_clientMaxBodySize = clientMaxBodySize;
+  _port = port;
+  _clientMaxBodySize = clientMaxBodySize;
+  _timedOut = -1;
 }
 
 Server::Server(std::map<int, ErrorPage> errorPages) {
 	_clientMaxBodySize = -1;
 	_mapDefaultErrorPage = errorPages;
+	_timedOut = -1;
 }
 
+// Setter
+void Server::addName(const std::string &name) { _name.push_back(name); }
 
-//Setter
-void	Server::addName(const std::string& name) {
-	_name.push_back(name);
+void Server::setClientMaxBodySize(int clientMaxBodySize) {
+  _clientMaxBodySize = clientMaxBodySize;
 }
 
-void	Server::setClientMaxBodySize(int clientMaxBodySize) {
-	_clientMaxBodySize = clientMaxBodySize;
+void Server::setHost(const std::string &host) { _host = host; }
+
+void Server::setClientMaxBodySize(std::string clientMaxBodySize) {
+  int maxBodySize = 0;
+  std::istringstream iss(clientMaxBodySize);
+
+  iss >> maxBodySize;
+  if (!iss.eof())
+	throw (Error::IntExpected(clientMaxBodySize));
+  setClientMaxBodySize(maxBodySize);
 }
 
-void	Server::setHost(const std::string& host) {
-	_host = host;
+void Server::setPort(const std::string &port) { _port = port; }
+
+void Server::setTimeOut(const std::string time) {
+	int timedOut = 0;
+  std::istringstream iss(time);
+
+  iss >> timedOut;
+  if (!iss.eof())
+	throw (Error::IntExpected(time));
+  _timedOut = timedOut;
 }
 
-void	Server::setClientMaxBodySize(std::string clientMaxBodySize) {
-	int					maxBodySize = 0;
-	std::istringstream	iss(clientMaxBodySize);
+// Getter
+const std::vector<std::string> &Server::getNames() const { return _name; }
 
-	iss >> maxBodySize;
-	setClientMaxBodySize(maxBodySize);
-}
-
-void	Server::setPort(const std::string& port) {
-	_port = port;
-}
-
-//Getter
-const std::vector<std::string>&	Server::getNames() const {
-	return _name;
-}
-
-const std::string&	Server::getPort() const {
-	return _port;
-}
+const std::string &Server::getPort() const { return _port; }
 
 long long	Server::getClientMaxBodySize() const {
 	return _clientMaxBodySize;
@@ -106,68 +106,62 @@ int	Server::getTimedOutValue() const {
 
 
 
-const std::string&	Server::getHost() const {
-	return _host;
+const std::string &Server::getHost() const { return _host; }
+
+// Specific map
+void Server::addLocation(const Location &location) {
+  _mapLocation.insert(std::make_pair(location.getName(), location));
 }
 
-//Specific map
-void	Server::addLocation(const Location& location) {
-	_mapLocation.insert(std::make_pair(location.getName(), location));
+APage &Server::getLocationByName(const std::string &name) {
+  std::map<std::string, Location>::iterator it = _mapLocation.find(name);
+  if (it == _mapLocation.end()) {
+    return (this->getErrorPageByCode(404));
+  }
+  return it->second;
 }
 
-APage&	Server::getLocationByName(const std::string& name) {
-	std::map<std::string, Location>::iterator it = _mapLocation.find(name);
-	if (it == _mapLocation.end())
-	{
-		return (this->getErrorPageByCode(404));
-	}
-	return it->second;
+void Server::addErrorPage(const ErrorPage &errorPage) {
+  _mapErrorPage.insert(std::make_pair(errorPage.getCode(), errorPage));
 }
 
-void	Server::addErrorPage(const ErrorPage& errorPage) {
-	_mapErrorPage.insert(std::make_pair(errorPage.getCode(), errorPage));
+ErrorPage &Server::getErrorPageByCode(const int code) {
+  std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
+  if (it == _mapErrorPage.end()) {
+    return _mapDefaultErrorPage.find(code)->second;
+  }
+  return it->second;
 }
 
-ErrorPage&	Server::getErrorPageByCode(const int code) {
-	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
-	if (it == _mapErrorPage.end())
-	{
-		return _mapDefaultErrorPage.find(code)->second;
-	}
-	return it->second;
+void Server::addErrorPage(const std::string &name, const std::string &root) {
+  ErrorPage errorPage(name, root);
+  int code = 0;
+  std::istringstream iss(name);
+
+  iss >> code;
+  if (!iss.eof())
+    throw(Error::IntExpected(name));
+  errorPage.setCode(code);
+  addErrorPage(errorPage);
 }
 
-void	Server::addErrorPage(const std::string& name, const std::string& root) {
-	ErrorPage			errorPage(name, root);
-	int					code = 0;
-	std::istringstream	iss(name);
-
-	iss >> code;
-	if (iss.fail())
-		throw (Error::IntExpected(name));
-	errorPage.setCode(code);
-	addErrorPage(errorPage);
-}
-
-
-Client&		Server::getClient(int fd) {
-	return (_mapClients[fd]);
-}
+Client &Server::getClient(int fd) { return (_mapClients[fd]); }
 
 /**
  * @brief adds a new client to the client map
  * The warning should never happen, but just in case
  */
-void	Server::addClient(const Client& client) {
-	if (_mapClients.find(client.getFd()) != _mapClients.end()){
-		std::cout << "Warning: client with fd " << client.getFd() << " already exists, overwriting it" << std::endl;
-		deleteClient(client.getFd());
-	}
-	_mapClients[client.getFd()] = client;
+void Server::addClient(const Client &client) {
+  if (_mapClients.find(client.getFd()) != _mapClients.end()) {
+    std::cout << "Warning: client with fd " << client.getFd()
+              << " already exists, overwriting it" << std::endl;
+    deleteClient(client.getFd());
+  }
+  _mapClients[client.getFd()] = client;
 }
 
-void	Server::deleteAllClients() {
-	std::map<int, Client>::iterator it;
+void Server::deleteAllClients() {
+  std::map<int, Client>::iterator it;
 
 	for (it = _mapClients.begin(); it != _mapClients.end(); ++it) {
 		std::cout << "Closing client with fd " << it->first << std::endl;
@@ -176,14 +170,16 @@ void	Server::deleteAllClients() {
 	_mapClients.clear();
 }
 
-void	Server::deleteClient(int fd) {
-	close(fd);
-	_mapClients.erase(fd);
+void Server::deleteClient(int fd) {
+  close(fd);
+  _mapClients.erase(fd);
 }
 
-void	Server::parseAndAddLocation(std::vector<std::string>::iterator& it, const std::vector<std::string>::iterator itEnd) {
-	int	isClosed = 0;
-	Location	newLocation;
+void Server::parseAndAddLocation(
+    std::vector<std::string>::iterator &it,
+    const std::vector<std::string>::iterator itEnd) {
+  int isClosed = 0;
+  Location newLocation;
 
 	newLocation.setName(*it);
 	++it;
@@ -282,11 +278,8 @@ void	Server::parseAndAddLocation(std::vector<std::string>::iterator& it, const s
 	addLocation(newLocation);
 }
 
-void	Server::setDefaultMapErrorPage(const std::map<int, ErrorPage>& map)
-{
-	this->_mapDefaultErrorPage = map;
+void Server::setDefaultMapErrorPage(const std::map<int, ErrorPage> &map) {
+  this->_mapDefaultErrorPage = map;
 }
 
-std::map<std::string, Location>& Server::getLocations() {
-    return _mapLocation;
-}
+std::map<std::string, Location> &Server::getLocations() { return _mapLocation; }

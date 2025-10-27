@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 18:24:06 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:37:16 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,7 @@
 #include "Headers.h"
 #include "Request.hpp"
 
-typedef enum e_client_status {
-	WAITING,
-	READY
-} t_client_status;
+typedef enum e_client_status { WAITING, READY } t_client_status;
 
 class Client {
 	private:
@@ -32,14 +29,14 @@ class Client {
 		size_t checkAndGetContentLength(Server& serv, const std::string& contentLengthStr);
 		
 
-	public:
-		Client();
-		Client(int fd);
-		~Client();
+public:
+  Client();
+  Client(int fd);
+  ~Client();
 
-		int					getFd() const;
-		const std::string&	getBuffer() const;
-		t_client_status		getStatus() const;
+  int getFd() const;
+  const std::string &getBuffer() const;
+  t_client_status getStatus() const;
 
 		void				setStatus(t_client_status status);
 		void				setSendBuffer(const std::string& buf);

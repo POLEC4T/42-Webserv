@@ -6,14 +6,12 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/27 15:02:47 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/27 17:12:34 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "AHttpMethod.hpp"
-#include <unistd.h>
 #include "Server.hpp"
-#include <string>
 #include <dirent.h>
 #include "CodeDefines.h"
 #include <sys/stat.h>

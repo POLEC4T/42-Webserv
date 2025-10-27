@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   CodeDefines.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:01:03 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 12:20:40 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/22 15:57:26 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CODEDEFINES_H
-# define CODEDEFINES_H
+#define CODEDEFINES_H
 
 # define OK 200
 # define BAD_REQUEST 400

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 18:27:47 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:37:45 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,7 @@ const std::string&	Client::getBuffer() const {
 	return (_recvBuffer);
 }
 
-t_client_status		Client::getStatus() const {
-	return (_status);
-}
+t_client_status Client::getStatus() const { return (_status); }
 
 void Client::setSendBuffer(const std::string& buf) {
 	_sendBuffer = buf;
@@ -141,7 +139,7 @@ bool Client::receivedBody(size_t contentLength) const {
 	if (bodySize < contentLength)
 		return (false);
 
-	return (true);
+  return (true);
 }
 
 /**

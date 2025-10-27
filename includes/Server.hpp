@@ -3,20 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 16:56:59 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/27 14:25:28 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
-# define SERVER_HPP
+#define SERVER_HPP
 
-# include "Location.hpp"
-# include "ErrorPage.hpp"
-# include "Client.hpp"
-# include <unistd.h>
+#include "Client.hpp"
+#include "ErrorPage.hpp"
+#include "Location.hpp"
+#include <unistd.h>
 
 class	Server {
 	private:
@@ -47,6 +47,7 @@ class	Server {
 		void	setClientMaxBodySize(std::string);
 		void	setHost(const std::string&);
 		void	setPort(const std::string&);
+		void	setTimeOut(const std::string);
 		
 		//Getter
 		const std::vector<std::string>&		getNames() const ;
@@ -60,19 +61,19 @@ class	Server {
 		ErrorPage&		getErrorPageByCode(const int);
 		void			setDefaultMapErrorPage(const std::map<int, ErrorPage>&);
 
-		void		addLocation(const Location&);
-		void		addErrorPage(const ErrorPage&);
-		void		addErrorPage(const std::string& code, const std::string& root);
-		Client&		getClient(int fd);
-		void		addClient(const Client&);
-		void		deleteAllClients();
-		void		deleteClient(int fd);
+  void addLocation(const Location &);
+  void addErrorPage(const ErrorPage &);
+  void addErrorPage(const std::string &code, const std::string &root);
+  Client &getClient(int fd);
+  void addClient(const Client &);
+  void deleteAllClients();
+  void deleteClient(int fd);
 
-		std::map<std::string, Location>&	getLocations() ;
+  std::map<std::string, Location> &getLocations();
 
-		//Parser
-		void		parseAndAddLocation(std::vector<std::string>::iterator&, 
-					const std::vector<std::string>::iterator);
+  // Parser
+  void parseAndAddLocation(std::vector<std::string>::iterator &,
+                           const std::vector<std::string>::iterator);
 };
 
 #endif

@@ -3,19 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 23:18:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 18:27:36 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:37:20 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HEADERS_H
-# define HEADERS_H
+#define HEADERS_H
 
 # include <sys/socket.h>
 # include <sys/types.h>
 # include <sys/epoll.h>
+# include <sys/wait.h>
 # include <netdb.h>
 # include <iostream>
 # include <unistd.h>

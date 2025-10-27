@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:47:45 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 17:09:11 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:38:10 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,9 @@
 #include "ErrorPage.hpp"
 #include "FtString.hpp"
 
-Response::Response(){}
+Response::Response() {
+	_code = 0;
+}
 
 Response::Response(std::string v, int c, std::string s, std::string b)
 {
@@ -36,30 +38,22 @@ Response::Response(std::string v, ErrorPage& page)
     // this->_headers["Content-type"] = "text/html";
 }
 
-
-
-Response& Response::operator=(const Response& other)
-{
-    if (this != &other)
-    {
-        this->_status = other._status;
-        this->_code = other._code;
-        this->_version = other._version;
-        this->_body = other._body;
-        this->_headers = other._headers;
-    }
-    return *this;
+Response &Response::operator=(const Response &other) {
+  if (this != &other) {
+    this->_status = other._status;
+    this->_code = other._code;
+    this->_version = other._version;
+    this->_body = other._body;
+    this->_headers = other._headers;
+  }
+  return *this;
 }
 
-void    Response::setHeader(const std::string& key, const std::string& value)
-{
-    this->_headers[key] = value;
+void Response::setHeader(const std::string &key, const std::string &value) {
+  this->_headers[key] = value;
 }
 
-void    Response::setBody(const std::string& body)
-{
-    this->_body = body;
-}
+void Response::setBody(const std::string &body) { this->_body = body; }
 
 std::string Response::build()
 {
@@ -78,33 +72,19 @@ std::string Response::build()
     res += "\r\n";
     res += _body;
 
-    return res;
+  return res;
 }
 
-std::string Response::getVersion() const
-{
-    return (this->_version);
+std::string Response::getVersion() const { return (this->_version); }
+
+int Response::getCode() const { return this->_code; }
+
+std::string Response::getStatus() const { return this->_status; }
+
+std::string Response::getBody() const { return this->_body; }
+
+std::map<std::string, std::string> Response::getHeaders() const {
+  return this->_headers;
 }
 
-int Response::getCode() const
-{
-    return this->_code;
-}
-
-std::string Response::getStatus() const
-{
-    return this->_status;
-}
-
-std::string Response::getBody() const
-{
-    return this->_body;
-}
-
-std::map<std::string, std::string> Response::getHeaders() const
-{
-    return this->_headers;
-}
-
-Response::~Response(){}
-
+Response::~Response() {}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   epoll.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 18:24:55 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/25 14:37:59 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,14 +61,14 @@ int readRequest(Server& server, Client &client) {
  * STRESS TESTED
  */
 int createSocket(const Server &server) {
-	int	servfd;
-	struct addrinfo	*addrinfos;
-	struct addrinfo	hints;
+  int servfd;
+  struct addrinfo *addrinfos;
+  struct addrinfo hints;
 
-	std::memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET; // ipv4 pelo
-	hints.ai_socktype = SOCK_STREAM; // tcp
-	hints.ai_flags = AI_PASSIVE; // for bind()
+  std::memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_INET;       // ipv4 pelo
+  hints.ai_socktype = SOCK_STREAM; // tcp
+  hints.ai_flags = AI_PASSIVE;     // for bind()
 
 	int gai_ret = getaddrinfo(	server.getHost().c_str(),
 						  		server.getPort().c_str(),
@@ -118,11 +118,11 @@ int createSocket(const Server &server) {
 }
 
 int setNonBlocking(int fd) {
-	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
-		std::cerr << "fcntl: " << strerror(errno) <<std::endl;
-		return EXIT_FAILURE;
-	}
-	return EXIT_SUCCESS;
+  if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
+    std::cerr << "fcntl: " << strerror(errno) << std::endl;
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
 }
 
 /**
@@ -132,14 +132,15 @@ int setNonBlocking(int fd) {
  * 		epoll_ctl(ADD) crash -> webserv doit exit
  * 	-> dans tous les cas webserv doit exit
  */
-int addClient(Server& server, int servfd, int epollfd) {
-	struct sockaddr clientAddr;
-	int addrLen = sizeof(clientAddr);
-	int clientfd = accept(servfd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
-	if (clientfd == -1) {
-		std::cerr << "accept: " << strerror(errno) << std::endl;
-		return (EXIT_FAILURE);
-	}
+int addClient(Server &server, int servfd, int epollfd) {
+  struct sockaddr clientAddr;
+  int addrLen = sizeof(clientAddr);
+  int clientfd =
+      accept(servfd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
+  if (clientfd == -1) {
+    std::cerr << "accept: " << strerror(errno) << std::endl;
+    return (EXIT_FAILURE);
+  }
 
 	if (setNonBlocking(clientfd) == EXIT_FAILURE) {
 		close(clientfd);
@@ -201,14 +202,14 @@ int createEpoll(int servfd) {
 }
 
 void sigint_handler(int sig) {
-	(void)sig;
-	write(2, "\n", 1);
+  (void)sig;
+  write(2, "\n", 1);
 }
 
 int launchEpoll(Server &server) {
-	int servfd = createSocket(server);
-	if (servfd == -1)
-		return (EXIT_FAILURE);
+  int servfd = createSocket(server);
+  if (servfd == -1)
+    return (EXIT_FAILURE);
 
 	int epollfd = createEpoll(servfd);
 	if (epollfd == -1) {
@@ -216,8 +217,8 @@ int launchEpoll(Server &server) {
 		return (EXIT_FAILURE);
 	}
 
-	struct epoll_event events[NB_EVENTS];
-	int eventsReady;
+  struct epoll_event events[NB_EVENTS];
+  int eventsReady;
 
 	if (signal(SIGINT, &sigint_handler) == SIG_ERR) {
 		std::cerr << "signal: " << strerror(errno) << std::endl;

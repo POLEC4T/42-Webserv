@@ -6,12 +6,12 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 10:11:47 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 16:56:29 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/22 17:09:20 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef EPOLL_HPP
-# define EPOLL_HPP
+#define EPOLL_HPP
 
 #include "Headers.h"
 # include "Server.hpp"
