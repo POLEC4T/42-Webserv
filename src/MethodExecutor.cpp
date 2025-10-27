@@ -3,23 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/27 17:14:47 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/27 19:05:45 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
 
 bool isCGI(Request &req, Location &loc);
-Response CGIHandler(Request &req, Location &loc, Server &serv);
+std::string CGIHandler(Request &req, Location &loc, Server &serv);
 std::string readPage(std::string fileName);
 
 MethodExecutor::MethodExecutor(Server &s, Client &c) : _server(s), _client(c) {
   this->_request = this->_client.getRequest();
   this->_method = this->_request.getMethod();
-  this->execute();
 }
 
 Location MethodExecutor::getRequestLocation(Request &req, Server &serv) {
@@ -79,39 +78,27 @@ int returnHandler(Response &response, Location &loc, Request &req,
   return 0;
 }
 
-void MethodExecutor::execute() {
+std::string MethodExecutor::execute() {
   std::cout << "URI " << _request.getUri() << std::endl;
   Location loc = this->getRequestLocation(this->_request, this->_server);
-  if (loc.getCode() == PAGE_NOT_FOUND) {
-    this->_response =
-        Response(this->_request.getVersion(),
-                 this->_server.getErrorPageByCode(PAGE_NOT_FOUND));
-    return;
-  }
+  if (loc.getCode() == PAGE_NOT_FOUND)
+    return Response(this->_request.getVersion(), this->_server.getErrorPageByCode(PAGE_NOT_FOUND)).build();
   if (returnHandler(this->_response, loc, this->_request, this->_server) == 0)
-    return;
+    return this->_response.build();
   std::string fileName(loc.getRoot());
   fileName += this->_request.getUri();
 
   if (isCGI(this->_request, loc))
-    this->_response =
-        CGIHandler(this->_request, loc, this->_server);
-  else if (this->_method == "GET" &&
-           std::find(loc.getAllowedMethods().begin(),
-                     loc.getAllowedMethods().end(),
-                     "GET") != loc.getAllowedMethods().end())
-    this->_response =
-        AHttpMethod::GET(fileName, loc, this->_request, this->_server);
+    return CGIHandler(this->_request, loc, this->_server);
+  else if (this->_method == "GET" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "GET") != loc.getAllowedMethods().end())
+    this->_response = AHttpMethod::GET(fileName, loc, this->_request, this->_server);
   else if (this->_method == "POST")
-    this->_response =
-        AHttpMethod::POST(fileName, this->_request, this->_server);
+    this->_response = AHttpMethod::POST(fileName, this->_request, this->_server);
   else if (this->_method == "DELETE")
-    this->_response =
-        AHttpMethod::DELETE(fileName, this->_request, this->_server);
+    this->_response = AHttpMethod::DELETE(fileName, this->_request, this->_server);
   else
-    this->_response =
-        Response(this->_request.getVersion(),
-                 this->_server.getErrorPageByCode(METHOD_NOT_ALLOWED));
+    this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(METHOD_NOT_ALLOWED));
+  return this->_response.build();
 }
 
 MethodExecutor::~MethodExecutor() {}

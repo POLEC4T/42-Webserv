@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/27 16:57:21 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/27 19:06:12 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,7 +214,7 @@ int executeChild(t_CGIContext ctx) {
   std::exit(1);
 }
 
-Response CGIHandler(Request &req, Location &loc, Server &serv) {
+std::string CGIHandler(Request &req, Location &loc, Server &serv) {
   t_CGIContext ctx;
   std::string method = req.getMethod();
   FtString uriToken = req.getUri();
@@ -226,21 +226,20 @@ Response CGIHandler(Request &req, Location &loc, Server &serv) {
   if (scriptPath.empty() || access(loc.getCgiPath().c_str(), X_OK) == -1 ||
       access(scriptPath.c_str(), R_OK) == -1) {
     std::cerr << "CGI: Access error" << std::endl;
-    return Response(req.getVersion(), serv.getErrorPageByCode(BAD_REQUEST));
+    return Response(req.getVersion(), serv.getErrorPageByCode(BAD_REQUEST)).build();
   }
   if (getContext(ctx, loc, req) || pipe(ctx.pipeFdOut)) {
     freeCGIContext(ctx);
     std::cerr << "CGI: Get context error" << std::endl;
     return Response(req.getVersion(),
-                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
+                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
   }
   if (method == "POST") {
     if (pipe(ctx.pipeFdIn)) {
       freeCGIContext(ctx);
       std::cerr << "CGI: pipe Post method error" << std::endl;
-      return Response(req.getVersion(),
-                      serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
-    }
+      return Response(req.getVersion(), serv.getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
+   }
     write(ctx.pipeFdIn[1], req.getBody().c_str(), req.getBody().size());
     ftClose(&ctx.pipeFdIn[1]);
   }
@@ -249,7 +248,7 @@ Response CGIHandler(Request &req, Location &loc, Server &serv) {
     freeCGIContext(ctx);
     std::cerr << "CGI: fork error" << std::endl;
     return Response(req.getVersion(),
-                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
+                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
   }
   if (ctx.pid == 0) {
     executeChild(ctx);
@@ -261,20 +260,20 @@ Response CGIHandler(Request &req, Location &loc, Server &serv) {
   if (ctx.timedOut == TIMEDOUT) {
     std::cerr << "CGI: timed out" << std::endl;
     return Response(req.getVersion(),
-                    serv.getErrorPageByCode(REQUEST_TIMEOUT));
+                    serv.getErrorPageByCode(REQUEST_TIMEOUT)).build();
   }
   if (!WIFEXITED(ctx.status)) {
     freeCGIContext(ctx);
     std::cerr << "CGI: child exit error" << std::endl;
     return Response(req.getVersion(),
-                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
+                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
   }
   std::string content = readToHTTPBody(ctx.pipeFdOut[0]);
   freeCGIContext(ctx);
   if (content.empty()) {
     std::cerr << "CGI: read from CGI return error" << std::endl;
     return Response(req.getVersion(),
-                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
+                    serv.getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
   }
-  return Response(req.getVersion(), OK, "OK", content);
+  return content;
 }
