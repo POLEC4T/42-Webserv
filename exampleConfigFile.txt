@@ -14,8 +14,8 @@ server {
         allowed_methods GET POST;
         root /home/faoriol/Documents/webserv/site-1;
         client_max_body_size 10000;
-        index index.html index.php;
-        autoindex on;
+        index index.php;
+        autoindex off;
     }
 
     location /upload {
@@ -46,5 +46,10 @@ server {
         cgi_extension .py;
         cgi_path /usr/bin/python3;
     }
+
+   location /images {
+        allowed_methods GET;
+        root /home/faoriol/Documents/webserv/htmlFiles/errorPages/default; 
+   }
 }
 

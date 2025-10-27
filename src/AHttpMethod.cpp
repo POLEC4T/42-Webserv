@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/24 11:17:37 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/27 15:02:47 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,17 @@ long long getMaxBodySize(Location& loc, Server& serv)
 std::string	readPage(std::string fileName)
 {
 	std::string body;
-	std::ifstream stream(fileName.c_str());
-	std::string line;
-
-	while (std::getline(stream, line))
-	{
-		body += line;
-		body += "\r\n";
-	}
-	body += "\r\n";
+	std::ifstream stream(fileName.c_str() , std::ios::in | std::ios::binary);
+	if (!stream)
+		return "";
+	stream.seekg(0, std::ios::end);
+	std::streampos size = stream.tellg();
+	stream.seekg(0, std::ios::beg);
+	
+	body.resize(static_cast<size_t>(size));
+	
+	if (size > 0)
+        stream.read(&body[0], size);
 	return body;
 }
 
@@ -60,7 +62,7 @@ Response	LoadAutoIndex(Request& req, std::string& path, Server& serv, std::strin
 		if (tmp.size() != 1)
 			page += tmp + "/";
 		page += list->d_name;
-		page += "\">";
+		page += "\" download>";
 		page += list->d_name;
 		if (list->d_type == DT_DIR)
 			page += "/";
