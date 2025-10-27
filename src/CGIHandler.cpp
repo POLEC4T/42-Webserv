@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/27 16:49:31 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/27 16:57:21 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,6 @@ std::string readToHTTPBody(int fd) {
 void handle_alarm(int signo) {
   (void)signo;
 }
-
 
 int  timedOutHandling(t_CGIContext& ctx, int timedOut) {
   int waitPidRet;

@@ -17,6 +17,8 @@ server {
         client_max_body_size 10000;
         index index.php;
         autoindex off;
+        #index index.html index.php;
+        autoindex on;
     }
 
     location /upload {
