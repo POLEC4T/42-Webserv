@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/27 16:57:21 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/28 11:37:33 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,7 +214,7 @@ int executeChild(t_CGIContext ctx) {
   std::exit(1);
 }
 
-Response CGIHandler(Request &req, Location &loc, Server &serv) {
+Response CGIHandler(Request &req, Location &loc, Server &serv, Client &client) {
   t_CGIContext ctx;
   std::string method = req.getMethod();
   FtString uriToken = req.getUri();
@@ -234,16 +234,14 @@ Response CGIHandler(Request &req, Location &loc, Server &serv) {
     return Response(req.getVersion(),
                     serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
   }
-  if (method == "POST") {
-    if (pipe(ctx.pipeFdIn)) {
+  if (pipe(ctx.pipeFdIn)) {
       freeCGIContext(ctx);
       std::cerr << "CGI: pipe Post method error" << std::endl;
       return Response(req.getVersion(),
                       serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
     }
-    write(ctx.pipeFdIn[1], req.getBody().c_str(), req.getBody().size());
-    ftClose(&ctx.pipeFdIn[1]);
-  }
+  write(ctx.pipeFdIn[1], client.getBuffer().c_str(), req.getBody().size());
+  ftClose(&ctx.pipeFdIn[1]);
   ctx.pid = fork();
   if (ctx.pid == -1) {
     freeCGIContext(ctx);

@@ -6,14 +6,14 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/27 17:14:47 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/28 11:37:10 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
 
 bool isCGI(Request &req, Location &loc);
-Response CGIHandler(Request &req, Location &loc, Server &serv);
+Response CGIHandler(Request &req, Location &loc, Server &serv, Client &client);
 std::string readPage(std::string fileName);
 
 MethodExecutor::MethodExecutor(Server &s, Client &c) : _server(s), _client(c) {
@@ -95,7 +95,7 @@ void MethodExecutor::execute() {
 
   if (isCGI(this->_request, loc))
     this->_response =
-        CGIHandler(this->_request, loc, this->_server);
+        CGIHandler(this->_request, loc, this->_server, this->_client);
   else if (this->_method == "GET" &&
            std::find(loc.getAllowedMethods().begin(),
                      loc.getAllowedMethods().end(),
