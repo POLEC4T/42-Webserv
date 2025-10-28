@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/28 13:56:13 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/28 14:13:11 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@
 # define CRLF_SIZE 2
 
 typedef enum e_client_status {
-	WAITING,
-	READY
+	WAITING, 	// Waiting for other packets
+	READY		// Ready to send response
 } t_client_status;
 
 class Client {

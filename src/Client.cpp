@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/28 13:56:08 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/28 14:10:28 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,8 @@ bool Client::unchunkBody(const std::string& chunks) {
 }
 
 /**
- * @throws
+ * @throws TransferEncodingAndContentLengthException
+ * @throws ContentTooLargeException
  * @note sets the client status to READY when the full request has been received / parsed
  */
 void Client::parsePacket(Server& serv) {
