@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/28 18:04:08 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/28 19:11:26 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,8 @@ void Server::setTimeOut(const std::string time) {
   iss >> timedOut;
   if (!iss.eof())
 	throw (Error::IntExpected(time));
+  if (timedOut < 0 || timedOut > 20)
+	throw (Error::IntOutOfRange(time));
   _timedOut = timedOut;
 }
 
