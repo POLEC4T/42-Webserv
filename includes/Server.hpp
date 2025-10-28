@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/27 14:25:28 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/28 18:03:49 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ class	Server {
 	private:
 		std::vector<std::string>		_name;
 		std::string						_host;
-		std::string						_port;
+		std::vector<std::string>		_ports;
 		long long						_clientMaxBodySize;
 		std::map<std::string, Location>	_mapLocation;
 		std::map<int, ErrorPage>		_mapErrorPage;
@@ -38,7 +38,6 @@ class	Server {
 		~Server();
 
 		//Constructor with affectation values
-		Server(int, int);
 		Server(std::map<int, ErrorPage>);
 		
 		//Setter
@@ -46,12 +45,12 @@ class	Server {
 		void	setClientMaxBodySize(int);
 		void	setClientMaxBodySize(std::string);
 		void	setHost(const std::string&);
-		void	setPort(const std::string&);
+		void	addPort(const std::string&);
 		void	setTimeOut(const std::string);
 		
 		//Getter
 		const std::vector<std::string>&		getNames() const ;
-		const std::string&					getPort() const;
+		const std::vector<std::string>&		getPorts() const;
 		long long							getClientMaxBodySize() const ;
 		int									getTimedOutValue() const ;
 		const std::string&					getHost() const;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/27 15:20:33 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/28 18:04:08 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Server::Server() {
 Server::Server(const Server &cpy) {
   _name = cpy._name;
   _timedOut = cpy._timedOut;
-  _port = cpy._port;
+  _ports = cpy._ports;
   _host = cpy._host;
   _clientMaxBodySize = cpy._clientMaxBodySize;
   _mapLocation = cpy._mapLocation;
@@ -34,7 +34,7 @@ Server &Server::operator=(const Server &other) {
   if (this != &other) {
 	this->_timedOut = other._timedOut;
     this->_name = other._name;
-    this->_port = other._port;
+    this->_ports = other._ports;
     this->_host = other._host;
     this->_clientMaxBodySize = other._clientMaxBodySize;
     this->_mapLocation = other._mapLocation;
@@ -48,12 +48,6 @@ Server &Server::operator=(const Server &other) {
 Server::~Server() { deleteAllClients(); }
 
 // constructor with assignment values
-Server::Server(int port, int clientMaxBodySize) {
-  _port = port;
-  _clientMaxBodySize = clientMaxBodySize;
-  _timedOut = -1;
-}
-
 Server::Server(std::map<int, ErrorPage> errorPages) {
 	_clientMaxBodySize = -1;
 	_mapDefaultErrorPage = errorPages;
@@ -79,7 +73,16 @@ void Server::setClientMaxBodySize(std::string clientMaxBodySize) {
   setClientMaxBodySize(maxBodySize);
 }
 
-void Server::setPort(const std::string &port) { _port = port; }
+void Server::addPort(const std::string &port) { 
+	int p = 0;
+	std::istringstream iss(port);
+	iss >> p;
+	if (!iss.eof())
+		throw(Error::IntExpected(port));
+	if (p < 0 || p > 65000)
+		throw(Error::IntOutOfRange(port));
+	_ports.push_back(port);
+}
 
 void Server::setTimeOut(const std::string time) {
 	int timedOut = 0;
@@ -94,7 +97,7 @@ void Server::setTimeOut(const std::string time) {
 // Getter
 const std::vector<std::string> &Server::getNames() const { return _name; }
 
-const std::string &Server::getPort() const { return _port; }
+const std::vector<std::string> &Server::getPorts() const { return _ports; }
 
 long long	Server::getClientMaxBodySize() const {
 	return _clientMaxBodySize;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:36:13 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/22 15:59:28 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/28 18:05:05 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,4 +78,16 @@ const char *Error::IntExpected::what() const throw() {
 
 const char *Error::NoServerInConfigFile::what() const throw() {
   return "Any server was found in the config file.";
+}
+
+Error::IntOutOfRange::IntOutOfRange(const std::string& message) {
+	_message = "The int: '" + message + "' is out of range.";
+}
+
+Error::IntOutOfRange::~IntOutOfRange() throw() {}
+
+const char *Error::IntOutOfRange::what() const throw() {
+	if (_message.empty())
+		return "Int out of range.";
+	return _message.c_str();
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:34:04 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/22 15:57:58 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/28 18:02:24 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,10 +78,21 @@ public:
     ~IntExpected() throw();
   };
 
-		class NoServerInConfigFile: public std::exception {
-			public:
-				const char* what() const throw() ;
-		};
+  class IntOutOfRange : public std::exception {
+	private:
+	  std::string _message;
+
+	public:
+	const char *what() const throw();
+	
+	IntOutOfRange(const std::string&);
+	~IntOutOfRange() throw();
+  };
+
+  class NoServerInConfigFile : public std::exception {
+  public:
+    const char *what() const throw();
+  };
 };
 
 #endif

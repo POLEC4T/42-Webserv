@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/28 14:33:43 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/28 18:05:24 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
   env.push_back("REMOTE_ADDR" + serv.getHost());
   env.push_back("SERVER_NAME=" + serv.getNames()[0]);
   env.push_back("SERVER_PROTOCOL=HTTP/1.1");
-  env.push_back("SERVER_PORT=" + serv.getPort());
+  env.push_back("SERVER_PORT=" + serv.getPorts()[0]);
   env.push_back("HTTP_RAW_POST_DATA=" + req.getBody());
   return (env);
 }

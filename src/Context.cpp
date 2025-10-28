@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/27 14:25:11 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/28 18:02:08 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,10 +102,12 @@ void Context::parseAndAddServer(std::vector<std::string>::iterator &it,
         throw(Error::DidNotFindSemicolon(*it));
     } else if (*it == "port") {
       ++it;
-      if (it != itEnd)
-        newServer.setPort(*it);
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
+      while (it != itEnd && *it != ";") {
+        newServer.addPort(*it);
+        ++it;
+      }
+      if (it == itEnd || *it != ";")
+        throw(Error::DidNotFindSemicolon(*(it - 1)));
     } else if (*it == "client_max_body_size") {
       ++it;
       if (it != itEnd)

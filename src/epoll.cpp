@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   epoll.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/27 19:02:44 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/28 18:04:31 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ int createSocket(const Server &server) {
   hints.ai_flags = AI_PASSIVE;     // for bind()
 
 	int gai_ret = getaddrinfo(	server.getHost().c_str(),
-						  		server.getPort().c_str(),
+						  		server.getPorts()[0].c_str(),
 						  		&hints,
 						  		&addrinfos);
 	if (gai_ret != 0) {
