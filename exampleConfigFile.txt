@@ -15,7 +15,7 @@ server {
         allowed_methods GET POST;
         root ./site-1;
         client_max_body_size 10000;
-        index index.html index.php;
+
         autoindex on;
     }
 
@@ -34,7 +34,7 @@ server {
         root ./site-1;
 		autoindex on;
 		cgi_extension .php;
-		cgi_path /bin/php-cgi;
+		cgi_path /bin/php;
     }
     location /images {
         root ./htmlFiles/errorPages/default;
