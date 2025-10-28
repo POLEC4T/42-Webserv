@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/28 11:50:04 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/28 14:33:43 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,27 +45,13 @@ bool isCGI(Request &req, Location &loc) {
   return false;
 }
 
-std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
-                                   Request &req) {
-  std::vector<std::string> env;
-
-  if (tokens.size() == 2)
-    env.push_back("QUERY_STRING=" + tokens[1]);
-  env.push_back("REQUEST_METHOD=" + req.getMethod());
-  env.push_back("SCRIPT_PATH=" + tokens[0]);
-  env.push_back("SERVER_PROTOCOL=HTTP/1.1");
-  env.push_back("GATEWAY_INTERFACE=CGI/1.1");
-  env.push_back("CONTENT_TYPE=" + req.getHeaderValue("Content-Type"));
-  env.push_back("CONTENT_LENGTH=" + req.getHeaderValue("Content-Length"));
-  return (env);
-}
 
 char **vectorToCharArray(std::vector<std::string> vec) {
   char **strs;
 
   strs = new (std::nothrow) char *[vec.size() + 1];
   if (!strs)
-    return NULL;
+  return NULL;
   for (size_t i = 0; i < vec.size(); i++) {
     strs[i] = new (std::nothrow) char[vec[i].size() + 1];
     if (!strs[i]) {
@@ -86,16 +72,37 @@ void freeCharArray(char **strs) {
     delete[] strs[i];
   }
   if (strs)
-    delete[] strs;
+  delete[] strs;
 }
 
 void ftClose(int *fd) {
   if (*fd != -1)
-    close(*fd);
+  close(*fd);
   *fd = -1;
 }
 
-int getContext(t_CGIContext &ctx, Location &loc, Request &req) {
+std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
+                                   Request &req, Server &serv) {
+  std::vector<std::string> env;
+
+  if (tokens.size() == 2)
+    env.push_back("QUERY_STRING=" + tokens[1]);
+  env.push_back("REQUEST_METHOD=" + req.getMethod());
+  env.push_back("SCRIPT_PATH=" + tokens[0]);
+  env.push_back("SERVER_PROTOCOL=HTTP/1.1");
+  env.push_back("GATEWAY_INTERFACE=CGI/1.1");
+  env.push_back("CONTENT_TYPE=" + req.getHeaderValue("Content-Type"));
+  env.push_back("CONTENT_LENGTH=" + req.getHeaderValue("Content-Length"));
+  env.push_back("_SESSION=");
+  env.push_back("REMOTE_ADDR" + serv.getHost());
+  env.push_back("SERVER_NAME=" + serv.getNames()[0]);
+  env.push_back("SERVER_PROTOCOL=HTTP/1.1");
+  env.push_back("SERVER_PORT=" + serv.getPort());
+  env.push_back("HTTP_RAW_POST_DATA=" + req.getBody());
+  return (env);
+}
+
+int getContext(t_CGIContext &ctx, Location &loc, Request &req, Server &serv) {
   std::vector<std::string> envVec;
   std::vector<std::string> argsVec;
   std::vector<std::string> tokens;
@@ -103,7 +110,7 @@ int getContext(t_CGIContext &ctx, Location &loc, Request &req) {
 
   token = req.getUri();
   tokens = token.ft_split("?");
-  envVec = setEnvCGI(tokens, req);
+  envVec = setEnvCGI(tokens, req, serv);
   argsVec.push_back(loc.getCgiPath());
   argsVec.push_back(loc.getRoot() + tokens[0]);
   ctx.env = vectorToCharArray(envVec);
@@ -166,27 +173,25 @@ void handle_alarm(int signo) {
 
 int  timedOutHandling(t_CGIContext& ctx, int timedOut) {
   int waitPidRet;
-  itimerval timer_value;
+  int timer_value;
   errno = 0;
 
   struct sigaction sa;
   sa.sa_handler = handle_alarm;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
-  sigaction(SIGALRM, &sa, NULL);
 
-  timer_value.it_value.tv_sec = 0;
   if (timedOut == -1)
-    timer_value.it_value.tv_usec = 500000;
+    timer_value = 5;
   else
-    timer_value.it_value.tv_usec = timedOut;
-  timer_value.it_interval.tv_sec = 0;
-  timer_value.it_interval.tv_usec = 0;
-  setitimer(ITIMER_REAL, &timer_value, NULL);
+    timer_value = timedOut;
+  sa.sa_flags &= ~SA_RESTART;
+
+  sigaction(SIGALRM, &sa, NULL);
+  alarm(timer_value);
   waitPidRet = waitpid(ctx.pid, &ctx.status, 0);
-  if (waitPidRet > 0)
-    alarm(0);
-  else if (waitPidRet == -1 && errno == EINTR) {
+  alarm(0);
+  if (waitPidRet == -1 && errno == EINTR) {
     kill(ctx.pid, SIGKILL);
     waitpid(ctx.pid, NULL, 0);
     return (TIMEDOUT);
@@ -195,15 +200,13 @@ int  timedOutHandling(t_CGIContext& ctx, int timedOut) {
 }
 
 int executeChild(t_CGIContext ctx) {
-  if (ctx.pipeFdIn[0] != -1) {
-    if (dup2(ctx.pipeFdIn[0], STDIN_FILENO) == -1) {
-      freeCGIContext(ctx);
-	  std::cerr << "CGI: dup2 pipeFdIn[0] error" << std::endl;
-      std::exit(1);
-    }
+  if (dup2(ctx.pipeFdIn[0], STDIN_FILENO) == -1) {
+    freeCGIContext(ctx);
+    std::cerr << "CGI: dup2 pipeFdIn[0] error" << std::endl;
+    std::exit(1);
   }
   if (dup2(ctx.pipeFdOut[1], STDOUT_FILENO) == -1 ||
-     dup2(ctx.pipeFdOut[1], STDERR_FILENO) == -1) {
+      dup2(ctx.pipeFdOut[1], STDERR_FILENO) == -1) {
     std::cerr << "CGI: dup2 pipeFdOut[1] error" << std::endl;
     freeCGIContext(ctx);
     std::exit(1);
@@ -228,7 +231,7 @@ std::string CGIHandler(Request &req, Location &loc, Server &serv, Client &client
     std::cerr << "CGI: Access error" << std::endl;
     return Response(req.getVersion(), serv.getErrorPageByCode(BAD_REQUEST)).build();
   }
-  if (getContext(ctx, loc, req) || pipe(ctx.pipeFdOut)) {
+  if (getContext(ctx, loc, req, serv) || pipe(ctx.pipeFdOut)) {
     freeCGIContext(ctx);
     std::cerr << "CGI: Get context error" << std::endl;
     return Response(req.getVersion(),
@@ -236,7 +239,7 @@ std::string CGIHandler(Request &req, Location &loc, Server &serv, Client &client
   }
   if (pipe(ctx.pipeFdIn)) {
       freeCGIContext(ctx);
-      std::cerr << "CGI: pipe Post method error" << std::endl;
+      std::cerr << "CGI: pipe error" << std::endl;
       return Response(req.getVersion(), serv.getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
   }
   write(ctx.pipeFdIn[1], client.getBuffer().c_str(), req.getBody().size());
@@ -274,5 +277,5 @@ std::string CGIHandler(Request &req, Location &loc, Server &serv, Client &client
                     serv.getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
   }
   std::cout << content << std::endl;
-  return content;
+  return Response(req.getVersion(), OK, "OK", content).build();
 }
