@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/28 11:22:15 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/28 13:56:08 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -306,7 +306,7 @@ int Client::sendPendingResponse(int epollfd) {
 }
 
 
-int Client::readPacket(Server& server) {
+int Client::readPacket() {
 	char buffer[MAX_RECV] = { 0 };
 	ssize_t sizeRead;
 
@@ -316,7 +316,6 @@ int Client::readPacket(Server& server) {
 		return (EXIT_FAILURE);
 	} else if (sizeRead == 0) {
 		std::cerr << "Client disconnected, fd: " << _fd << std::endl;
-		server.deleteClient(_fd);
 		return (EXIT_FAILURE);
 	}
 	_recvBuffer.append(buffer, sizeRead);

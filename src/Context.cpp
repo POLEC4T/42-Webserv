@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/28 11:33:25 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/28 13:53:00 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,15 +173,25 @@ void	Context::configFileParser(const std::string& fileName, std::map<int, ErrorP
 
 void	Context::parseAndSetMapDefaultErrorPage() {
     std::string	fileName = "htmlFiles/errorPages/default/error_";
-	std::string	errorCodes[] = {"400", "403", "404", "405", "408", "413", "414", "500", "501", "505"};
-	int			codes[] = {400, 403, 404, 405, 408, 413, 414, 500, 501, 505};
-	int			size = 10;
+	std::vector<int>			codes;
+	codes.push_back(BAD_REQUEST);
+	codes.push_back(FORBIDDEN);
+	codes.push_back(PAGE_NOT_FOUND);
+	codes.push_back(METHOD_NOT_ALLOWED);
+	codes.push_back(REQUEST_TIMEOUT);
+	codes.push_back(CONTENT_TOO_LARGE);
+	codes.push_back(URI_TOO_LONG);
+	codes.push_back(INTERNAL_SERVER_ERROR);
+	codes.push_back(NOT_IMPLEMENTED);
+	codes.push_back(HTTP_VERSION_NOT_SUPPORTED);
 
-	for (int i = 0; i < size; i++) {
+	for (size_t i = 0; i < codes.size(); i++) {
 		std::string	content;
-		std::string	name = "error_" + errorCodes[i];
+		std::string codeStr = FtString::my_to_string<int>(codes[i]);
+		std::string	name = "error_" + codeStr;
 
-		getContent(fileName + errorCodes[i] + ".html", content, '\n');
+
+		getContent(fileName + codeStr + ".html", content, '\n');
 		ErrorPage errorPage(name, content, codes[i]);
 		_mapDefaultErrorPage[codes[i]] = errorPage;
 	}

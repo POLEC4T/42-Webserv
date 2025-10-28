@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/27 13:48:22 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/28 13:56:56 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ int addClient(Server& server, int servfd, int epollfd) {
  */
 int handleClientIn(Server& server, Client& client, int epollfd) {
 
-	if (client.readPacket(server) == EXIT_FAILURE)
+	if (client.readPacket() == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 
 	std::string response;

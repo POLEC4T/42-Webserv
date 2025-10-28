@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/28 11:32:13 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/28 13:56:13 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ class Client {
 		void				parsePacket(Server& serv);
 		void 				resetForNextRequest();
 
-		int					readPacket(Server& server);
+		int					readPacket();
 		int					sendPendingResponse(int epollfd);
 		bool				unchunkBody(const std::string& chunks);
 };
