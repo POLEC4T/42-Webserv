@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 17:14:57 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/27 11:30:37 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,11 +85,11 @@ class Request {
 		const std::string& 	getUri() const;
 		const std::string& 	getMethod() const;
 		const std::string&	getVersion() const;
+		const std::string&	getBody() const;
 		bool				parsedRequestLine() const;
 		bool				parsedHeaders() const;
 		bool				parsedBody() const;
-		const std::string&	getBody() const;
-
+		void				appendBody(const std::string& toadd);
 };
 
 #endif

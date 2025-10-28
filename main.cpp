@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 16:47:21 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 16:59:42 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/27 17:28:18 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,3 +56,63 @@ int main(int ac, char **av) {
 	}
 	return 0;
 }
+
+
+
+// // #include <limits>
+
+
+// int main() {
+// 	std::string firstpart = 	"3";
+
+// 	std::string secondpart = 	"3\r\n"
+// 								"01";
+
+// 	std::string lastpart = 	"3\r\n"
+// 							"012\r\n"
+// 							"0\r\n"
+// 							"\r\n";
+
+								
+
+// 	Client client;
+	
+// 	bool fullyReceived;
+// 	////
+// 	try {
+// 		fullyReceived = client.unchunkBody(firstpart);
+// 	} catch (const RequestException& e) {
+// 		std::cerr << e.what() << std::endl;
+// 	}
+// 	if (fullyReceived)
+// 		std::cout << "unchunked: '" << client.getRequest().getBody() << "'" << std::endl;
+// 	else
+// 		std::cout << "Not fully received" << std::endl;
+
+// 	////
+// 	try {
+// 		fullyReceived = client.unchunkBody(secondpart);
+// 	} catch (const RequestException& e) {
+// 		std::cerr << e.what() << std::endl;
+// 	}
+// 	if (fullyReceived)
+// 		std::cout << "unchunked: '" << client.getRequest().getBody() << "'" << std::endl;
+// 	else
+// 		std::cout << "Not fully received" << std::endl;
+
+// 	////
+// 	try {
+// 		fullyReceived = client.unchunkBody(lastpart);
+// 	} catch (const RequestException& e) {
+// 		std::cerr << e.what() << std::endl;
+// 	}
+// 	if (fullyReceived)
+// 		std::cout << "unchunked: '" << client.getRequest().getBody() << "'" << std::endl;
+// 	else
+// 		std::cout << "Not fully received" << std::endl;
+
+
+
+	
+// 	return (0);
+// }

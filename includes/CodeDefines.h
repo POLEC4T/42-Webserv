@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:01:03 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 12:20:40 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/27 17:15:13 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # define CONTENT_TOO_LARGE 413
 # define URI_TOO_LONG 414
 # define INTERNAL_SERVER_ERROR 500
+# define NOT_IMPLEMENTED 501
 # define HTTP_VERSION_NOT_SUPPORTED 505
 
 #endif

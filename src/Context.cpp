@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 18:24:46 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/28 11:33:25 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,9 +173,9 @@ void	Context::configFileParser(const std::string& fileName, std::map<int, ErrorP
 
 void	Context::parseAndSetMapDefaultErrorPage() {
     std::string	fileName = "htmlFiles/errorPages/default/error_";
-	std::string	errorCodes[] = {"400", "403", "404", "405", "408", "413", "414", "500", "505"};
-	int			codes[] = {400, 403, 404, 405, 408, 413, 414, 500, 505};
-	int			size = 9;
+	std::string	errorCodes[] = {"400", "403", "404", "405", "408", "413", "414", "500", "501", "505"};
+	int			codes[] = {400, 403, 404, 405, 408, 413, 414, 500, 501, 505};
+	int			size = 10;
 
 	for (int i = 0; i < size; i++) {
 		std::string	content;
