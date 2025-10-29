@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/25 14:38:06 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/29 12:08:10 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,10 @@ void Request::parseHeaders(const std::string &req) {
 	size_t endLine = req.find("\r\n");
 	std::string line = req.substr(startLine, endLine);
 
-  while (req.find("\r\n", endLine + 2) != endLine + 2) {
-    startLine = endLine + 2;
-    endLine = req.find("\r\n", startLine);
-    line = req.substr(startLine, endLine - startLine);
+	while (req.find("\r\n", endLine + CRLF_SIZE) != endLine + CRLF_SIZE) {
+		startLine = endLine + CRLF_SIZE;
+		endLine = req.find("\r\n", startLine);
+		line = req.substr(startLine, endLine - startLine);
 
 		size_t columnIdx = line.find(':');
 		if (columnIdx == std::string::npos)
@@ -171,7 +171,10 @@ bool				Request::parsedBody() const {
 }
 
 
-const std::string&  Request::getBody() const
-{
+const std::string&  Request::getBody() const {
 	return _body;
+}
+
+void Request::appendBody(const std::string& toadd) {
+	_body.append(toadd);
 }

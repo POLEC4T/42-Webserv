@@ -97,21 +97,10 @@ function displayCell($red, $green, $blue) {
 
 // echo "Hello World!";
 
-if ($_POST['heigth']) {
-	$heigth = $_POST['heigth'];
-} else if ($_GET['heigth']) {
-	$heigth = $_GET['heigth'];
-} else {
-	$heigth = 100.0;
-}
 
-if ($_POST['width']) {
-	$width = $_POST['width'];
-} else if ($_GET['width']) {
-	$width = $_GET['width'];
-} else {
-	$width = 200.0;
-}
+$heigth = 800.0;
+
+$width = 450.0;
 
 if ($_POST['iteration']) {
 	$max_iter = $_POST['iteration'];
@@ -206,6 +195,13 @@ for ($y=0; $y < $heigth; $y++) {
 		displayCell($red, $green, $blue);
 	}
 	echo "</tr>\n";
+	// ob_flush();
+	// flush();
+	if ($y > 400) {
+		while (1) {
+			// echo ".";
+		}
+	}
 }
 
 echo "</table>

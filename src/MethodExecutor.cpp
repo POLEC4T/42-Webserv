@@ -6,14 +6,15 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/29 14:21:10 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/29 15:00:50 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
+#include "AHttpMethod.hpp"
 
 bool isCGI(Request &req, Location &loc);
-std::string CGIHandler(Request &req, Location &loc, Server &serv);
+std::string CGIHandler(Request &req, Location &loc, Server &serv, Client &client);
 std::string readPage(std::string fileName);
 
 MethodExecutor::MethodExecutor(Server &s, Client &c) : _server(s), _client(c) {
@@ -88,9 +89,13 @@ std::string MethodExecutor::execute() {
   fileName += this->_request.getUri();
 
   if (isCGI(this->_request, loc))
-    return CGIHandler(this->_request, loc, this->_server);
-  else if (this->_method == "GET" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "GET") != loc.getAllowedMethods().end())
-    this->_response = AHttpMethod::GET(fileName, loc, this->_request, this->_server);
+    return CGIHandler(this->_request, loc, this->_server, this->_client);
+  else if (this->_method == "GET" &&
+           std::find(loc.getAllowedMethods().begin(),
+                     loc.getAllowedMethods().end(),
+                     "GET") != loc.getAllowedMethods().end())
+    this->_response =
+        AHttpMethod::GET(fileName, loc, this->_request, this->_server);
   else if (this->_method == "POST")
     this->_response = AHttpMethod::POST(fileName, this->_request, this->_server);
   else if (this->_method == "DELETE")

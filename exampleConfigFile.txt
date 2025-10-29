@@ -1,6 +1,6 @@
 server {
     host 127.0.0.1;           # ou localhost
-    port 8080;
+    port 8080 234;
     
     server_name monsite.local www.monsite.local;
     

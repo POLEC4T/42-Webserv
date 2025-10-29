@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 10:24:54 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 16:10:24 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/27 17:16:44 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,23 @@ class HttpVersionNotSupportedException : public RequestException {
 		~HttpVersionNotSupportedException() throw();
 };
 
+class MalformedChunkException : public RequestException {
+	public:
+		virtual const char* what() const throw();
+};
 
+class TransferEncodingAndContentLengthException : public RequestException {
+	public:
+		virtual const char* what() const throw();
+};
+
+class TransferCodingNotImplemented : public RequestException {
+	private:
+		std::string _message;
+	public:
+		TransferCodingNotImplemented(const std::string& val);
+		virtual const char* what() const throw();
+		~TransferCodingNotImplemented() throw();
+};
 
 #endif

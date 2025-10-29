@@ -3,20 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/25 14:37:25 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/29 12:00:08 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
-#include "AHttpMethod.hpp"
-#include "APage.hpp"
+# include "APage.hpp"
+# include <vector>
+# include <fstream>
 
-//class Location inherit from APage got the private attribute _name, _content, _root, with the associated functions
+/**
+ * class Location inherit from APage got the private attribute _name, _content,
+ * _root, with the associated functions
+ */
 class	Location : public APage {
 	private:
 		// std::vector<AHttpMethod*>	_allowedMethods;

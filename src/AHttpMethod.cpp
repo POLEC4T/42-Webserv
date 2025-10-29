@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/29 14:28:34 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/29 15:00:45 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <dirent.h>
 #include "CodeDefines.h"
 #include <sys/stat.h>
+#include <cstring>
 
 long long getMaxBodySize(Location& loc, Server& serv)
 {
