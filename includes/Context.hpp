@@ -3,45 +3,49 @@
 /*                                                        :::      ::::::::   */
 /*   Context.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 17:08:27 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/29 11:54:26 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONTEXT_HPP
 #define CONTEXT_HPP
 
-#include "FtString.hpp"
-#include "Server.hpp"
+# include "Server.hpp"
+# include "FtString.hpp"
+# include "Location.hpp"
+
+class Location;
 
 class Context {
-private:
-  std::vector<Server> _servers;
-  Server _currentServer;
-  Location _currentLocation;
-  std::map<int, ErrorPage> _mapDefaultErrorPage;
+	private:
+		std::vector<Server> _servers;
+		Server _currentServer;
+		Location _currentLocation;
+		std::map<int, ErrorPage> _mapDefaultErrorPage;
 
-public:
-  Context();
-  Context(const Context &cpy);
-  Context &operator=(const Context &other);
-  ~Context();
-
-  // Getter
-  const std::vector<Server> getServers() const;
-  const std::map<int, ErrorPage> &getMapDefaultErrorPage() const;
-
-  // Setter
-  void addServer(const Server &server);
-
-  // functions
-  void configFileParser(const std::string &fileName, std::map<int, ErrorPage>);
-  void parseAndAddServer(std::vector<std::string>::iterator &,
-                         const std::vector<std::string>::iterator &,
-                         std::map<int, ErrorPage>);
-  void parseAndSetMapDefaultErrorPage();
+	public:
+		Context();
+		Context(const Context& cpy);
+		Context& operator=(const Context& other);
+		~Context();
+		
+		//Getter
+		std::vector<Server>&			getServers() ;
+		const std::map<int, ErrorPage>&	getMapDefaultErrorPage() const ;
+		
+		//Setter
+		void	addServer(const Server& server);
+		
+		//functions
+		void	configFileParser(const std::string& fileName, std::map<int, ErrorPage>);
+		void	parseAndAddServer(std::vector<std::string>::iterator&,
+				const std::vector<std::string>::iterator&, std::map<int, ErrorPage>);
+		void	parseAndSetMapDefaultErrorPage();
+		bool	isListenerFd(int fd) const;
+		Server&	getRelatedServer(int fd);
 };
 
 #endif

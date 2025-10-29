@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/28 19:11:26 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/29 12:10:52 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,21 @@ Server &Server::operator=(const Server &other) {
   return *this;
 }
 
-Server::~Server() { deleteAllClients(); }
+Server::~Server() {
+	deleteAllClients();
+	std::vector<int>::iterator it;
+	for(it = _sockfds.begin(); it != _sockfds.end(); ++it) {
+		std::cout << "close() server fd " << *it << std::endl;
+		close(*it);
+	}
+}
 
-// constructor with assignment values
+//constructor with assignment values
+Server::Server(int port, int clientMaxBodySize) {
+	_port = port;
+	_clientMaxBodySize = clientMaxBodySize;
+}
+
 Server::Server(std::map<int, ErrorPage> errorPages) {
 	_clientMaxBodySize = -1;
 	_mapDefaultErrorPage = errorPages;
@@ -176,9 +188,46 @@ void Server::deleteAllClients() {
 }
 
 void Server::deleteClient(int fd) {
+	std::cout << "Closing client with fd " << fd << std::endl;
   close(fd);
   _mapClients.erase(fd);
 }
+
+void	Server::addSockfd(int fd) {
+	_sockfds.push_back(fd);
+}
+
+const std::vector<int>&	Server::getSockfds() const {
+	return _sockfds;
+}
+
+bool		Server::isClient(int fd) const {
+	return (_mapClients.find(fd) != _mapClients.end());
+}
+
+bool		Server::isListener(int fd) const {
+	return (std::find(_sockfds.begin(), _sockfds.end(), fd) != _sockfds.end());
+}
+
+
+
+void	Server::addSockfd(int fd) {
+	_sockfds.push_back(fd);
+}
+
+const std::vector<int>&	Server::getSockfds() const {
+	return _sockfds;
+}
+
+bool		Server::isClient(int fd) const {
+	return (_mapClients.find(fd) != _mapClients.end());
+}
+
+bool		Server::isListener(int fd) const {
+	return (std::find(_sockfds.begin(), _sockfds.end(), fd) != _sockfds.end());
+}
+
+
 
 void Server::parseAndAddLocation(
     std::vector<std::string>::iterator &it,

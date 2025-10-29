@@ -51,7 +51,22 @@
 		"typeinfo": "cpp",
 		"ranges": "cpp",
 		"span": "cpp",
-		"cinttypes": "cpp"
+		"cinttypes": "cpp",
+		"chrono": "cpp",
+		"condition_variable": "cpp",
+		"forward_list": "cpp",
+		"list": "cpp",
+		"buffer": "cpp",
+		"executor": "cpp",
+		"io_context": "cpp",
+		"netfwd": "cpp",
+		"ratio": "cpp",
+		"socket": "cpp",
+		"future": "cpp",
+		"mutex": "cpp",
+		"stop_token": "cpp",
+		"thread": "cpp",
+		"semaphore": "cpp"
 	},
     "C_Cpp.errorSquiggles": "disabled"
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/28 09:47:23 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/29 12:01:52 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,11 +85,11 @@ class Request {
 		const std::string& 	getUri() const;
 		const std::string& 	getMethod() const;
 		const std::string&	getVersion() const;
+		const std::string&	getBody() const;
 		bool				parsedRequestLine() const;
 		bool				parsedHeaders() const;
 		bool				parsedBody() const;
-		const std::string&	getBody() const;
-
+		void				appendBody(const std::string& toadd);
 };
 
 #endif

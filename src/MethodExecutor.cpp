@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/28 11:45:36 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/29 12:07:32 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
+#include "AHttpMethod.hpp"
 
 bool isCGI(Request &req, Location &loc);
 std::string CGIHandler(Request &req, Location &loc, Server &serv, Client &client);

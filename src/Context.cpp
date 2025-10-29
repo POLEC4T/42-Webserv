@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/28 18:02:08 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/29 12:04:47 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "Context.hpp"
+#include "Context.hpp"
 #include "Error.hpp"
 
 Context::Context() {}
@@ -38,8 +38,10 @@ Context &Context::operator=(const Context &other) {
   return *this;
 }
 
-// Getter
-const std::vector<Server> Context::getServers() const { return _servers; }
+//Getter
+std::vector<Server>&	Context::getServers() {
+	return _servers;
+}
 
 const std::map<int, ErrorPage> &Context::getMapDefaultErrorPage() const {
   return _mapDefaultErrorPage;
@@ -169,16 +171,54 @@ void Context::configFileParser(const std::string &fileName,
 
 void	Context::parseAndSetMapDefaultErrorPage() {
     std::string	fileName = "htmlFiles/errorPages/default/error_";
-	std::string	errorCodes[] = {"400", "403", "404", "405", "408", "413", "414", "500", "505"};
-	int			codes[] = {400, 403, 404, 405, 408, 413, 414, 500, 505};
-	int			size = 9;
+	std::vector<int>			codes;
+	codes.push_back(BAD_REQUEST);
+	codes.push_back(FORBIDDEN);
+	codes.push_back(PAGE_NOT_FOUND);
+	codes.push_back(METHOD_NOT_ALLOWED);
+	codes.push_back(REQUEST_TIMEOUT);
+	codes.push_back(CONTENT_TOO_LARGE);
+	codes.push_back(URI_TOO_LONG);
+	codes.push_back(INTERNAL_SERVER_ERROR);
+	codes.push_back(NOT_IMPLEMENTED);
+	codes.push_back(HTTP_VERSION_NOT_SUPPORTED);
 
-	for (int i = 0; i < size; i++) {
+	for (size_t i = 0; i < codes.size(); i++) {
 		std::string	content;
-		std::string	name = "error_" + errorCodes[i];
+		std::string codeStr = FtString::my_to_string<int>(codes[i]);
+		std::string	name = "error_" + codeStr;
 
-    getContent(fileName + errorCodes[i] + ".html", content, '\n');
-    ErrorPage errorPage(name, content, codes[i]);
-    _mapDefaultErrorPage[codes[i]] = errorPage;
-  }
+
+		getContent(fileName + codeStr + ".html", content, '\n');
+		ErrorPage errorPage(name, content, codes[i]);
+		_mapDefaultErrorPage[codes[i]] = errorPage;
+	}
+}
+
+/**
+ * @return true if fd is one of the listening sockets of any server
+ */
+bool	Context::isListenerFd(int fd) const {
+	std::vector<Server>::const_iterator it;
+	for (it = _servers.begin(); it != _servers.end(); ++it) {
+		if (it->isListener(fd))
+			return (true);
+	}
+	return (false);
+}
+
+/**
+ * This fd must be either a listening socket or a client socket
+ * @throw Error::NoRelatedServersFound if no server is found for this fd
+ */
+Server&	Context::getRelatedServer(int fd) {
+	std::vector<Server>::iterator servIt;
+	std::vector<int> sockfds;
+	std::vector<Client> clients;
+
+	for (servIt = _servers.begin(); servIt < _servers.end(); servIt++) {
+		if (servIt->isClient(fd) || servIt->isListener(fd))
+			return (*servIt);
+	}
+	throw (Error::NoRelatedServerFound(fd));
 }
