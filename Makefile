@@ -8,6 +8,8 @@ SRC_DIR = src
 OBJ_DIR = .obj
 INC_DIR = includes
 
+MAKEFLAGS += --silent
+
 SRCS = main.cpp \
 	$(SRC_DIR)/APage.cpp \
 	$(SRC_DIR)/ErrorPage.cpp \
@@ -21,6 +23,7 @@ SRCS = main.cpp \
 	$(SRC_DIR)/MethodExecutor.cpp \
 	$(SRC_DIR)/Response.cpp \
 	$(SRC_DIR)/epoll.cpp \
+	$(SRC_DIR)/epoll_utils.cpp \
 	$(SRC_DIR)/Client.cpp \
 	$(SRC_DIR)/Error.cpp \
 	$(SRC_DIR)/CGIHandler.cpp
@@ -40,6 +43,7 @@ HEADERS = $(INC_DIR)/AHttpMethod.hpp \
 	$(INC_DIR)/epoll.hpp \
 	$(INC_DIR)/Error.hpp \
 	$(INC_DIR)/Response.hpp \
+	$(INC_DIR)/defines.h \
 	$(INC_DIR)/MethodExecutor.hpp
 
 OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
@@ -50,10 +54,10 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR) -g -O0
 RM = rm -rf
 
 all: $(NAME)
+	@echo "The program is ready: $(COLOR_GREEN)$(NAME)$(COLOR_END)"
 
 $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
-	@echo "The program is ready: $(COLOR_GREEN)$(NAME)$(COLOR_END)"
 
 $(OBJ_DIR)/%.o: %.cpp $(HEADERS)
 	@mkdir -p $(dir $@)
@@ -67,6 +71,5 @@ fclean: clean
 	$(RM) $(NAME)
 
 re: fclean all
-
 
 .PHONY: all clean fclean re

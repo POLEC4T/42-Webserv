@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/29 13:30:19 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 15:46:30 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,5 +282,5 @@ std::string CGIHandler(Request &req, Location &loc, Server &serv,
                     serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
         .build();
   }
-  return Response(req.getVersion(), OK, "OK", content).build();
+  return content;
 }

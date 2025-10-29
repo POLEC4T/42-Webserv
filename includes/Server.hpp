@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/29 12:03:19 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 17:47:00 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,7 @@ class	Server {
 		std::map<int, ErrorPage>		_mapDefaultErrorPage;
 		std::map<int, Client>			_mapClients;
 		int								_timedOut;
-		std::vector<int>				_sockfds;	
-
-		
+		std::vector<int>				_sockfds;
 	
 	public:
 		//Canonical constructor

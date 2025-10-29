@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FtString.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dorianmazari <dorianmazari@student.42.f    +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:38:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/20 13:41:22 by dorianmazar      ###   ########.fr       */
+/*   Updated: 2025/10/29 17:34:07 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

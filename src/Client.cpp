@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/29 13:33:50 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 17:50:02 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,11 @@
 #include "MethodExecutor.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
+#include "defines.h"
 
 // strerror
 #include <string.h>
 #include "Error.hpp"
-
-
-
 
 #define ONE_MB 1048576
 
@@ -71,11 +69,9 @@ const std::string&	Client::getRecvBuffer() const {
 	return (_recvBuffer);
 }
 
-
 void Client::setSendBuffer(const std::string& buf) {
 	_sendBuffer = buf;
 }
-
 
 void Client::setStatus(t_client_status status) {
 	_status = status;
@@ -126,8 +122,8 @@ size_t Client::checkAndGetContentLength(const std::string& contentLengthStr) {
 	if (_contentLength < 0)
 		throw BadHeaderValueException(contentLengthStr);
 	
-	std::cout << "Max body size allowed: " << _maxBodySize << std::endl;
-	std::cout << "Content-Length received: " << _contentLength << std::endl;
+	if (PRINT)
+		std::cout << "Max body size allowed: " << _maxBodySize << std::endl << "Content-Length received: " << _contentLength << std::endl;
 	if (_contentLength > _maxBodySize)
 		throw ContentTooLargeException();
 	return _contentLength;
@@ -206,9 +202,6 @@ bool Client::unchunkBody(const std::string& chunks) {
 		}
 	}
 
-	// todo: at the end of dev remove this
-	std::cout << "This should never happen !" << std::endl;
-	
 	return (true);
 }
 
@@ -312,14 +305,14 @@ int Client::sendPendingResponse(int epollfd) {
 							0);
 
 	if (sentlen == -1) {
-		std::cout << "send: " << strerror(errno) << std::endl;
+		std::cerr << "send: " << strerror(errno) << std::endl;
 		return (EXIT_FAILURE);
 	}
 
 	_sentIdx += sentlen;
 
 	if (_sentIdx >= _sendBuffer.size()) {
-		std::cout << "_sendBuffer completely sent" << std::endl;
+		std::cerr << "_sendBuffer completely sent" << std::endl;
 		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN, _fd) == -1) {
 			return (EXIT_FAILURE);
 		}

@@ -6,12 +6,13 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/29 13:38:25 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 17:54:10 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "Error.hpp"
+#include "defines.h"
 
 Server::Server() {
 	_clientMaxBodySize = -1;
@@ -49,7 +50,8 @@ Server::~Server() {
 	deleteAllClients();
 	std::vector<int>::iterator it;
 	for(it = _sockfds.begin(); it != _sockfds.end(); ++it) {
-		std::cout << "close() server fd " << *it << std::endl;
+		if (PRINT)
+			std::cout << "close() server fd " << *it << std::endl;
 		close(*it);
 	}
 }
@@ -165,8 +167,10 @@ Client &Server::getClient(int fd) { return (_mapClients[fd]); }
  */
 void Server::addClient(const Client &client) {
   if (_mapClients.find(client.getFd()) != _mapClients.end()) {
-    std::cout << "Warning: client with fd " << client.getFd()
-              << " already exists, overwriting it" << std::endl;
+    if (PRINT) {
+      std::cout << "Warning: client with fd " << client.getFd()
+				<< " already exists, overwriting it" << std::endl;
+	}
     deleteClient(client.getFd());
   }
   _mapClients[client.getFd()] = client;
@@ -176,16 +180,23 @@ void Server::deleteAllClients() {
   std::map<int, Client>::iterator it;
 
 	for (it = _mapClients.begin(); it != _mapClients.end(); ++it) {
-		std::cout << "Closing client with fd " << it->first << std::endl;
+		if (PRINT)
+			std::cout << "Closing client with fd " << it->first << std::endl;
 		close(it->first);
 	}
 	_mapClients.clear();
 }
 
 void Server::deleteClient(int fd) {
-	std::cout << "Closing client with fd " << fd << std::endl;
-  close(fd);
-  _mapClients.erase(fd);
+	if (_mapClients.find(fd) != _mapClients.end()) {
+		if (PRINT)
+			std::cout << "Closing client with fd " << fd << std::endl;
+		close(fd);
+		_mapClients.erase(fd);
+	} else {
+		if (PRINT)
+			std::cout << "Warning: trying to delete non-existing client with fd " << fd << std::endl;
+	}
 }
 
 void	Server::addSockfd(int fd) {
