@@ -13,15 +13,15 @@ server {
     location / {
 		autoindex on;
         allowed_methods GET POST;
-        root ./site-1;
+        root /home/faoriol/Documents/webserv/site-ex;
         client_max_body_size 10000;
-        index index.html index.php;
+        index index.html;
         autoindex on;
     }
 
     location /upload {
-        allowed_methods POST GET;
-        root /home/mazakov/Documents/42-Webserv;
+        allowed_methods POST DELETE GET;
+        root /home/faoriol/Documents/webserv;
         autoindex on;
     }
 
@@ -31,10 +31,18 @@ server {
     
     location /cgi-bin {
         allowed_methods GET POST; 
-        root ./site-1;
+        root ./site-ex;
 		autoindex on;
 		cgi_extension .php;
 		cgi_path /bin/php-cgi;
+    }
+
+    location /cgi {
+        allowed_methods GET POST;
+        root ./site-ex;
+        autoindex on;
+        cgi_extension .py;
+        cgi_path /bin/python3;
     }
     location /images {
         root ./htmlFiles/errorPages/default;

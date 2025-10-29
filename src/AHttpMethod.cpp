@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/27 19:37:24 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/29 14:28:34 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,9 +206,9 @@ Response AHttpMethod::GET(std::string fileName, Location& loc, Request& req, Ser
 
 Response	AHttpMethod::DELETE(std::string filename, Request& req, Server& serv)
 {
-	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
+    std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
-		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
+        return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
 
 	if (std::remove(filename.c_str()) != 0)
 		return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));

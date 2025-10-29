@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PixelVerse — Requêtes Fichiers</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      background-color: #0a0a0a;
+      color: #d4d4d4;
+      letter-spacing: 0.4px;
+      scroll-behavior: smooth;
+    }
+    header {
+      background: rgba(15, 15, 15, 0.8);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .btn {
+      background: #1c1c1c;
+      border: 1px solid #444;
+      color: #e0e0e0;
+      padding: 0.8rem 1.8rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background: #2a2a2a;
+      border-color: #666;
+    }
+    .section {
+      max-width: 750px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+    }
+    .input-field, textarea {
+      background: #121212;
+      border: 1px solid #2a2a2a;
+      color: #d4d4d4;
+      padding: 0.8rem 1rem;
+      border-radius: 6px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+    .input-field:focus, textarea:focus {
+      border-color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="fixed top-0 left-0 w-full p-5 text-center z-50">
+    <h1 class="text-xl text-gray-200 tracking-wider">PIXELVERSE</h1>
+    <nav class="mt-3 space-x-8 text-sm text-gray-500">
+      <a href="index.html">Accueil</a>
+      <a href="requete.html" class="text-white">Requêtes</a>
+    </nav>
+  </header>
+
+  <section class="section">
+    <h2 class="text-2xl text-gray-100 mb-10 text-center">Gestion des fichiers</h2>
+
+    <!-- DELETE -->
+    <div class="mb-16">
+      <h3 class="text-lg text-gray-200 mb-4">Supprimer un fichier</h3>
+      <form onsubmit="sendDeleteForm(event)" class="space-y-4">
+        <input type="text" id="delete-filename" name="filename" class="input-field" placeholder="ex: message.txt" required>
+        <button type="submit" class="btn">Supprimer (DELETE)</button>
+      </form>
+    </div>
+
+    <div class="border-t border-gray-800 my-10"></div>
+
+    <!-- POST MESSAGE -->
+    <div class="mb-16">
+      <h3 class="text-lg text-gray-200 mb-4">Envoyer un message</h3>
+      <form onsubmit="sendPostForm(event)" class="space-y-4">
+        <input type="text" id="post-filename" name="filename" class="input-field" placeholder="Nom du fichier (ex: message.txt)" required>
+        <textarea id="post-message" name="message" class="input-field" rows="5" placeholder="Écrivez ici..." required></textarea>
+        <button type="submit" class="btn">Envoyer (POST)</button>
+      </form>
+    </div>
+  </section>
+
+  <footer class="py-8 text-center text-sm text-gray-500 border-t border-gray-800">
+    <p>© 2025 PixelVerse — Interface sobre et intuitive.</p>
+  </footer>
+
+  <script>
+  // ---------- DELETE ----------
+  function sendDeleteForm(event) {
+    event.preventDefault();
+    const filename = document.getElementById('delete-filename').value.trim();
+    if (!filename) return;
+
+    fetch(`/upload/${encodeURIComponent(filename)}`, {
+      method: 'DELETE',
+      headers: { 'Accept': '*/*' }
+    }).then(() => {
+      console.log(`✅ Fichier ${filename} supprimé`);
+    }).catch(err => console.error(err));
+  }
+
+  // ---------- POST ----------
+  function sendPostForm(event) {
+    event.preventDefault();
+    const filename = document.getElementById('post-filename').value.trim();
+    const message = document.getElementById('post-message').value;
+
+    if (!filename) return;
+
+    fetch(`/upload/${encodeURIComponent(filename)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    }).then(res => {
+      if (res.ok) console.log(`✅ ${filename} envoyé`);
+      else console.error(`❌ Échec: ${res.status}`);
+    }).catch(err => console.error(err));
+  }
+  </script>
+</body>
+</html>

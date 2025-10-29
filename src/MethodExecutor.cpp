@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/27 19:05:45 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/29 14:21:10 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,6 @@ int returnHandler(Response &response, Location &loc, Request &req,
 }
 
 std::string MethodExecutor::execute() {
-  std::cout << "URI " << _request.getUri() << std::endl;
   Location loc = this->getRequestLocation(this->_request, this->_server);
   if (loc.getCode() == PAGE_NOT_FOUND)
     return Response(this->_request.getVersion(), this->_server.getErrorPageByCode(PAGE_NOT_FOUND)).build();
