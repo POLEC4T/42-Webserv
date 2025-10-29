@@ -3,15 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/28 19:03:38 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/29 13:30:19 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
-#include "ctime"
+#include <ctime>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/wait.h>
 
 #define TIMEDOUT 1
 
@@ -91,7 +94,7 @@ std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
   env.push_back("SERVER_PROTOCOL=HTTP/1.1");
   env.push_back("GATEWAY_INTERFACE=CGI/1.1");
   env.push_back("CONTENT_TYPE=" + req.getHeaderValue("Content-Type"));
-  env.push_back("CONTENT_LENGTH=" + req.getBody().size());
+//   env.push_back("CONTENT_LENGTH=" + req.getBody().size()); // todo dorian
   env.push_back("_SESSION=");
   env.push_back("REMOTE_ADDR" + serv.getHost());
   env.push_back("SERVER_NAME=" + serv.getNames()[0]);
@@ -244,7 +247,7 @@ std::string CGIHandler(Request &req, Location &loc, Server &serv,
                     serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
         .build();
   }
-  write(ctx.pipeFdIn[1], client.getBuffer().c_str(), req.getBody().size());
+  write(ctx.pipeFdIn[1], client.getRecvBuffer().c_str(), req.getBody().size());
   ftClose(&ctx.pipeFdIn[1]);
   ctx.pid = fork();
   if (ctx.pid == -1) {

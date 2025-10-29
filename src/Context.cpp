@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/29 12:04:47 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 14:56:35 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,9 @@
 
 Context::Context() {}
 
-Context::~Context() {}
+Context::~Context() {
+	close(_epollfd);
+}
 
 Context::Context(const Context &cpy) {
   std::vector<Server>::const_iterator it = cpy._servers.begin();
@@ -48,6 +50,11 @@ const std::map<int, ErrorPage> &Context::getMapDefaultErrorPage() const {
 }
 // Setter
 void Context::addServer(const Server &server) { _servers.push_back(server); }
+
+void	Context::setEpollFd(int fd) {
+	_epollfd = fd;
+}
+
 
 // functions
 int getContent(std::string fileName, std::string &content, char separator) {

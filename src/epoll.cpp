@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/29 12:07:05 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 14:56:17 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,8 @@ int queueResponse(Client &client, std::string& response, int epollfd) {
 	return(EXIT_SUCCESS);
 }
 
+#include <vector>
+
 /**
  * - Sets up a TCP server socket
  * - Binds it to the specified address and port
@@ -78,63 +80,67 @@ int initServerFds(Server& server) {
 	hints.ai_family = AF_INET; // ipv4
 	hints.ai_socktype = SOCK_STREAM; // tcp
 
-	int gai_ret = getaddrinfo(	server.getHost().c_str(),
-						  		server.getPorts()[0].c_str(),
-						  		&hints,
-						  		&addrinfos);
-	if (gai_ret != 0) {
-		std::cerr << "getaddrinfo: " << gai_strerror(gai_ret) << std::endl;
-		return (EXIT_FAILURE);
-	}
+	std::vector<std::string>::const_iterator port;
+	for (port = server.getPorts().begin(); port < server.getPorts().end(); ++port) {
+		int gai_ret = getaddrinfo(	server.getHost().c_str(),
+									port->c_str(),
+									&hints,
+									&addrinfos);
+		if (gai_ret != 0) {
+			std::cerr << "getaddrinfo: " << gai_strerror(gai_ret) << std::endl;
+			return (EXIT_FAILURE);
+		}
 
-	struct addrinfo *curr = addrinfos;
+		struct addrinfo *curraddr = addrinfos;
+		while (curraddr) {
+			std::cout << "Trying to bind to " << ((struct sockaddr_in *)curraddr->ai_addr)->sin_addr.s_addr << ":" << ntohs(((struct sockaddr_in *)curraddr->ai_addr)->sin_port) << std::endl;
+			
+			int fd = socket(curraddr->ai_family,
+							curraddr->ai_socktype,
+							curraddr->ai_protocol);
+			if (fd == -1) {
+				std::cerr << "socket: " << strerror(errno) << std::endl;
+				close(fd);
+				curraddr = curraddr->ai_next;
+				continue;
+			}
+			
+			if (setNonBlocking(fd) == EXIT_FAILURE) {
+				close(fd);
+				curraddr = curraddr->ai_next;
+				continue;
+			}
+			
+			int one = 1;
+			int sso_ret = setsockopt(fd,
+									SOL_SOCKET,
+									SO_REUSEADDR,
+									&one,
+									sizeof(one));
+			if (sso_ret == -1) {
+				std::cerr << "setsockopt: " << strerror(errno) << std::endl;
+				close(fd);
+				curraddr = curraddr->ai_next;
+				continue;
+			}
 
-	while (curr) {
-		std::cout << "Trying to bind to "
-				  << ((struct sockaddr_in *)curr->ai_addr)->sin_addr.s_addr
-				  << ":"
-				  << ntohs(((struct sockaddr_in *)curr->ai_addr)->sin_port)
-				  << std::endl;
-		curr = curr->ai_next;
-	}
-
-	int fd = socket(addrinfos->ai_family,
-					addrinfos->ai_socktype,
-					addrinfos->ai_protocol);
-	if (fd == -1) {
+			if (bind(fd, curraddr->ai_addr, curraddr->ai_addrlen) == -1) {
+				std::cerr << "bind: " << strerror(errno) << std::endl;
+				close(fd);
+				curraddr = curraddr->ai_next;
+				continue;
+			}
+			
+			if (listen(fd, 1024) == -1) {
+				std::cerr << "listen: " << strerror(errno) << std::endl;
+				close(fd);
+				curraddr = curraddr->ai_next;
+				continue;
+			}
+			server.addSockfd(fd);
+			curraddr = curraddr->ai_next;
+		}
 		freeaddrinfo(addrinfos);
-		std::cerr << "socket: " << strerror(errno) << std::endl;
-		return (EXIT_FAILURE);
-	}
-	server.addSockfd(fd);
-	
-	if (setNonBlocking(fd) == EXIT_FAILURE) {
-		freeaddrinfo(addrinfos);
-		return (EXIT_FAILURE);
-	}
-	
-	int opt = 1;
-	int sso_ret = setsockopt(fd,
-							SOL_SOCKET,
-							SO_REUSEADDR,
-							&opt,
-							sizeof(opt));
-	if (sso_ret == -1) {
-		freeaddrinfo(addrinfos);
-		std::cerr << "setsockopt: " << strerror(errno) << std::endl;
-		return (EXIT_FAILURE);
-	}
-
-	if (bind(fd, addrinfos->ai_addr, addrinfos->ai_addrlen) == -1) {
-		freeaddrinfo(addrinfos);
-		std::cerr << "bind: " << strerror(errno) << std::endl;
-		return (EXIT_FAILURE);
-	}
-	
-	freeaddrinfo(addrinfos);
-	if (listen(fd, 128) == -1) {
-		std::cerr << "listen: " << strerror(errno) << std::endl;
-		return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
 }
@@ -143,14 +149,13 @@ int initServerFds(Server& server) {
  * @note If any step of adding the client to epoll fails, the connection is closed and the client is not added to the server
  */
 int addClient(Server &server, int servfd, int epollfd) {
-  struct sockaddr clientAddr;
-  int addrLen = sizeof(clientAddr);
-  int clientfd =
-      accept(servfd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
-  if (clientfd == -1) {
-    std::cerr << "accept: " << strerror(errno) << std::endl;
-    return (EXIT_FAILURE);
-  }
+	struct sockaddr clientAddr;
+	int addrLen = sizeof(clientAddr);
+	int clientfd = accept(servfd, (struct sockaddr *)&clientAddr, (socklen_t *)&(addrLen));
+	if (clientfd == -1) {
+		std::cerr << "accept: " << strerror(errno) << std::endl;
+		return (EXIT_FAILURE);
+	}
 
 	if (setNonBlocking(clientfd) == EXIT_FAILURE) {
 		close(clientfd);
@@ -174,7 +179,7 @@ int addClient(Server &server, int servfd, int epollfd) {
  * 	- readPacket fail -> client disconnected or read error -> delete the client
  * 	- parsePacket fail -> send Bad Request
  * 	- MethodExecutor fail -> Fabien handles it
- *  - queueResponse fail -> send error -> delete the client
+ * 	- queueResponse fail -> send error -> delete the client
  */
 int handleClientIn(Server& server, Client& client, int epollfd) {
 
@@ -188,7 +193,7 @@ int handleClientIn(Server& server, Client& client, int epollfd) {
 		if (client.getStatus() == WAITING)
 			return (EXIT_SUCCESS);
 		response = MethodExecutor(server, client).execute();
-	}  catch (const RequestException& re) {
+	} catch (const RequestException& re) {
 		std::cerr << re.what() << std::endl;
 		response = Response("HTTP/1.1", server.getErrorPageByCode(re.getCode())).build();
 	} catch (const std::exception& e) {
@@ -220,12 +225,13 @@ int initEpoll(std::vector<Server>& servers) {
 }
 
 void sigint_handler(int sig) {
-  (void)sig;
-  write(2, "\n", 1);
+	(void)sig;
+	write(2, "\n", 1);
 }
 
 int launchEpoll(Context &ctx) {
-	for (std::vector<Server>::iterator it = ctx.getServers().begin(); it != ctx.getServers().end(); ++it) {
+	std::vector<Server>::iterator it;
+	for (it = ctx.getServers().begin(); it != ctx.getServers().end(); ++it) {
 		if (initServerFds(*it) == EXIT_FAILURE)
 			return (EXIT_FAILURE);
 	}
@@ -234,9 +240,10 @@ int launchEpoll(Context &ctx) {
 	if (epollfd == EXIT_FAILURE) {
 		return (EXIT_FAILURE);
 	}
+	ctx.setEpollFd(epollfd);
 
-  struct epoll_event events[NB_EVENTS];
-  int eventsReady;
+	struct epoll_event events[NB_EVENTS];
+	int eventsReady;
 
 	if (signal(SIGINT, &sigint_handler) == SIG_ERR) {
 		std::cerr << "signal: " << strerror(errno) << std::endl;

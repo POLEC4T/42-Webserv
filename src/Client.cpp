@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/29 12:04:02 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 13:33:50 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,11 @@ int 	Client::getFd() const {
 t_client_status		Client::getStatus() const {
 	return (_status);
 }
+
+const std::string&	Client::getRecvBuffer() const {
+	return (_recvBuffer);
+}
+
 
 void Client::setSendBuffer(const std::string& buf) {
 	_sendBuffer = buf;

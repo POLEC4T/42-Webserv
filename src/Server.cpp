@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/29 12:10:52 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 13:38:25 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,11 +55,6 @@ Server::~Server() {
 }
 
 //constructor with assignment values
-Server::Server(int port, int clientMaxBodySize) {
-	_port = port;
-	_clientMaxBodySize = clientMaxBodySize;
-}
-
 Server::Server(std::map<int, ErrorPage> errorPages) {
 	_clientMaxBodySize = -1;
 	_mapDefaultErrorPage = errorPages;
@@ -91,7 +86,7 @@ void Server::addPort(const std::string &port) {
 	iss >> p;
 	if (!iss.eof())
 		throw(Error::IntExpected(port));
-	if (p < 0 || p > 65000)
+	if (p < 0 || p > 65535)
 		throw(Error::IntOutOfRange(port));
 	_ports.push_back(port);
 }
@@ -208,26 +203,6 @@ bool		Server::isClient(int fd) const {
 bool		Server::isListener(int fd) const {
 	return (std::find(_sockfds.begin(), _sockfds.end(), fd) != _sockfds.end());
 }
-
-
-
-void	Server::addSockfd(int fd) {
-	_sockfds.push_back(fd);
-}
-
-const std::vector<int>&	Server::getSockfds() const {
-	return _sockfds;
-}
-
-bool		Server::isClient(int fd) const {
-	return (_mapClients.find(fd) != _mapClients.end());
-}
-
-bool		Server::isListener(int fd) const {
-	return (std::find(_sockfds.begin(), _sockfds.end(), fd) != _sockfds.end());
-}
-
-
 
 void Server::parseAndAddLocation(
     std::vector<std::string>::iterator &it,

@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/29 11:54:26 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 14:54:50 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,11 @@ class Location;
 
 class Context {
 	private:
-		std::vector<Server> _servers;
-		Server _currentServer;
-		Location _currentLocation;
-		std::map<int, ErrorPage> _mapDefaultErrorPage;
+		std::vector<Server>			_servers;
+		Server						_currentServer;
+		Location					_currentLocation;
+		std::map<int, ErrorPage>	_mapDefaultErrorPage;
+		int							_epollfd;
 
 	public:
 		Context();
@@ -38,6 +39,7 @@ class Context {
 		
 		//Setter
 		void	addServer(const Server& server);
+		void	setEpollFd(int fd);
 		
 		//functions
 		void	configFileParser(const std::string& fileName, std::map<int, ErrorPage>);

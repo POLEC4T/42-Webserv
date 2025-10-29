@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpMethod.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/27 19:37:24 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/29 13:25:21 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <dirent.h>
 #include "CodeDefines.h"
 #include <sys/stat.h>
+#include <cstring>
 
 long long getMaxBodySize(Location& loc, Server& serv)
 {
