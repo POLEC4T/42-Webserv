@@ -3,20 +3,53 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/25 14:37:45 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/29 13:33:50 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "epoll.hpp"
 #include "limits.h"
+#include "RequestExceptions.hpp"
+#include "FtString.hpp"
+#include "Server.hpp"
+#include "Location.hpp"
+#include "Error.hpp"
+#include "MethodExecutor.hpp"
+#include <sys/types.h>
+#include <sys/socket.h>
 
-Client::Client() : _sentIdx(0), _status(WAITING), _fd(-1) {};
+// strerror
+#include <string.h>
+#include "Error.hpp"
 
-Client::Client(int fd) : _sentIdx(0), _status(WAITING), _fd(fd){};
+
+
+
+#define ONE_MB 1048576
+
+Client::Client() :
+_sentIdx(0),
+_status(WAITING),
+_fd(-1),
+_currChunkPart(SIZE),
+_parsedChunksIdx(0),
+_maxBodySize(0),
+_contentLength(0)
+{};
+
+Client::Client(int fd) :
+_sentIdx(0),
+_status(WAITING),
+_fd(fd),
+_currChunkPart(SIZE),
+_parsedChunksIdx(0),
+_maxBodySize(0),
+_contentLength(0)
+{};
 
 Client::~Client() {};
 
@@ -24,11 +57,20 @@ int 	Client::getFd() const {
 	return (_fd);
 }
 
-const std::string&	Client::getBuffer() const {
+/**
+ * The status is set either WAITING or READY.
+ * WAITING means the client did not receive the full request.
+ * READY means the client received the full request and is therefore
+ * ready to send the response
+ */
+t_client_status		Client::getStatus() const {
+	return (_status);
+}
+
+const std::string&	Client::getRecvBuffer() const {
 	return (_recvBuffer);
 }
 
-t_client_status Client::getStatus() const { return (_status); }
 
 void Client::setSendBuffer(const std::string& buf) {
 	_sendBuffer = buf;
@@ -39,23 +81,18 @@ void Client::setStatus(t_client_status status) {
 	_status = status;
 }
 
-
-void Client::appendBuffer(char *buffer) {
-	_recvBuffer.append(buffer);
-}
-
-void Client::appendBuffer(const char *buffer) {
-	_recvBuffer.append(buffer);
-}
-
-void Client::clearBuffer() {
-	_recvBuffer.clear();
-}
-
+/**
+ * @return true if the request line has been completely received.
+ * @note checks for the presence of "\r\n" in the received buffer
+ */
 bool Client::receivedRequestLine() const {
 	return (_recvBuffer.find("\r\n") != std::string::npos);
 }
 
+/**
+ * @return true if the headers have been completely received.
+ * @note checks for the presence of "\r\n\r\n" in the received buffer
+ */
 bool Client::receivedHeaders() const {
 	return (_recvBuffer.find("\r\n\r\n") != std::string::npos);
 }
@@ -80,49 +117,151 @@ long long getMaxBodySize(const Location& loc, const Server& serv)
  * @throws if Content-Length is not a number
  * @throws if Content-Length is larger than the allowed max body size
  */
-size_t Client::checkAndGetContentLength(Server& serv, const std::string& contentLengthStr) {
+size_t Client::checkAndGetContentLength(const std::string& contentLengthStr) {
 	if (contentLengthStr.find_first_not_of("0123456789") != std::string::npos)
 		throw BadHeaderValueException(contentLengthStr);
-	long long contentLength = std::strtoll(contentLengthStr.c_str(), NULL, 10);
-	if (contentLength == LONG_LONG_MAX || contentLength == LONG_LONG_MIN)
+	_contentLength = std::strtoll(contentLengthStr.c_str(), NULL, 10);
+	if (_contentLength == LONG_LONG_MAX || _contentLength == LONG_LONG_MIN)
 		throw BadHeaderValueException(contentLengthStr);
-	if (contentLength < 0)
+	if (_contentLength < 0)
 		throw BadHeaderValueException(contentLengthStr);
-	Location loc = MethodExecutor::getRequestLocation(_request, serv);
-	if (contentLength > getMaxBodySize(loc, serv))
+	
+	std::cout << "Max body size allowed: " << _maxBodySize << std::endl;
+	std::cout << "Content-Length received: " << _contentLength << std::endl;
+	if (_contentLength > _maxBodySize)
 		throw ContentTooLargeException();
-	return contentLength;
+	return _contentLength;
+}
+
+size_t ft_atoi_hexa(const std::string& str) {
+	std::istringstream iss(str);
+	size_t res;
+	iss >> std::hex >> res;
+	if (iss.fail() || !iss.eof()) {
+		throw MalformedChunkException();
+	}
+	return res;
 }
 
 /**
- * @throws
+ * @throws MalformedChunkException
+ * @return true if the full body has been received
+ */
+bool Client::unchunkBody(const std::string& chunks) {
+	size_t pos = 0;
+	size_t startline;
+	
+	while (1) {
+		if (_currChunkPart == SIZE) {
+			startline = _parsedChunksIdx;
+			pos = chunks.find("\r\n", _parsedChunksIdx);
+			if (pos == std::string::npos) {
+				std::cerr << "Expected CRLF after chunk size" << std::endl;
+				return false;
+			}
+
+			FtString chunkSizeStr = chunks.substr(startline, pos - startline);
+			size_t semi = chunks.find(';', startline);
+			if (semi != std::string::npos)
+				chunkSizeStr = chunkSizeStr.substr(0, semi);
+			chunkSizeStr.trim();
+
+			if (chunkSizeStr.empty())
+				throw MalformedChunkException();
+
+			_currChunkSize = ft_atoi_hexa(chunkSizeStr);
+
+			if (_currChunkSize == 0)
+			{
+				if (chunks.find("\r\n\r\n", pos) == std::string::npos) {
+					std::cerr << "Expected double CRLF after final zero" << std::endl;
+					return false;
+				}
+				// todo : handle trailers
+				return true;
+			}
+			else if ((long long)(_request.getBody().size() + _currChunkSize) > _maxBodySize) {
+				throw ContentTooLargeException();
+            }
+			pos += CRLF_SIZE; // CRLF of the end of chunk size no need to check its presence as we found it before
+			_parsedChunksIdx = pos;
+			_currChunkPart = DATA;
+		}
+
+		if (_currChunkPart == DATA) {
+			pos = _parsedChunksIdx;
+			if (pos + _currChunkSize > chunks.size()) {
+				std::cerr << "Expected more chunk data" << std::endl;
+				return false;
+			}
+			
+			if (chunks.substr(pos + _currChunkSize, CRLF_SIZE) != "\r\n") {
+				std::cerr << "Expected CRLF after chunk data" << std::endl;
+				return false;
+			}
+			_request.appendBody(chunks.substr(pos, _currChunkSize));
+			pos += (_currChunkSize + CRLF_SIZE);
+			_parsedChunksIdx = pos;
+			_currChunkPart = SIZE;
+		}
+	}
+
+	// todo: at the end of dev remove this
+	std::cout << "This should never happen !" << std::endl;
+	
+	return (true);
+}
+
+/**
+ * @throws TransferEncodingAndContentLengthException
+ * @throws ContentTooLargeException
  * @note sets the client status to READY when the full request has been received / parsed
  */
-void Client::parseRequest(Server& serv) {
+void Client::parsePacket(Server& serv) {
+	static std::string contentLengthStr;
+	static std::string transferEncodingStr;
+
 	if (!receivedRequestLine())
 		return;
-	if (!_request.parsedRequestLine()) {
+	if (!_request.parsedRequestLine())
 		_request.parseRequestLine(_recvBuffer);
-	}
 
 	if (!receivedHeaders())
 		return;
 	if (!_request.parsedHeaders()) {
 		_request.parseHeaders(_recvBuffer);
+		
+		_maxBodySize = getMaxBodySize(MethodExecutor::getRequestLocation(_request, serv), serv);
+			
+		contentLengthStr = _request.getHeaderValue("Content-Length");
+		transferEncodingStr = _request.getHeaderValue("Transfer-Encoding");
+		if (!contentLengthStr.empty() && !transferEncodingStr.empty()) {
+			throw TransferEncodingAndContentLengthException();
+		}
+		else if (contentLengthStr.empty() && transferEncodingStr.empty()) {
+			_status = READY;
+			return;
+		} else if (!contentLengthStr.empty()) {
+			_contentLength = checkAndGetContentLength(contentLengthStr);
+		} else /* if (!transferEncodingStr.empty()) */ {
+			if (transferEncodingStr != "chunked")
+				throw TransferCodingNotImplemented(transferEncodingStr);
+		}
 	}
 	
-	std::string contentLengthStr = _request.getHeaderValue("Content-Length");
-	if (contentLengthStr.empty()) {
+	size_t startBody = _recvBuffer.find("\r\n\r\n") + 4;
+	if (!contentLengthStr.empty()) {
+		if (!receivedBody(_contentLength))
+			return;
+		_request.appendBody(_recvBuffer.substr(startBody, _contentLength));
 		_status = READY;
-		return;
+	}
+	else /* if (!transferEncodingStr.empty()) */ {
+		if (this->unchunkBody(FtString(_recvBuffer.substr(startBody))))
+			_status = READY;
 	}
 
-	size_t contentLength = this->checkAndGetContentLength(serv, contentLengthStr);
-	if (!receivedBody(contentLength))
-		return;
-	if (!_request.parsedBody())
-		_request.parseBody(_recvBuffer, contentLength);
-	_status = READY;
+
 }
 
 /**
@@ -146,11 +285,16 @@ bool Client::receivedBody(size_t contentLength) const {
  * Each time we send a request, the client needs to reset states for next ones.
  */
 void Client::resetForNextRequest() {
+	_request = Request();
+	_status = WAITING;
 	_recvBuffer.clear();
 	_sendBuffer.clear();
-	_status = WAITING;
+	_chunks.clear();
+	_currChunkPart = SIZE;
+	_parsedChunksIdx = 0;
 	_sentIdx = 0;
-	_request = Request();
+	_maxBodySize = 0;
+	_contentLength = 0;
 }
 
 Request& Client::getRequest() {
@@ -162,10 +306,10 @@ Request& Client::getRequest() {
  */
 int Client::sendPendingResponse(int epollfd) {
 	
-	ssize_t sentlen = send(_fd,
-		_sendBuffer.c_str() + _sentIdx,
-		_sendBuffer.size() - _sentIdx,
-		0);
+	ssize_t sentlen = send(	_fd,
+							_sendBuffer.c_str() + _sentIdx,
+							_sendBuffer.size() - _sentIdx,
+							0);
 
 	if (sentlen == -1) {
 		std::cout << "send: " << strerror(errno) << std::endl;
@@ -176,7 +320,7 @@ int Client::sendPendingResponse(int epollfd) {
 
 	if (_sentIdx >= _sendBuffer.size()) {
 		std::cout << "_sendBuffer completely sent" << std::endl;
-		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLET, _fd) == -1) {
+		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN, _fd) == -1) {
 			return (EXIT_FAILURE);
 		}
 		this->resetForNextRequest();
@@ -185,6 +329,18 @@ int Client::sendPendingResponse(int epollfd) {
 }
 
 
+int Client::readPacket() {
+	char buffer[MAX_RECV] = { 0 };
+	ssize_t sizeRead;
 
-
-
+	sizeRead = recv(_fd, buffer, MAX_RECV, 0);
+	if (sizeRead == -1) {
+		std::cerr << "recv:" << strerror(errno) << std::endl;
+		return (EXIT_FAILURE);
+	} else if (sizeRead == 0) {
+		std::cerr << "Client disconnected, fd: " << _fd << std::endl;
+		return (EXIT_FAILURE);
+	}
+	_recvBuffer.append(buffer, sizeRead);
+	return (EXIT_SUCCESS);
+}

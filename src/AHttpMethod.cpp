@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpMethod.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/27 17:14:42 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/29 13:25:21 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <dirent.h>
 #include "CodeDefines.h"
 #include <sys/stat.h>
+#include <cstring>
 
 long long getMaxBodySize(Location& loc, Server& serv)
 {
@@ -43,33 +44,133 @@ std::string	readPage(std::string fileName)
 	return body;
 }
 
-Response	LoadAutoIndex(Request& req, std::string& path, Server& serv, std::string root)
+Response LoadAutoIndex(Request& req, std::string& path, Server& serv, std::string root)
 {
-	std::string page = "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"><title>auto-index</title><style>body {font-family: Arial, sans-serif;background-color: #f4f4f4;padding: 30px;}h1 {color: #333;}.file-list {margin-top: 20px;}.file-list a {display: block;text-decoration: none;color: #1a73e8;padding: 4px 12px;margin-bottom: 5px;border-radius: 4px;background-color: #ffffff;transition: background-color 0.2s;}.file-lista:hover{background-color: #e8f0fe;}.directory{font-weight:bold;color: #2e7d32;}.file{color: #1a237e;}</style></head><body><h1>auto-index</h1><div class=\"file-list\">";
-	DIR* directory = opendir(path.c_str());
-	if (directory == NULL)
-		return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
-	struct dirent* list;
-	while ((list = readdir(directory)) != NULL)
-	{
-		if (!strcmp(list->d_name, "..") || !strcmp(list->d_name, "."))
-			continue;
-		int pos = path.find(root);
-		page += "<a href=\"";
-		std::string tmp = path.substr(pos + root.size(), path.size() - (pos + root.size()));
-		if (tmp.size() != 1)
-			page += tmp + "/";
-		page += list->d_name;
-		page += "\" download>";
-		page += list->d_name;
-		if (list->d_type == DT_DIR)
-			page += "/";
-		page += "</a><br>";
-	}
-	page += "</div></body></html>";
-	closedir(directory);
-	return Response(req.getVersion(), OK, "OK", page);
+    std::string page = "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"><title>AutoIndex</title>"
+    "<style>"
+    "body {"
+        "font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;"
+        "background-color: #202125;"
+        "color: #e6e6e6;"
+        "margin: 0;"
+        "padding: 50px 0;"
+        "display: flex;"
+        "flex-direction: column;"
+        "align-items: center;"
+    "}"
+    "h1 {"
+        "color: #fafafa;"
+        "margin-bottom: 40px;"
+        "font-weight: 500;"
+        "font-size: 1.6em;"
+        "letter-spacing: 0.5px;"
+    "}"
+    ".file-list {"
+        "width: 90%;"
+        "max-width: 800px;"
+        "border-top: 1px solid #333;"
+    "}"
+    ".file-row {"
+        "display: flex;"
+        "justify-content: space-between;"
+        "align-items: center;"
+        "padding: 12px 10px;"
+        "border-bottom: 1px solid #333;"
+        "transition: background 0.2s;"
+    "}"
+    ".file-row:hover {"
+        "background-color: #2a2b30;"
+    "}"
+    ".file-info {"
+        "display: flex;"
+        "align-items: center;"
+        "gap: 8px;"
+        "font-size: 0.95em;"
+    "}"
+    ".file-name {"
+        "color: #f0f0f0;"
+        "text-decoration: none;"
+    "}"
+    ".file-name:hover {"
+        "color: #ffffff;"
+    "}"
+    ".file-type {"
+        "opacity: 0.6;"
+        "font-size: 0.85em;"
+    "}"
+    ".buttons {"
+        "display: flex;"
+        "gap: 8px;"
+    "}"
+    ".btn {"
+        "padding: 5px 12px;"
+        "border-radius: 4px;"
+        "font-size: 0.85em;"
+        "text-decoration: none;"
+        "font-weight: 500;"
+        "transition: all 0.2s ease;"
+        "border: 1px solid transparent;"
+    "}"
+    ".btn:hover {"
+        "transform: translateY(-1px);"
+    "}"
+    ".open-btn {"
+        "background-color: #ffffff;"
+        "color: #000;"
+        "border: 1px solid #ddd;"
+    "}"
+    ".open-btn:hover {"
+        "background-color: #f0f0f0;"
+    "}"
+    ".download-btn {"
+        "background-color: #e53935;"
+        "color: #fff;"
+    "}"
+    ".download-btn:hover {"
+        "background-color: #ef5350;"
+    "}"
+    "</style>"
+    "</head><body><h1>INDEX</h1><div class=\"file-list\">";
+
+    DIR* directory = opendir(path.c_str());
+    if (directory == NULL)
+        return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
+
+    struct dirent* list;
+    while ((list = readdir(directory)) != NULL)
+    {
+        if (!strcmp(list->d_name, "."))
+            continue;
+
+        int pos = path.find(root);
+        std::string relative_path = path.substr(pos + root.size(), path.size() - (pos + root.size()));
+        if (relative_path.size() != 1)
+            relative_path += "/";
+
+        page += "<div class=\"file-row\">";
+        page += "<div class=\"file-info\">";
+        if (list->d_type == DT_DIR)
+            page += "<span class=\"file-type\">📁</span>";
+        else
+            page += "<span class=\"file-type\">📄</span>";
+        page += "<a class=\"file-name\" href=\"" + relative_path + list->d_name + "\">" + std::string(list->d_name);
+        if (list->d_type == DT_DIR)
+            page += "/";
+        page += "</a></div><div class=\"buttons\">";
+        if (list->d_type != DT_DIR)
+			page += "<a class=\"btn download-btn\" href=\"" + relative_path + list->d_name + "\" download>Télécharger</a>";
+        page += "<a class=\"btn open-btn\" href=\"" + relative_path + list->d_name + "\">Ouvrir</a>";
+        page += "</div></div>";
+    }
+
+    page += "</div></body></html>";
+    closedir(directory);
+    return Response(req.getVersion(), OK, "OK", page);
 }
+
+
+
+
 
 Response AHttpMethod::GET(std::string fileName, Location& loc, Request& req, Server& serv)
 {
@@ -118,6 +219,13 @@ Response	AHttpMethod::DELETE(std::string filename, Request& req, Server& serv)
 
 Response AHttpMethod::POST(std::string filename, Request& req, Server& serv)
 {
+    struct stat infos;
+    
+    if (stat(filename.c_str(), &infos) != 0)
+    {
+        if (S_ISDIR(infos.st_mode))
+            return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
+    }
 	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
 		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));

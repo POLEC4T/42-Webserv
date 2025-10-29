@@ -3,18 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:25:48 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/25 14:37:30 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/29 12:01:39 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __METHODEXECUTOR_HPP__
 #define __METHODEXECUTOR_HPP__
 
-#include <sys/types.h>
-#include "Headers.h"
 #include "Client.hpp"
 #include "Server.hpp"
 #include "Request.hpp"
@@ -31,7 +29,7 @@ class   MethodExecutor
 
     public:
         MethodExecutor(Server&, Client&);
-        void    execute();
+        std::string execute();
         Response& getResponse();
         static Location    getRequestLocation(Request&, Server&);
         ~MethodExecutor();
