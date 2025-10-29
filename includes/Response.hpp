@@ -3,18 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:37:50 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 16:54:26 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/29 10:33:17 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __RESPONSE_HPP__
-#define __RESPONSE_HPP__
+# define __RESPONSE_HPP__
 
-#include "Headers.h"
-#include "ErrorPage.hpp"
+# include "ErrorPage.hpp"
+# include <map>
 
 class Response
 {

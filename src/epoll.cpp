@@ -6,15 +6,42 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/28 14:25:28 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 11:10:39 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "epoll.hpp"
 
+# include "Server.hpp"
+# include "Request.hpp"
+# include "MethodExecutor.hpp"
+# include "CodeDefines.h"
+# include <sys/epoll.h>
+# include "Context.hpp"
+# include <fcntl.h>
+# include <errno.h>
+# include <string.h>
+# include <unistd.h>
+# include <cstring>
+
+# include <sys/signal.h>
+# include <netdb.h>
+# include <sys/epoll.h>
+
+
+
+
 #define MAX_EVENT_WAITED 1024
 #define NB_EVENTS 1024
 #define BUFFER_SIZE 1024
+
+int setNonBlocking(int fd) {
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
+		std::cerr << "fcntl: " << strerror(errno) <<std::endl;
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
 
 int my_epoll_ctl(int epollfd, int op, uint32_t events, int fd) {
 	struct epoll_event ev;
@@ -43,15 +70,13 @@ int queueResponse(Client &client, std::string& response, int epollfd) {
  * - Listens for incoming connections
  * STRESS TESTED
  */
-int createSocket(const Server &server) {
-	int	servfd;
+int initServerFds(Server& server) {
 	struct addrinfo	*addrinfos;
 	struct addrinfo	hints;
 
 	std::memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET; // ipv4 pelo
+	hints.ai_family = AF_INET; // ipv4
 	hints.ai_socktype = SOCK_STREAM; // tcp
-	hints.ai_flags = AI_PASSIVE; // for bind()
 
 	int gai_ret = getaddrinfo(	server.getHost().c_str(),
 						  		server.getPort().c_str(),
@@ -59,54 +84,62 @@ int createSocket(const Server &server) {
 						  		&addrinfos);
 	if (gai_ret != 0) {
 		std::cerr << "getaddrinfo: " << gai_strerror(gai_ret) << std::endl;
-		return (-1);
+		return (EXIT_FAILURE);
 	}
 
-	servfd = socket(addrinfos->ai_family,
+	struct addrinfo *curr = addrinfos;
+
+	while (curr) {
+		std::cout << "Trying to bind to "
+				  << ((struct sockaddr_in *)curr->ai_addr)->sin_addr.s_addr
+				  << ":"
+				  << ntohs(((struct sockaddr_in *)curr->ai_addr)->sin_port)
+				  << std::endl;
+		curr = curr->ai_next;
+	}
+
+	int fd = socket(addrinfos->ai_family,
 					addrinfos->ai_socktype,
 					addrinfos->ai_protocol);
-	if (servfd == -1) {
+	if (fd == -1) {
 		freeaddrinfo(addrinfos);
 		std::cerr << "socket: " << strerror(errno) << std::endl;
-		return (-1);
+		return (EXIT_FAILURE);
+	}
+	server.addSockfd(fd);
+	
+	if (setNonBlocking(fd) == EXIT_FAILURE) {
+		freeaddrinfo(addrinfos);
+		return (EXIT_FAILURE);
 	}
 	
 	int opt = 1;
-	int sso_ret = setsockopt(servfd,
+	int sso_ret = setsockopt(fd,
 							SOL_SOCKET,
-							SO_REUSEADDR | SO_REUSEPORT,
+							SO_REUSEADDR,
 							&opt,
 							sizeof(opt));
 	if (sso_ret == -1) {
-		close(servfd);
 		freeaddrinfo(addrinfos);
 		std::cerr << "setsockopt: " << strerror(errno) << std::endl;
-		return (-1);
-	}		
+		return (EXIT_FAILURE);
+	}
 
-	if (bind(servfd, addrinfos->ai_addr, addrinfos->ai_addrlen) == -1) {
-		close(servfd);
+	if (bind(fd, addrinfos->ai_addr, addrinfos->ai_addrlen) == -1) {
 		freeaddrinfo(addrinfos);
 		std::cerr << "bind: " << strerror(errno) << std::endl;
-		return (-1);
+		return (EXIT_FAILURE);
 	}
 	
 	freeaddrinfo(addrinfos);
-	if (listen(servfd, 2) == -1) {
-		close(servfd);
+	if (listen(fd, 128) == -1) {
 		std::cerr << "listen: " << strerror(errno) << std::endl;
-		return (-1);
+		return (EXIT_FAILURE);
 	}
-	return (servfd);
+	return (EXIT_SUCCESS);
 }
 
-int setNonBlocking(int fd) {
-	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
-		std::cerr << "fcntl: " << strerror(errno) <<std::endl;
-		return EXIT_FAILURE;
-	}
-	return EXIT_SUCCESS;
-}
+
 
 /**
  * @note If any step of adding the client to epoll fails, the connection is closed and the client is not added to the server
@@ -167,21 +200,22 @@ int handleClientIn(Server& server, Client& client, int epollfd) {
 	return (queueResponse(client, response, epollfd) == EXIT_FAILURE);
 }
 
-int createEpoll(int servfd) {
+int initEpoll(std::vector<Server>& servers) {
 	int epollfd = epoll_create(1);
 	if (epollfd == -1) {
 		std::cerr << "epoll_create: " << strerror(errno) << std::endl;
-		return (-1);
+		return (EXIT_FAILURE);
 	}
 
-	if (setNonBlocking(servfd) == EXIT_FAILURE) {
-		close(epollfd);
-		return (-1);
-	}
-
-	if (my_epoll_ctl(epollfd, EPOLL_CTL_ADD, EPOLLIN, servfd) == -1) {
-		close(epollfd);
-		return (-1);
+	// add each sockfd of each server to epoll
+	for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it) {
+		std::vector<int> servfds = it->getSockfds();
+		for (std::vector<int>::iterator fd_it = servfds.begin(); fd_it != servfds.end(); ++fd_it) {
+			if (my_epoll_ctl(epollfd, EPOLL_CTL_ADD, EPOLLIN, *fd_it) == -1) {
+				close(epollfd);
+				return (EXIT_FAILURE);
+			}
+		}
 	}
 	return (epollfd);
 }
@@ -191,14 +225,14 @@ void sigint_handler(int sig) {
 	write(2, "\n", 1);
 }
 
-int launchEpoll(Server &server) {
-	int servfd = createSocket(server);
-	if (servfd == -1)
-		return (EXIT_FAILURE);
-
-	int epollfd = createEpoll(servfd);
-	if (epollfd == -1) {
-		close(servfd);
+int launchEpoll(Context &ctx) {
+	for (std::vector<Server>::iterator it = ctx.getServers().begin(); it != ctx.getServers().end(); ++it) {
+		if (initServerFds(*it) == EXIT_FAILURE)
+			return (EXIT_FAILURE);
+	}
+	
+	int epollfd = initEpoll(ctx.getServers());
+	if (epollfd == EXIT_FAILURE) {
 		return (EXIT_FAILURE);
 	}
 
@@ -207,7 +241,6 @@ int launchEpoll(Server &server) {
 
 	if (signal(SIGINT, &sigint_handler) == SIG_ERR) {
 		std::cerr << "signal: " << strerror(errno) << std::endl;
-		close(servfd);
 		close(epollfd);
 		return (EXIT_FAILURE);
 	}
@@ -217,14 +250,14 @@ int launchEpoll(Server &server) {
 		eventsReady = epoll_wait(epollfd, events, MAX_EVENT_WAITED, -1);
 		if (eventsReady == -1) {
 			std::cerr << "epoll_wait: " << strerror(errno) << std::endl;
-			close(servfd);
 			close(epollfd);
 			return (EXIT_FAILURE);
 		}
 		std::cout << eventsReady << " event(s)" << std::endl;
 		for (int i = 0; i < eventsReady; ++i) {
-			if (events[i].data.fd == servfd) {
-				if (addClient(server, servfd, epollfd) == EXIT_FAILURE) {
+			Server& server = ctx.getRelatedServer(events[i].data.fd);
+			if (ctx.isListenerFd(events[i].data.fd)) {
+				if (addClient(server, events[i].data.fd, epollfd) == EXIT_FAILURE) {
 					continue;
 				}
 			} else {
@@ -247,6 +280,5 @@ int launchEpoll(Server &server) {
 		}
 		std::cout << "-----\n";
 	}
-	close(servfd);
 	return 0;
 }

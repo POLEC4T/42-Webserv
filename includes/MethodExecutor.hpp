@@ -3,17 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:25:48 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/22 18:24:29 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/29 10:32:33 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __METHODEXECUTOR_HPP__
 #define __METHODEXECUTOR_HPP__
 
-#include "Headers.h"
 #include "Client.hpp"
 #include "Server.hpp"
 #include "Request.hpp"

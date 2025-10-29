@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 16:56:59 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/29 10:39:04 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include "ErrorPage.hpp"
 # include "Client.hpp"
 # include <unistd.h>
+# include <algorithm>
+
 
 class	Server {
 	private:
@@ -29,6 +31,9 @@ class	Server {
 		std::map<int, ErrorPage>		_mapDefaultErrorPage;
 		std::map<int, Client>			_mapClients;
 		int								_timedOut;
+		std::vector<int>				_sockfds;	
+
+		
 	
 	public:
 		//Canonical constructor
@@ -57,8 +62,8 @@ class	Server {
 		
 		//Specific map
 		APage&		getLocationByName(const std::string&);
-		ErrorPage&		getErrorPageByCode(const int);
-		void			setDefaultMapErrorPage(const std::map<int, ErrorPage>&);
+		ErrorPage&	getErrorPageByCode(const int);
+		void		setDefaultMapErrorPage(const std::map<int, ErrorPage>&);
 
 		void		addLocation(const Location&);
 		void		addErrorPage(const ErrorPage&);
@@ -67,6 +72,10 @@ class	Server {
 		void		addClient(const Client&);
 		void		deleteAllClients();
 		void		deleteClient(int fd);
+		void		addSockfd(int fd);
+		const std::vector<int>&	getSockfds() const;
+		bool		isClient(int fd) const;
+		bool		isListener(int fd) const;
 
 		std::map<std::string, Location>&	getLocations() ;
 

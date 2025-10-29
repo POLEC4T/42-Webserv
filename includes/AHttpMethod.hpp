@@ -3,17 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpMethod.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:37:42 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 18:23:49 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/29 10:31:00 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef	AHTTPMETHOD_HPP
 # define AHTTPMETHOD_HPP
 
-#include "Headers.h"
 #include "Response.hpp"
 #include "Location.hpp"
 #include "Request.hpp"

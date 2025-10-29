@@ -3,17 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   APage.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:56:14 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/13 17:29:41 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/29 10:38:25 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef APAGE_HPP
 # define APAGE_HPP
 
-# include "Headers.h"
+
+#include <string>
+#include <sstream>
+
+class Location;
 
 class APage {
 	protected:

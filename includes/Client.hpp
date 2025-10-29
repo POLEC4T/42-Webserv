@@ -6,15 +6,16 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/28 14:13:11 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 10:31:22 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-# include "Headers.h"
+
 # include "Request.hpp"
+# include <string>
 
 # define MAX_RECV 8192
 # define CRLF_SIZE 2

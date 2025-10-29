@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/23 12:06:38 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 10:12:45 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,12 @@ Server&	Server::operator=(const Server& other) {
 
 Server::~Server() {
 	deleteAllClients();
+	std::vector<int>::iterator it;
+	for(it = _sockfds.begin(); it != _sockfds.end(); ++it) {
+		std::cout << "close() server fd " << *it << std::endl;
+		close(*it);
+	}
 }
-
-
 
 //constructor with assignment values
 Server::Server(int port, int clientMaxBodySize) {
@@ -181,6 +184,24 @@ void	Server::deleteClient(int fd) {
 	close(fd);
 	_mapClients.erase(fd);
 }
+
+void	Server::addSockfd(int fd) {
+	_sockfds.push_back(fd);
+}
+
+const std::vector<int>&	Server::getSockfds() const {
+	return _sockfds;
+}
+
+bool		Server::isClient(int fd) const {
+	return (_mapClients.find(fd) != _mapClients.end());
+}
+
+bool		Server::isListener(int fd) const {
+	return (std::find(_sockfds.begin(), _sockfds.end(), fd) != _sockfds.end());
+}
+
+
 
 void	Server::parseAndAddLocation(std::vector<std::string>::iterator& it, const std::vector<std::string>::iterator itEnd) {
 	int	isClosed = 0;

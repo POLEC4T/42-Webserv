@@ -6,13 +6,30 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/28 14:10:28 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 11:17:12 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "epoll.hpp"
 #include "limits.h"
+#include "RequestExceptions.hpp"
+#include "FtString.hpp"
+#include "Server.hpp"
+#include "Location.hpp"
+#include "Error.hpp"
+#include "MethodExecutor.hpp"
+#include <sys/types.h>
+#include <sys/socket.h>
+
+// strerror
+#include <string.h>
+#include "Error.hpp"
+
+
+
+
+#define ONE_MB 1048576
 
 Client::Client() :
 _sentIdx(0),

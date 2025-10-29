@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:34:04 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/17 17:52:43 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 11:25:31 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,16 @@ class Error {
 		class NoServerInConfigFile: public std::exception {
 			public:
 				const char* what() const throw() ;
+		};
+
+		class NoRelatedServerFound: public std::exception {
+			private:
+				std::string	_message;
+			public:
+				const char* what() const throw() ;
+
+				NoRelatedServerFound(int fd);
+				~NoRelatedServerFound() throw() ;
 		};
 };
 

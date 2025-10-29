@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 16:47:21 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/27 17:28:18 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/28 18:13:25 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,7 @@ int main(int ac, char **av) {
 	for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); it++)
 		it->setDefaultMapErrorPage(ctx.getMapDefaultErrorPage());
 
-	Server &serv = servers[0];
-
-	if (launchEpoll(serv) == -1)
+	if (launchEpoll(ctx) == -1)
 	{
 		return (1);
 	}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/22 17:01:38 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/29 10:30:08 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 
 # include "Server.hpp"
 # include "FtString.hpp"
+# include "Location.hpp"
+
+class Location;
 
 class Context {
 	private:
@@ -30,7 +33,7 @@ class Context {
 		~Context();
 		
 		//Getter
-		const std::vector<Server>		getServers() const ;
+		std::vector<Server>&			getServers() ;
 		const std::map<int, ErrorPage>&	getMapDefaultErrorPage() const ;
 		
 		//Setter
@@ -41,6 +44,8 @@ class Context {
 		void	parseAndAddServer(std::vector<std::string>::iterator&,
 				const std::vector<std::string>::iterator&, std::map<int, ErrorPage>);
 		void	parseAndSetMapDefaultErrorPage();
+		bool	isListenerFd(int fd) const;
+		Server&	getRelatedServer(int fd);
 };
 
 #endif

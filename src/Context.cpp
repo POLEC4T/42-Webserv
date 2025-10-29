@@ -6,11 +6,11 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/28 13:53:00 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 11:19:48 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "Context.hpp"
+#include "Context.hpp"
 #include "Error.hpp"
 
 Context::Context() {}
@@ -42,7 +42,7 @@ Context&	Context::operator=(const Context& other) {
 }
 
 //Getter
-const std::vector<Server>	Context::getServers() const {
+std::vector<Server>&	Context::getServers() {
 	return _servers;
 }
 
@@ -195,4 +195,32 @@ void	Context::parseAndSetMapDefaultErrorPage() {
 		ErrorPage errorPage(name, content, codes[i]);
 		_mapDefaultErrorPage[codes[i]] = errorPage;
 	}
+}
+
+/**
+ * @return true if fd is one of the listening sockets of any server
+ */
+bool	Context::isListenerFd(int fd) const {
+	std::vector<Server>::const_iterator it;
+	for (it = _servers.begin(); it != _servers.end(); ++it) {
+		if (it->isListener(fd))
+			return (true);
+	}
+	return (false);
+}
+
+/**
+ * This fd must be either a listening socket or a client socket
+ * @throw Error::NoRelatedServersFound if no server is found for this fd
+ */
+Server&	Context::getRelatedServer(int fd) {
+	std::vector<Server>::iterator servIt;
+	std::vector<int> sockfds;
+	std::vector<Client> clients;
+
+	for (servIt = _servers.begin(); servIt < _servers.end(); servIt++) {
+		if (servIt->isClient(fd) || servIt->isListener(fd))
+			return (*servIt);
+	}
+	throw (Error::NoRelatedServerFound(fd));
 }
