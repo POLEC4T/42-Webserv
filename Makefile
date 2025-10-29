@@ -51,6 +51,8 @@ RM = rm -rf
 
 all: $(NAME)
 
+bonus: $(NAME)
+
 $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 	@echo "The program is ready: $(COLOR_GREEN)$(NAME)$(COLOR_END)"

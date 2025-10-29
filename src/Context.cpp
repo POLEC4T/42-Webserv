@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/29 14:56:35 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 16:29:21 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,7 +177,7 @@ void Context::configFileParser(const std::string &fileName,
 }
 
 void	Context::parseAndSetMapDefaultErrorPage() {
-    std::string	fileName = "htmlFiles/errorPages/default/error_";
+    std::string	fileName = "serverData/errorPages/default/error_";
 	std::vector<int>			codes;
 	codes.push_back(BAD_REQUEST);
 	codes.push_back(FORBIDDEN);
