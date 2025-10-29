@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/29 14:54:50 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/29 15:36:34 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,6 @@ class Context {
 
 	public:
 		Context();
-		Context(const Context& cpy);
-		Context& operator=(const Context& other);
 		~Context();
 		
 		//Getter
