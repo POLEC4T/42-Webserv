@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/30 14:45:44 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/30 15:05:39 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,7 @@ std::string MethodExecutor::execute() {
 	std::cout << "URI " << _request.getUri() << std::endl;
 	Location loc = this->getRequestLocation(this->_request, this->_server);
 	if (loc.getCode() == PAGE_NOT_FOUND)
-		return Response(this->_request.getVersion(),
-						this->_server.getErrorPageByCode(PAGE_NOT_FOUND))
+		return Response(this->_request.getVersion(), this->_server.getErrorPageByCode(PAGE_NOT_FOUND))
 			.build();
 	if (returnHandler(this->_response, loc, this->_request, this->_server) == 0)
 		return this->_response.build();
@@ -102,9 +101,7 @@ std::string MethodExecutor::execute() {
 	else if (this->_method == "DELETE" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "DELETE") != loc.getAllowedMethods().end())
 		this->_response = AHttpMethod::DELETE(fileName, this->_request, this->_server);
 	else
-		this->_response =
-			Response(this->_request.getVersion(),
-					this->_server.getErrorPageByCode(METHOD_NOT_ALLOWED));
+		this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(METHOD_NOT_ALLOWED));
 	return this->_response.build();
 }
 
