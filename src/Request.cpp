@@ -3,20 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/29 12:08:10 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:15:30 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "Server.hpp"
 
-Request::Request() :
-_parsedRequestLine(false),
-_parsedHeaders(false),
-_parsedBody(false) {}
+Request::Request()
+	: _parsedRequestLine(false), _parsedHeaders(false), _parsedBody(false) {}
 
 Request::~Request() {}
 
@@ -25,9 +23,9 @@ Request::~Request() {}
  * - No whitespace is allowed between the header field-name and colon : 400
  * - whitespace before and after value : ca degage au parsing
  * -  A server that receives an obs-fold in a request message that is not
-   within a message/http container MUST either reject the message by
-   sending a 400 (Bad Request) (obs-fold ou obselete-folding c'est quand
-   la value est \n, et que la ligne d'apres commence par un espace ou un \t)
+ *   within a message/http container MUST either reject the message by
+ *   sending a 400 (Bad Request) (obs-fold ou obselete-folding c'est quand
+ *   la value est \n, et que la ligne d'apres commence par un espace ou un \t)
  * - est ce qu'on a une taille maximale de ligne ? (key + value)
  * - value: (check RFC 7230: 3.2.6)
  * 		check valid chars
@@ -62,16 +60,17 @@ void Request::parseHeaders(const std::string &req) {
 		if (columnIdx == std::string::npos)
 			throw NoHeaderColumnException();
 
-    FtString key = line.substr(0, columnIdx);
-    FtString value = line.substr(columnIdx + 1, line.size() - (columnIdx + 1));
+		FtString key = line.substr(0, columnIdx);
+		FtString value =
+			line.substr(columnIdx + 1, line.size() - (columnIdx + 1));
 
-    key.ltrim();
-    if (key.empty() || key.endsWith(" "))
-      throw BadHeaderNameException(key);
+		key.ltrim();
+		if (key.empty() || key.endsWith(" "))
+			throw BadHeaderNameException(key);
 
-    value.trim();
-    if (value.empty())
-      throw NoHeaderValueException(key);
+		value.trim();
+		if (value.empty())
+			throw NoHeaderValueException(key);
 
 		_headers[key] = value;
 	}
@@ -94,7 +93,6 @@ void Request::parseBody(const std::string &req, size_t bodyLength) {
 	_parsedBody = true;
 }
 
-
 /**
  * @throws if request line does not end with \r\n
  * @throws if request line starts or ends with space
@@ -107,28 +105,28 @@ void Request::parseRequestLine(const std::string &reqContent) {
 	FtString reqLine;
 	std::getline(reqContentISS, reqLine);
 
-  if (reqLine.find('\r') != reqLine.size() - 1)
-    throw RequestLineException();
-  reqLine.erase(reqLine.end() - 1);
+	if (reqLine.find('\r') != reqLine.size() - 1)
+		throw RequestLineException();
+	reqLine.erase(reqLine.end() - 1);
 
 	if (reqLine.startsOrEndsWith(WHITESPACES))
 		throw RequestLineException();
 
-  size_t firstSpace = reqLine.find(" ");
-  size_t lastSpace = reqLine.rfind(" ");
+	size_t firstSpace = reqLine.find(" ");
+	size_t lastSpace = reqLine.rfind(" ");
 
-  bool hasNotThreeElems = firstSpace == std::string::npos ||
-                          lastSpace == std::string::npos ||
-                          firstSpace == lastSpace;
-  if (hasNotThreeElems)
-    throw RequestLineException();
+	bool hasNotThreeElems = firstSpace == std::string::npos ||
+							lastSpace == std::string::npos ||
+							firstSpace == lastSpace;
+	if (hasNotThreeElems)
+		throw RequestLineException();
 
-  _method = reqLine.substr(0, firstSpace);
-  _uri = reqLine.substr(firstSpace + 1, lastSpace - (firstSpace + 1));
-  _version =
-      reqLine.substr((lastSpace + 1), (reqLine.size()) - (lastSpace + 1));
+	_method = reqLine.substr(0, firstSpace);
+	_uri = reqLine.substr(firstSpace + 1, lastSpace - (firstSpace + 1));
+	_version =
+		reqLine.substr((lastSpace + 1), (reqLine.size()) - (lastSpace + 1));
 
-	if (_uri.size() > MAX_URI_LENGTH) 
+	if (_uri.size() > MAX_URI_LENGTH)
 		throw UriTooLongException();
 	if (_uri.empty() || _uri.find(SP) != std::string::npos)
 		throw RequestLineException();
@@ -138,38 +136,30 @@ void Request::parseRequestLine(const std::string &reqContent) {
 }
 
 void Request::displayRequest() const {
-  std::cout << "Method: '" << _method << "'" << std::endl;
-  std::cout << "URI: '" << _uri << "'" << std::endl;
-  std::cout << "Version: '" << _version << "'" << std::endl;
-  std::cout << "Headers: " << std::endl;
-  for (std::map<std::string, std::string>::const_iterator it = _headers.begin();
-       it != _headers.end(); ++it) {
-    std::cout << "  '" << it->first << "': '" << it->second << "'" << std::endl;
-  }
-  std::cout << "Body: '" << _body << "'" << std::endl;
+	std::cout << "Method: '" << _method << "'" << std::endl;
+	std::cout << "URI: '" << _uri << "'" << std::endl;
+	std::cout << "Version: '" << _version << "'" << std::endl;
+	std::cout << "Headers: " << std::endl;
+	for (std::map<std::string, std::string>::const_iterator it =
+			_headers.begin();
+		 it != _headers.end(); ++it) {
+		std::cout << "  '" << it->first << "': '" << it->second << "'"
+				<< std::endl;
+	}
+	std::cout << "Body: '" << _body << "'" << std::endl;
 }
 
 const std::string &Request::getUri() const { return _uri; }
 
 const std::string &Request::getMethod() const { return _method; }
 
-const std::string&  Request::getVersion() const
-{
-	return _version;
-}
+const std::string &Request::getVersion() const { return _version; }
 
-bool				Request::parsedRequestLine() const {
-	return _parsedRequestLine;
-}
+bool Request::parsedRequestLine() const { return _parsedRequestLine; }
 
-bool				Request::parsedHeaders() const {
-	return _parsedHeaders;	
-}
+bool Request::parsedHeaders() const { return _parsedHeaders; }
 
-bool				Request::parsedBody() const {
-	return _parsedBody;	
-}
-
+bool Request::parsedBody() const { return _parsedBody; }
 
 const std::string&  Request::getBody() const {
 	return _body;

@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 14:09:21 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 14:49:06 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ std::vector<Server>&	Context::getServers() {
 }
 
 const std::map<int, ErrorPage> &Context::getMapDefaultErrorPage() const {
-  return _mapDefaultErrorPage;
+	return _mapDefaultErrorPage;
 }
 
 int	Context::getEpollFd() const {
@@ -43,126 +43,126 @@ void	Context::setEpollFd(int fd) {
 
 // functions
 int getContent(std::string fileName, std::string &content, char separator) {
-  std::string line;
-  size_t i;
-  size_t foundComment;
-  std::ifstream file(fileName.c_str(), std::ios_base::in);
+	std::string line;
+	size_t i;
+	size_t foundComment;
+	std::ifstream file(fileName.c_str(), std::ios_base::in);
 
-  if (!file.is_open())
-    throw(Error::CanNotOpenFile(fileName));
-  while (getline(file, line)) {
-    if (!line.empty()) {
-      for (i = 0; i < line.length() && iswspace(line[i]); i++) {
-      }
-      if (line[i] != '#') {
-        foundComment = line.find('#');
-        if (foundComment != std::string::npos)
-          line.erase(foundComment, line.size());
-        content += line;
-        content += separator;
-      }
-    }
-  }
-  file.close();
-  return 0;
+	if (!file.is_open())
+		throw(Error::CanNotOpenFile(fileName));
+	while (getline(file, line)) {
+		if (!line.empty()) {
+			for (i = 0; i < line.length() && iswspace(line[i]); i++) {
+			}
+			if (line[i] != '#') {
+				foundComment = line.find('#');
+				if (foundComment != std::string::npos)
+					line.erase(foundComment, line.size());
+				content += line;
+				content += separator;
+			}
+		}
+	}
+	file.close();
+	return 0;
 }
 
 void addSpace(std::string &content, char toSeparate) {
-  for (size_t i = 0; i < content.length(); ++i) {
-    if (content[i] == toSeparate) {
-      content.insert(i, " ");
-      ++i;
-    }
-  }
+	for (size_t i = 0; i < content.length(); ++i) {
+		if (content[i] == toSeparate) {
+			content.insert(i, " ");
+			++i;
+		}
+	}
 }
 
 void Context::parseAndAddServer(std::vector<std::string>::iterator &it,
-                                const std::vector<std::string>::iterator &itEnd,
-                                std::map<int, ErrorPage> errorPages) {
-  int isClosed = 0;
-  Server newServer(errorPages);
+								const std::vector<std::string>::iterator &itEnd,
+								std::map<int, ErrorPage> errorPages) {
+	int isClosed = 0;
+	Server newServer(errorPages);
 
-  while (it != itEnd) {
-    if (*it == "{")
-      isClosed++;
-    else if (*it == "}")
-      isClosed--;
-    else if (*it == "host") {
-      ++it;
-      if (it != itEnd) {
-        newServer.setHost(*it);
-      }
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "port") {
-      ++it;
-      while (it != itEnd && *it != ";") {
-        newServer.addPort(*it);
-        ++it;
-      }
-      if (it == itEnd || *it != ";")
-        throw(Error::DidNotFindSemicolon(*(it - 1)));
-    } else if (*it == "client_max_body_size") {
-      ++it;
-      if (it != itEnd)
-        newServer.setClientMaxBodySize(*it);
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "timed_out") {
-      ++it;
-      if (it != itEnd)
-        newServer.setTimeOut(*it);
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "server_name") {
-      ++it;
-      while (it != itEnd && *it != ";") {
-        newServer.addName(*it);
-        ++it;
-      }
-      if (it == itEnd || *it != ";")
-        throw(Error::DidNotFindSemicolon(*(it - 1)));
-    } else if (*it == "error_page") {
-      if ((it + 1) != itEnd && (it + 2) != itEnd) {
-        newServer.addErrorPage(*(it + 1), *(it + 2));
-        it += 2;
-      }
-      if ((it + 1) == itEnd || *(it + 1) != ";")
-        throw(Error::DidNotFindSemicolon(*it));
-    } else if (*it == "location") {
-      ++it;
-      if (it != itEnd)
-        newServer.parseAndAddLocation(it, itEnd);
-    } else if (*it != ";")
-      throw(Error::UnknownToken(*it));
-    if (isClosed == 0)
-      break;
-    ++it;
-  }
-  if (isClosed != 0)
-    throw(Error::ErrorBracketParseFile());
-  addServer(newServer);
+	while (it != itEnd) {
+		if (*it == "{")
+			isClosed++;
+		else if (*it == "}")
+			isClosed--;
+		else if (*it == "host") {
+			++it;
+			if (it != itEnd) {
+				newServer.setHost(*it);
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it == "port") {
+			++it;
+			while (it != itEnd && *it != ";") {
+				newServer.addPort(*it);
+				++it;
+			}
+			if (it == itEnd || *it != ";")
+				throw(Error::DidNotFindSemicolon(*(it - 1)));
+		} else if (*it == "client_max_body_size") {
+			++it;
+			if (it != itEnd)
+				newServer.setClientMaxBodySize(*it);
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it == "timed_out") {
+			++it;
+			if (it != itEnd)
+				newServer.setTimeOut(*it);
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it == "server_name") {
+			++it;
+			while (it != itEnd && *it != ";") {
+				newServer.addName(*it);
+				++it;
+			}
+			if (it == itEnd || *it != ";")
+				throw(Error::DidNotFindSemicolon(*(it - 1)));
+		} else if (*it == "error_page") {
+			if ((it + 1) != itEnd && (it + 2) != itEnd) {
+				newServer.addErrorPage(*(it + 1), *(it + 2));
+				it += 2;
+			}
+			if ((it + 1) == itEnd || *(it + 1) != ";")
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it == "location") {
+			++it;
+			if (it != itEnd)
+				newServer.parseAndAddLocation(it, itEnd);
+		} else if (*it != ";")
+			throw(Error::UnknownToken(*it));
+		if (isClosed == 0)
+			break;
+		++it;
+	}
+	if (isClosed != 0)
+		throw(Error::ErrorBracketParseFile());
+	addServer(newServer);
 }
 
 void Context::configFileParser(const std::string &fileName,
-                               std::map<int, ErrorPage> errorPages) {
-  FtString content;
-  std::vector<std::string> tokens;
+							std::map<int, ErrorPage> errorPages) {
+	FtString content;
+	std::vector<std::string> tokens;
 
-  getContent(fileName, content, ' ');
-  addSpace(content, ';');
-  tokens = content.ft_split(" \n\b\t\r\v\f");
-  for (std::vector<std::string>::iterator it = tokens.begin();
-       it != tokens.end(); it++) {
-    if (*it == "server")
-      parseAndAddServer(++it, tokens.end(), errorPages);
-  }
-  if (_servers.empty())
-    throw(Error::NoServerInConfigFile());
+	getContent(fileName, content, ' ');
+	addSpace(content, ';');
+	tokens = content.ft_split(" \n\b\t\r\v\f");
+	for (std::vector<std::string>::iterator it = tokens.begin();
+		it != tokens.end(); it++) {
+		if (*it == "server")
+			parseAndAddServer(++it, tokens.end(), errorPages);
+	}
+	if (_servers.empty())
+		throw(Error::NoServerInConfigFile());
 }
 
 void	Context::parseAndSetMapDefaultErrorPage() {
-    std::string	fileName = "htmlFiles/errorPages/default/error_";
+    std::string	fileName = "serverData/errorPages/default/error_";
 	std::vector<int>			codes;
 	codes.push_back(BAD_REQUEST);
 	codes.push_back(FORBIDDEN);

@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 14:09:38 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 14:49:15 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,7 +223,7 @@ static int addClient(Server &server, int servfd, int epollfd) {
 		close(clientfd);
 		return (EXIT_FAILURE);
 	}
-	
+
 	Client cl(clientfd);
 	server.addClient(cl);
 	if (PRINT)

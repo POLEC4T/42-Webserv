@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:34:04 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/29 13:23:03 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:41:49 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,11 @@ public:
 
 			NoRelatedServerFound(int fd);
 			~NoRelatedServerFound() throw() ;
+	};
+
+	class CgiValuesError: public std::exception {
+		public:
+			const char *what() const throw();
 	};
 };
 

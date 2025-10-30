@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 14:43:46 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 14:49:03 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ _maxBodySize(0),
 _contentLength(0)
 {};
 
-Client::~Client() {};
+Client::~Client(){};
 
 int 	Client::getFd() const {
 	return (_fd);
@@ -98,9 +98,8 @@ bool Client::receivedHeaders() const {
  * location, in the config file (out of a location scope), or the
  * default for a server: 1MB
  */
-long long getMaxBodySize(const Location& loc, const Server& serv)
-{
-	long long	defaultV = ONE_MB;
+long long getMaxBodySize(const Location &loc, const Server &serv) {
+	long long defaultV = ONE_MB;
 	if (loc.getClientMaxBodySize() != -1)
 		return loc.getClientMaxBodySize();
 	if (serv.getClientMaxBodySize() != -1)
@@ -303,7 +302,8 @@ void Client::parsePacket(Server& serv) {
 
 /**
  * @return true if the body has been completely received.
- * @note checks from the end of headers ("\r\n\r\n") to contentLength bytes have been received
+ * @note checks from the end of headers ("\r\n\r\n") to contentLength bytes have
+ * been received
  */
 bool Client::receivedBody(size_t contentLength) const {
 	size_t crlfPos = _recvBuffer.find("\r\n\r\n");
@@ -315,7 +315,7 @@ bool Client::receivedBody(size_t contentLength) const {
 	if (bodySize < contentLength)
 		return (false);
 
-  return (true);
+	return (true);
 }
 
 /**
@@ -334,12 +334,11 @@ void Client::resetForNextRequest() {
 	_contentLength = 0;
 }
 
-Request& Client::getRequest() {
-	return _request;
-}
+Request &Client::getRequest() { return _request; }
 
 /**
- * @brief Sends to the client (in multiple parts if needed) the pending response queued in _sendBuffer.
+ * @brief Sends to the client (in multiple parts if needed) the pending response
+ * queued in _sendBuffer.
  */
 int Client::sendPendingResponse(int epollfd) {
 	

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:37:50 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/29 12:02:06 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:12:44 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,28 +18,28 @@
 
 class Response {
 private:
-  std::string _version;
-  int _code;
-  std::string _status;
-  std::map<std::string, std::string> _headers;
-  std::string _body;
+	std::string _version;
+	int _code;
+	std::string _status;
+	std::map<std::string, std::string> _headers;
+	std::string _body;
 
 public:
-  Response();
-  Response(std::string, ErrorPage &);
-  Response(std::string, ErrorPage &, std::string);
-  Response(std::string, int, std::string, std::string);
-  Response &operator=(const Response &other);
-  ~Response();
-  std::string build();
-  void setBody(const std::string &body);
-  void setHeader(const std::string &key, const std::string &value);
+	Response();
+	Response(std::string, ErrorPage &);
+	Response(std::string, ErrorPage &, std::string);
+	Response(std::string, int, std::string, std::string);
+	Response &operator=(const Response &other);
+	~Response();
+	std::string build();
+	void setBody(const std::string &body);
+	void setHeader(const std::string &key, const std::string &value);
 
-  std::string getVersion() const;
-  int getCode() const;
-  std::string getStatus() const;
-  std::string getBody() const;
-  std::map<std::string, std::string> getHeaders() const;
+	std::string getVersion() const;
+	int getCode() const;
+	std::string getStatus() const;
+	std::string getBody() const;
+	std::map<std::string, std::string> getHeaders() const;
 };
 
 #endif

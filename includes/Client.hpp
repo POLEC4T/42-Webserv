@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 12:13:57 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 14:48:39 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,8 @@ class Client {
 		t_client_status		getStatus() const;
 		const std::string&	getRecvBuffer() const;
 
-		void				setStatus(t_client_status status);
-		void				setSendBuffer(const std::string& buf);
+	void setStatus(t_client_status status);
+	void setSendBuffer(const std::string &buf);
 
 		bool				receivedRequestLine() const;
 		bool				receivedHeaders() const;
