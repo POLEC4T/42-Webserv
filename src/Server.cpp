@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:52:06 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 13:10:41 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,14 +49,14 @@ Server &Server::operator=(const Server &other) {
 Server::~Server() {
 	deleteAllClients();
 	std::vector<int>::iterator it;
-	for(it = _sockfds.begin(); it != _sockfds.end(); ++it) {
+	for (it = _sockfds.begin(); it != _sockfds.end(); ++it) {
 		if (PRINT)
 			std::cout << "close() server fd " << *it << std::endl;
 		close(*it);
 	}
 }
 
-//constructor with assignment values
+// constructor with assignment values
 Server::Server(std::map<int, ErrorPage> errorPages) {
 	_clientMaxBodySize = -1;
 	_mapDefaultErrorPage = errorPages;
@@ -129,8 +129,28 @@ APage &Server::getLocationByName(const std::string &name) {
 	return it->second;
 }
 
-void Server::addErrorPage(const ErrorPage &errorPage) {
-	_mapErrorPage.insert(std::make_pair(errorPage.getCode(), errorPage));
+int getContentWithHastag(std::string fileName, std::string &content, char separator) {
+	std::string line;
+	std::ifstream file(fileName.c_str(), std::ios_base::in);
+
+	if (!file.is_open())
+		throw(Error::CanNotOpenFile(fileName));
+	while (getline(file, line)) {
+		if (!line.empty()) {
+				content += line;
+				content += separator;
+			}
+		}
+	file.close();
+	return 0;
+}
+
+
+void Server::addErrorPage(ErrorPage &errorPage) {
+	std::string content;
+	getContentWithHastag(errorPage.getRoot(), content, ' ');
+	errorPage.setContent(content);
+	_mapErrorPage[errorPage.getCode()] = errorPage;
 }
 
 ErrorPage &Server::getErrorPageByCode(const int code) {
@@ -160,14 +180,14 @@ Client &Server::getClient(int fd) { return (_mapClients[fd]); }
  * The warning should never happen, but just in case
  */
 void Server::addClient(const Client &client) {
-  if (_mapClients.find(client.getFd()) != _mapClients.end()) {
-    if (PRINT) {
-      std::cout << "Warning: client with fd " << client.getFd()
-				<< " already exists, overwriting it" << std::endl;
+	if (_mapClients.find(client.getFd()) != _mapClients.end()) {
+		if (PRINT) {
+			std::cout << "Warning: client with fd " << client.getFd()
+					<< " already exists, overwriting it" << std::endl;
+		}
+		deleteClient(client.getFd());
 	}
-    deleteClient(client.getFd());
-  }
-  _mapClients[client.getFd()] = client;
+	_mapClients[client.getFd()] = client;
 }
 
 void Server::deleteAllClients() {
@@ -189,23 +209,21 @@ void Server::deleteClient(int fd) {
 		_mapClients.erase(fd);
 	} else {
 		if (PRINT)
-			std::cout << "Warning: trying to delete non-existing client with fd " << fd << std::endl;
+			std::cout
+				<< "Warning: trying to delete non-existing client with fd "
+				<< fd << std::endl;
 	}
 }
 
-void	Server::addSockfd(int fd) {
-	_sockfds.push_back(fd);
-}
+void Server::addSockfd(int fd) { _sockfds.push_back(fd); }
 
-const std::vector<int>&	Server::getSockfds() const {
-	return _sockfds;
-}
+const std::vector<int> &Server::getSockfds() const { return _sockfds; }
 
-bool		Server::isClient(int fd) const {
+bool Server::isClient(int fd) const {
 	return (_mapClients.find(fd) != _mapClients.end());
 }
 
-bool		Server::isListener(int fd) const {
+bool Server::isListener(int fd) const {
 	return (std::find(_sockfds.begin(), _sockfds.end(), fd) != _sockfds.end());
 }
 
@@ -272,11 +290,11 @@ void Server::parseAndAddLocation(
 				throw(Error::DidNotFindSemicolon(*it));
 		} else if (*it == "cgi") {
 			it++;
-			if (it != itEnd && *it != ";" && (it + 1) != itEnd && *(it + 1) != ";") {
+			if (it != itEnd && *it != ";" && (it + 1) != itEnd &&
+				*(it + 1) != ";") {
 				newLocation.addCgi(*it, *(it + 1));
 				++it;
-			}
-			else
+			} else
 				throw(Error::CgiValuesError());
 		} else if (*it == "client_max_body_size") {
 			it++;

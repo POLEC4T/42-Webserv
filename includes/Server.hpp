@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:17:58 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 13:04:15 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ class	Server {
 		void		setDefaultMapErrorPage(const std::map<int, ErrorPage>&);
 
 		void					addLocation(const Location &);
-		void					addErrorPage(const ErrorPage &);
+		void					addErrorPage(ErrorPage &);
 		void					addErrorPage(const std::string &code, const std::string &root);
 		Client&					getClient(int fd);
 		void					addClient(const Client &);
