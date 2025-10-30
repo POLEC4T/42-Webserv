@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/30 11:26:05 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:26:51 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -283,5 +283,5 @@ std::string CGIHandler(Request &req, Location &loc, Server &serv,
 						serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
 			.build();
 	}
-	return Response(req.getVersion(), OK, "OK", content).build();
+	return content;
 }
