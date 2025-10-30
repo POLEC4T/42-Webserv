@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 13:10:41 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 13:18:35 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ int getContentWithHastag(std::string fileName, std::string &content, char separa
 	std::ifstream file(fileName.c_str(), std::ios_base::in);
 
 	if (!file.is_open())
-		throw(Error::CanNotOpenFile(fileName));
+		return 0;
 	while (getline(file, line)) {
 		if (!line.empty()) {
 				content += line;
@@ -155,7 +155,7 @@ void Server::addErrorPage(ErrorPage &errorPage) {
 
 ErrorPage &Server::getErrorPageByCode(const int code) {
 	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
-	if (it == _mapErrorPage.end()) {
+	if (it == _mapErrorPage.end() || it->second.getContent().empty()) {
 		return _mapDefaultErrorPage.find(code)->second;
 	}
 	return it->second;
