@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/29 18:55:13 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 13:52:22 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,7 +196,7 @@ int executeChild(t_CGIContext ctx) {
 	if (dup2(ctx.pipeFdIn[0], STDIN_FILENO) == -1) {
 		freeCGIContext(ctx);
 		std::cerr << "CGI: dup2 pipeFdIn[0] error" << std::endl;
-		std::exit(1);
+		std::exit(1); // todo ca free ?
 	}
 	if (dup2(ctx.pipeFdOut[1], STDOUT_FILENO) == -1 /*|| dup2(ctx.pipeFdOut[1], STDERR_FILENO) == -1*/) {
 		std::cerr << "CGI: dup2 pipeFdOut[1] error" << std::endl;

@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 16:47:21 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/29 17:44:24 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 13:31:33 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "epoll.hpp"
 
 int main(int ac, char **av) {
-  Context ctx;
+	Context ctx;
 
 	if (ac != 2)
 	{
@@ -43,14 +43,10 @@ int main(int ac, char **av) {
 		return 1;
 	}
 
-  std::vector<Server> servers = ctx.getServers();
-  for (std::vector<Server>::iterator it = servers.begin(); it != servers.end();
-       it++)
-    it->setDefaultMapErrorPage(ctx.getMapDefaultErrorPage());
+	std::vector<Server> servers = ctx.getServers();
+	std::vector<Server>::iterator it;
+	for (it = servers.begin(); it != servers.end(); it++)
+		it->setDefaultMapErrorPage(ctx.getMapDefaultErrorPage());
 
-	if (launchEpoll(ctx) == -1)
-	{
-		return (1);
-	}
-	return 0;
+	return (launchEpoll(ctx) == EXIT_FAILURE);
 }

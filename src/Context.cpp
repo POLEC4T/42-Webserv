@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/29 15:24:50 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 14:09:21 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,11 @@ std::vector<Server>&	Context::getServers() {
 const std::map<int, ErrorPage> &Context::getMapDefaultErrorPage() const {
   return _mapDefaultErrorPage;
 }
+
+int	Context::getEpollFd() const {
+	return _epollfd;
+}
+
 // Setter
 void Context::addServer(const Server &server) { _servers.push_back(server); }
 

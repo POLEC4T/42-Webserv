@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/29 17:50:02 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 14:43:46 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ long long getMaxBodySize(const Location& loc, const Server& serv)
  * @throws if Content-Length is not a number
  * @throws if Content-Length is larger than the allowed max body size
  */
-size_t Client::checkAndGetContentLength(const std::string& contentLengthStr) {
+size_t Client::_checkAndGetContentLength(const std::string& contentLengthStr) {
 	if (contentLengthStr.find_first_not_of("0123456789") != std::string::npos)
 		throw BadHeaderValueException(contentLengthStr);
 	_contentLength = std::strtoll(contentLengthStr.c_str(), NULL, 10);
@@ -129,11 +129,16 @@ size_t Client::checkAndGetContentLength(const std::string& contentLengthStr) {
 	return _contentLength;
 }
 
+/**
+ * @throws MalformedChunkException
+ * @return size_t value of a hexadecimal string
+ */
 size_t ft_atoi_hexa(const std::string& str) {
 	std::istringstream iss(str);
 	size_t res;
 	iss >> std::hex >> res;
 	if (iss.fail() || !iss.eof()) {
+		std::cout << "Invalid chunk size: " << str << std::endl;
 		throw MalformedChunkException();
 	}
 	return res;
@@ -142,67 +147,108 @@ size_t ft_atoi_hexa(const std::string& str) {
 /**
  * @throws MalformedChunkException
  * @return true if the full body has been received
+ * 
+ * @example chunked body:
+ * 5\r\n		-> chunk size line
+ * Hello\r\n 	-> chunk data line
+ * 7\r\n
+ * , World\r\n
+ * 0\r\n
+ * \r\n
  */
 bool Client::unchunkBody(const std::string& chunks) {
 	size_t pos = 0;
-	size_t startline;
 	
 	while (1) {
 		if (_currChunkPart == SIZE) {
-			startline = _parsedChunksIdx;
-			pos = chunks.find("\r\n", _parsedChunksIdx);
-			if (pos == std::string::npos) {
-				std::cerr << "Expected CRLF after chunk size" << std::endl;
-				return false;
-			}
-
-			FtString chunkSizeStr = chunks.substr(startline, pos - startline);
-			size_t semi = chunks.find(';', startline);
-			if (semi != std::string::npos)
-				chunkSizeStr = chunkSizeStr.substr(0, semi);
-			chunkSizeStr.trim();
-
-			if (chunkSizeStr.empty())
-				throw MalformedChunkException();
-
-			_currChunkSize = ft_atoi_hexa(chunkSizeStr);
-
-			if (_currChunkSize == 0)
-			{
-				if (chunks.find("\r\n\r\n", pos) == std::string::npos) {
-					std::cerr << "Expected double CRLF after final zero" << std::endl;
-					return false;
-				}
-				// todo : handle trailers
-				return true;
-			}
-			else if ((long long)(_request.getBody().size() + _currChunkSize) > _maxBodySize) {
-				throw ContentTooLargeException();
-            }
-			pos += CRLF_SIZE; // CRLF of the end of chunk size no need to check its presence as we found it before
-			_parsedChunksIdx = pos;
-			_currChunkPart = DATA;
+			t_chunk_state state = _parseChunkSize(chunks, pos);
+			if (state == CHUNK_FINAL_COMPLETE)
+				return (true);
+			if (state == CHUNK_INCOMPLETE)
+				return (false);
 		}
 
 		if (_currChunkPart == DATA) {
-			pos = _parsedChunksIdx;
-			if (pos + _currChunkSize > chunks.size()) {
-				std::cerr << "Expected more chunk data" << std::endl;
-				return false;
-			}
-			
-			if (chunks.substr(pos + _currChunkSize, CRLF_SIZE) != "\r\n") {
-				std::cerr << "Expected CRLF after chunk data" << std::endl;
-				return false;
-			}
-			_request.appendBody(chunks.substr(pos, _currChunkSize));
-			pos += (_currChunkSize + CRLF_SIZE);
-			_parsedChunksIdx = pos;
-			_currChunkPart = SIZE;
+			if (_parseChunkData(chunks, pos) == CHUNK_INCOMPLETE)
+				return (false);
 		}
 	}
 
 	return (true);
+}
+
+/**
+ * @throws MalformedChunkException
+ * @throws ContentTooLargeException
+ * @return true if the full body has been received
+ * 
+ */
+Client::t_chunk_state Client::_parseChunkSize(const std::string& chunks, size_t& pos)
+{
+	size_t startline;
+
+	startline = _parsedChunksIdx;
+	pos = chunks.find("\r\n", _parsedChunksIdx);
+	if (pos == std::string::npos) {
+		if (PRINT)
+			std::cout << "Expected CRLF after chunk size" << std::endl;
+		return CHUNK_INCOMPLETE;
+	}
+
+	FtString chunkSizeStr = chunks.substr(startline, pos - startline);
+	size_t semi = chunkSizeStr.find(';', startline);
+	if (semi != std::string::npos)
+		chunkSizeStr = chunkSizeStr.substr(0, semi);
+	chunkSizeStr.trim();
+
+	if (chunkSizeStr.empty()) {
+		std::cout << "Chunk size line is empty" << std::endl;
+		throw MalformedChunkException();
+	}
+
+	_currChunkSize = ft_atoi_hexa(chunkSizeStr);
+
+	if (_currChunkSize == 0)
+	{
+		if (chunks.compare(pos, CRLF_SIZE * 2, "\r\n\r\n") != 0) {
+			if (PRINT)
+				std::cout << "Expected double CRLF after final zero" << std::endl;
+			return CHUNK_INCOMPLETE;
+		}
+		return CHUNK_FINAL_COMPLETE;
+	}
+	else if ((long long)(_request.getBody().size() + _currChunkSize) > _maxBodySize) {
+		throw ContentTooLargeException();
+	}
+	pos += CRLF_SIZE; // CRLF of the end of chunk size no need to check its presence as we found it before
+	_parsedChunksIdx = pos;
+	_currChunkPart = DATA;
+	return CHUNK_COMPLETE;
+	
+}
+
+/**
+ * @return CHUNK_COMPLETE if full chunk data line has been received
+ */
+Client::t_chunk_state Client::_parseChunkData(const std::string& chunks, size_t& pos)
+{
+	pos = _parsedChunksIdx;
+	if (pos + _currChunkSize > chunks.size()) {
+		if (PRINT)
+			std::cout << "Expected more chunk data" << std::endl;
+		return CHUNK_INCOMPLETE;
+	}
+
+	if (chunks.substr(pos + _currChunkSize, CRLF_SIZE) != "\r\n") {
+		if (PRINT)
+			std::cout << "Expected CRLF after chunk data" << std::endl;
+		return CHUNK_INCOMPLETE;
+	}
+	_request.appendBody(chunks.substr(pos, _currChunkSize));
+	pos += (_currChunkSize + CRLF_SIZE);
+	_parsedChunksIdx = pos;
+	_currChunkPart = SIZE;
+	return CHUNK_COMPLETE;
 }
 
 /**
@@ -223,24 +269,22 @@ void Client::parsePacket(Server& serv) {
 		return;
 	if (!_request.parsedHeaders()) {
 		_request.parseHeaders(_recvBuffer);
-		
 		_maxBodySize = getMaxBodySize(MethodExecutor::getRequestLocation(_request, serv), serv);
-			
 		contentLengthStr = _request.getHeaderValue("Content-Length");
 		transferEncodingStr = _request.getHeaderValue("Transfer-Encoding");
 		if (!contentLengthStr.empty() && !transferEncodingStr.empty()) {
 			throw TransferEncodingAndContentLengthException();
-		}
-		else if (contentLengthStr.empty() && transferEncodingStr.empty()) {
+		} else if (contentLengthStr.empty() && transferEncodingStr.empty()) {
 			_status = READY;
 			return;
 		} else if (!contentLengthStr.empty()) {
-			_contentLength = checkAndGetContentLength(contentLengthStr);
+			_contentLength = _checkAndGetContentLength(contentLengthStr);
 		} else /* if (!transferEncodingStr.empty()) */ {
 			if (transferEncodingStr != "chunked")
 				throw TransferCodingNotImplemented(transferEncodingStr);
 		}
 	}
+	// get to this line means either Content-Length or Transfer-Encoding: chunked is present
 	
 	size_t startBody = _recvBuffer.find("\r\n\r\n") + 4;
 	if (!contentLengthStr.empty()) {
@@ -312,7 +356,8 @@ int Client::sendPendingResponse(int epollfd) {
 	_sentIdx += sentlen;
 
 	if (_sentIdx >= _sendBuffer.size()) {
-		std::cerr << "_sendBuffer completely sent" << std::endl;
+		if (PRINT)
+			std::cout << "_sendBuffer completely sent" << std::endl;
 		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN, _fd) == -1) {
 			return (EXIT_FAILURE);
 		}

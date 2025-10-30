@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/29 13:30:11 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 12:13:57 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,15 @@ class Client {
 		 * due to lack of data. So that we can resume properly.
 		 */
 		typedef enum e_current_chunk_part {
-			SIZE,
-			DATA
+			SIZE,	// Reading chunk size line
+			DATA	// Reading chunk data line
 		} t_current_chunk_part;
+
+		typedef enum e_chunk_state {
+			CHUNK_INCOMPLETE,		// Need more data to proceed
+			CHUNK_COMPLETE,			// Chunk part (size or data) complete
+			CHUNK_FINAL_COMPLETE	// Parsed final zero-size chunk, all done
+		} t_chunk_state;
 
 		Request					_request;
 		std::string				_recvBuffer;
@@ -50,8 +56,9 @@ class Client {
 		size_t					_currChunkSize;
 		long long				_maxBodySize;
 		long long				_contentLength;
-		size_t					checkAndGetContentLength(const std::string& contentLengthStr);
-		
+		size_t					_checkAndGetContentLength(const std::string& contentLengthStr);
+		t_chunk_state			_parseChunkData(const std::string& chunks, size_t& pos);
+		t_chunk_state			_parseChunkSize(const std::string& chunks, size_t& pos);
 
 	public:
 		Client();
