@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 // ---- CGI response ----
-echo "Status: 200 OK\r\n";
+echo "HTTP/1.1 200 OK\r\n";
 echo "Content-Type: text/html; charset=UTF-8\r\n";
 echo "\r\n"; // Ligne vide obligatoire entre headers et body
 

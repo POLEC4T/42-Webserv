@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:02:39 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:55:50 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,7 @@ Location::Location() : APage(200) {
 Location::Location(const Location &cpy) : APage(cpy) {
 	_autoIndex = cpy._autoIndex;
 	_index = cpy._index;
-	_cgiExtension = cpy._cgiExtension;
-	_cgiPath = cpy._cgiPath;
+	_cgi = cpy._cgi;
 	_return = cpy._return;
 	_uploadPath = cpy._uploadPath;
 	_clientMaxBodySize = cpy._clientMaxBodySize;
@@ -37,8 +36,7 @@ Location &Location::operator=(const Location &other) {
 		this->_content = other._content;
 		this->_code = other._code;
 		this->_return = other._return;
-		this->_cgiExtension = other._cgiExtension;
-		this->_cgiPath = other._cgiPath;
+		this->_cgi = other._cgi;
 		this->_allowedMethods.clear();
 		this->_allowedMethods = other._allowedMethods;
 		this->_index.clear();
@@ -67,11 +65,9 @@ Location::Location(std::string name, std::string root, std::string content,
 
 void Location::setAutoIndex(const bool b) { _autoIndex = b; }
 
-void Location::setCgiExtension(const std::string &cgiExtension) {
-	_cgiExtension = cgiExtension;
+void Location::addCgi(const std::string &extension, const std::string &path) {
+	_cgi[extension] = path;
 }
-
-void Location::setCgiPath(const std::string &cgiPath) { _cgiPath = cgiPath; }
 
 void Location::setClientMaxBodySize(size_t clientMaxBodySize) {
 	_clientMaxBodySize = clientMaxBodySize;
@@ -103,9 +99,13 @@ bool Location::getAutoIndex() { return _autoIndex; }
 
 const std::vector<std::string> Location::getIndex() { return _index; }
 
-const std::string &Location::getCgiExtension() { return _cgiExtension; }
-
-const std::string &Location::getCgiPath() { return _cgiPath; }
+const std::string &Location::getCgiByExtension(const std::string& extension) const {
+	static const std::string empty;
+	std::map<std::string, std::string>::const_iterator it = _cgi.find(extension);
+	if (it == _cgi.end())
+		return empty;
+	return it->second;
+}
 
 long long Location::getClientMaxBodySize() const { return _clientMaxBodySize; }
 
@@ -116,13 +116,6 @@ const std::string &Location::getReturn() { return _return; }
 const std::vector<std::string> &Location::getAllowedMethods() const {
 	return _allowedMethods;
 }
-
-// Vector functions
-
-// void    Location::pushMethod(AHttpMethod* method) {
-// 	if (method)
-// 		_allowedMethods.push_back(method);
-// }
 
 void Location::addIndex(const std::string &index) { _index.push_back(index); }
 

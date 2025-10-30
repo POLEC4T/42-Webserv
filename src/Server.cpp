@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:21:59 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:52:06 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,20 +270,14 @@ void Server::parseAndAddLocation(
 			}
 			if ((it + 1) == itEnd || *(it + 1) != ";")
 				throw(Error::DidNotFindSemicolon(*it));
-		} else if (*it == "cgi_extension") {
+		} else if (*it == "cgi") {
 			it++;
-			if (it != itEnd) {
-				newLocation.setCgiExtension(*it);
+			if (it != itEnd && *it != ";" && (it + 1) != itEnd && *(it + 1) != ";") {
+				newLocation.addCgi(*it, *(it + 1));
+				++it;
 			}
-			if ((it + 1) == itEnd || *(it + 1) != ";")
-				throw(Error::DidNotFindSemicolon(*it));
-		} else if (*it == "cgi_path") {
-			it++;
-			if (it != itEnd) {
-				newLocation.setCgiPath(*it);
-			}
-			if ((it + 1) == itEnd || *(it + 1) != ";")
-				throw(Error::DidNotFindSemicolon(*it));
+			else
+				throw(Error::CgiValuesError());
 		} else if (*it == "client_max_body_size") {
 			it++;
 			if (it != itEnd) {

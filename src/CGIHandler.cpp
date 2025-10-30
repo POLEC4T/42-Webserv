@@ -6,19 +6,20 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/30 11:26:51 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 12:20:09 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
 #include <ctime>
-#include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #define TIMEDOUT 1
 
 typedef struct s_CGIContext {
+	std::string cgiPath;
 	char **env;
 	char **args;
 	int pipeFdIn[2];
@@ -28,22 +29,28 @@ typedef struct s_CGIContext {
 	int timedOut;
 } t_CGIContext;
 
-bool isCGI(Request &req, Location &loc) {
+std::string getCgiExtensionInUri(Request &req) {
 	FtString token = req.getUri();
-	std::string method = req.getMethod();
-
-	if (method != "POST" && method != "GET")
-		return false;
-	if (loc.getCgiExtension().empty() || loc.getCgiPath().empty())
-		return false;
 	std::vector<std::string> parts = token.ft_split("?");
 	const std::string &pathOnly = parts.size() > 0 ? parts[0] : std::string();
 	size_t extensionIndex = pathOnly.find('.');
+
 	if (extensionIndex == std::string::npos)
-		return false;
+		return "";
 	std::string extension =
 		pathOnly.substr(extensionIndex, pathOnly.size() - extensionIndex);
-	if (extension == loc.getCgiExtension())
+	return extension;
+}
+
+bool isCGI(Request &req, Location &loc) {
+	std::string method = req.getMethod();
+	std::string extension = getCgiExtensionInUri(req);
+
+	if (extension.empty())
+		return false;
+	if (method != "POST" && method != "GET")
+		return false;
+	if (!loc.getCgiByExtension(extension).empty())
 		return true;
 	return false;
 }
@@ -84,7 +91,7 @@ void ftClose(int *fd) {
 }
 
 std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
-								Request &req, Server &serv) {
+								   Request &req, Server &serv) {
 	std::vector<std::string> env;
 
 	if (tokens.size() == 2)
@@ -94,7 +101,8 @@ std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
 	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	env.push_back("CONTENT_TYPE=" + req.getHeaderValue("Content-Type"));
-	env.push_back("CONTENT_LENGTH=" + FtString::my_to_string(req.getBody().size()));
+	env.push_back("CONTENT_LENGTH=" +
+				  FtString::my_to_string(req.getBody().size()));
 	env.push_back("_SESSION=");
 	env.push_back("REMOTE_ADDR" + serv.getHost());
 	env.push_back("SERVER_NAME=" + serv.getNames()[0]);
@@ -104,16 +112,29 @@ std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
 	return (env);
 }
 
+void initCGIContext(t_CGIContext &ctx) {
+	ctx.args = NULL;
+	ctx.env = NULL;
+	ctx.pipeFdIn[0] = -1;
+	ctx.pipeFdIn[1] = -1;
+	ctx.pipeFdOut[0] = -1;
+	ctx.pipeFdOut[1] = -1;
+	ctx.status = 0;
+	ctx.timedOut = 0;
+}
+
 int getContext(t_CGIContext &ctx, Location &loc, Request &req, Server &serv) {
 	std::vector<std::string> envVec;
 	std::vector<std::string> argsVec;
 	std::vector<std::string> tokens;
 	FtString token;
 
+	initCGIContext(ctx);
+	ctx.cgiPath = loc.getCgiByExtension(getCgiExtensionInUri(req));
 	token = req.getUri();
 	tokens = token.ft_split("?");
 	envVec = setEnvCGI(tokens, req, serv);
-	argsVec.push_back(loc.getCgiPath());
+	argsVec.push_back(ctx.cgiPath);
 	argsVec.push_back(loc.getRoot() + tokens[0]);
 	ctx.env = vectorToCharArray(envVec);
 	if (!ctx.env)
@@ -126,15 +147,12 @@ int getContext(t_CGIContext &ctx, Location &loc, Request &req, Server &serv) {
 	return (EXIT_SUCCESS);
 }
 
-void initCGIContext(t_CGIContext &ctx) {
-	ctx.args = NULL;
-	ctx.env = NULL;
-	ctx.pipeFdIn[0] = -1;
-	ctx.pipeFdIn[1] = -1;
-	ctx.pipeFdOut[0] = -1;
-	ctx.pipeFdOut[1] = -1;
-	ctx.status = 0;
-	ctx.timedOut = 0;
+int initCgiPipes(t_CGIContext &ctx) {
+	if (pipe(ctx.pipeFdOut) || pipe(ctx.pipeFdIn))
+		return EXIT_FAILURE;
+	if (fcntl(ctx.pipeFdOut[0], F_SETFL, O_NONBLOCK) == -1)
+		return EXIT_FAILURE;
+	return EXIT_SUCCESS;
 }
 
 void closeFdOfContext(t_CGIContext &ctx) {
@@ -219,37 +237,33 @@ std::string CGIHandler(Request &req, Location &loc, Server &serv,
 	std::string scriptPath =
 		uriParts.size() ? loc.getRoot() + uriParts[0] : std::string();
 
-	initCGIContext(ctx);
-	if (scriptPath.empty() || access(loc.getCgiPath().c_str(), X_OK) == -1 ||
-		access(scriptPath.c_str(), R_OK) == -1) {
-		std::cerr << "CGI: Access error" << std::endl;
-		return Response(req.getVersion(), serv.getErrorPageByCode(BAD_REQUEST))
-			.build();
-	}
-	if (getContext(ctx, loc, req, serv) || pipe(ctx.pipeFdOut)) {
+	if (getContext(ctx, loc, req, serv)) {
 		freeCGIContext(ctx);
 		std::cerr << "CGI: Get context error" << std::endl;
 		return Response(req.getVersion(),
 						serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
 			.build();
 	}
-	if (fcntl(ctx.pipeFdOut[0], F_SETFL, O_NONBLOCK) == -1) {
+
+	if (scriptPath.empty() || access(ctx.cgiPath.c_str(), X_OK) == -1 ||
+		access(scriptPath.c_str(), R_OK) == -1) {
+		std::cerr << "CGI: Access error" << std::endl;
+		return Response(req.getVersion(), serv.getErrorPageByCode(BAD_REQUEST))
+			.build();
+	}
+
+	if (initCgiPipes(ctx)) {
 		freeCGIContext(ctx);
-		std::cerr << "CGI: fcntl O_NONBLOCK error" << std::endl;
+		std::cerr << "CGI: Pipe error" << std::endl;
 		return Response(req.getVersion(),
 						serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
 			.build();
 	}
-	if (pipe(ctx.pipeFdIn)) {
-		freeCGIContext(ctx);
-		std::cerr << "CGI: pipe error" << std::endl;
-		return Response(req.getVersion(),
-						serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
-			.build();
-	}
+
 	write(ctx.pipeFdIn[1], client.getRecvBuffer().c_str(), req.getBody().size());
 	ftClose(&ctx.pipeFdIn[1]);
 	ctx.pid = fork();
+
 	if (ctx.pid == -1) {
 		freeCGIContext(ctx);
 		std::cerr << "CGI: fork error" << std::endl;
@@ -257,18 +271,21 @@ std::string CGIHandler(Request &req, Location &loc, Server &serv,
 						serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
 			.build();
 	}
+
 	if (ctx.pid == 0) {
 		executeChild(ctx);
 	} else {
 		ftClose(&ctx.pipeFdOut[1]);
 		ctx.timedOut = timedOutHandling(ctx, serv.getTimedOutValue(), content);
 	}
+
 	if (ctx.timedOut == TIMEDOUT) {
 		std::cerr << "CGI: timed out." << std::endl;
 		return Response(req.getVersion(),
 						serv.getErrorPageByCode(REQUEST_TIMEOUT))
 			.build();
 	}
+
 	if (!WIFEXITED(ctx.status)) {
 		freeCGIContext(ctx);
 		std::cerr << "CGI: child exit error" << std::endl;
@@ -276,7 +293,9 @@ std::string CGIHandler(Request &req, Location &loc, Server &serv,
 						serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
 			.build();
 	}
+
 	freeCGIContext(ctx);
+
 	if (content.empty()) {
 		std::cerr << "CGI: read from CGI return error" << std::endl;
 		return Response(req.getVersion(),

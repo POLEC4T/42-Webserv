@@ -6,35 +6,34 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:12:19 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:52:34 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
-# include "APage.hpp"
-# include <vector>
-# include <fstream>
+#include "APage.hpp"
+#include <fstream>
+#include <vector>
+#include <map>
 
 /**
  * class Location inherit from APage got the private attribute _name, _content,
  * _root, with the associated functions
  */
-class	Location : public APage {
-	private:
-		// std::vector<AHttpMethod*>	_allowedMethods;
-		std::vector<std::string>	_allowedMethods;
-		std::vector<std::string>	_index;
-		bool						_autoIndex;
-		long long					_clientMaxBodySize;
-		std::string					_uploadPath;
-		std::string					_return;
-		std::string					_cgiExtension;
-		std::string					_cgiPath;
+class Location : public APage {
+  private:
+	// std::vector<AHttpMethod*>	_allowedMethods;
+	std::vector<std::string> _allowedMethods;
+	std::vector<std::string> _index;
+	bool _autoIndex;
+	long long _clientMaxBodySize;
+	std::string _uploadPath;
+	std::string _return;
+	std::map<std::string, std::string> _cgi;
 
-
-public:
+  public:
 	// Canonical constructor
 	Location();
 	Location(const Location &cpy);
@@ -49,8 +48,7 @@ public:
 	// Setter
 	//  void	setAllowedMethods(const std::vector<AHttpMethod*>&);
 	void setAutoIndex(const bool);
-	void setCgiExtension(const std::string &);
-	void setCgiPath(const std::string &);
+	void addCgi(const std::string &extension, const std::string &path);
 	void setClientMaxBodySize(size_t);
 	void setClientMaxBodySize(std::string);
 	void setReturn(const std::string &);
@@ -63,8 +61,7 @@ public:
 	bool getAutoIndex();
 	long long getClientMaxBodySize() const;
 
-	const std::string &getCgiExtension();
-	const std::string &getCgiPath();
+	const std::string &getCgiByExtension(const std::string &extension) const;
 	const std::string &getUploadPath();
 	const std::string &getReturn();
 
