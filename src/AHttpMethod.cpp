@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/30 11:01:10 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:13:12 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "Server.hpp"
 #include <dirent.h>
 #include <sys/stat.h>
+#include <cstring>
 
 long long getMaxBodySize(Location &loc, Server &serv) {
 	long long defaultV = 1048576;

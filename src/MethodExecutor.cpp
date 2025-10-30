@@ -6,11 +6,12 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/30 11:02:56 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:15:21 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
+#include "AHttpMethod.hpp"
 
 bool isCGI(Request &req, Location &loc);
 std::string CGIHandler(Request &req, Location &loc, Server &serv,

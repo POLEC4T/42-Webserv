@@ -6,11 +6,12 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:36:13 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/30 11:02:13 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:15:17 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Error.hpp"
+# include "Error.hpp"
+# include "FtString.hpp"
 
 Error::CanNotOpenFile::CanNotOpenFile(const std::string &message) {
 	_message = "Can't open the file: " + message + ".";
@@ -82,7 +83,19 @@ const char *Error::NoServerInConfigFile::what() const throw() {
 	return "Any server was found in the config file.";
 }
 
-Error::IntOutOfRange::IntOutOfRange(const std::string &message) {
+Error::NoRelatedServerFound::NoRelatedServerFound(int fd) {
+	_message = "No related server found for the fd: " + FtString::my_to_string(fd) + ".";
+}
+
+Error::NoRelatedServerFound::~NoRelatedServerFound() throw() {}
+
+const char* Error::NoRelatedServerFound::what() const throw() {
+	if (_message.empty())
+		return "No related server found.";
+	return _message.c_str();
+}
+
+Error::IntOutOfRange::IntOutOfRange(const std::string& message) {
 	_message = "The int: '" + message + "' is out of range.";
 }
 

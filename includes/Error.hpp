@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:34:04 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/30 11:04:56 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:11:28 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,15 +83,25 @@ public:
 		std::string _message;
 
 	public:
-		const char *what() const throw();
-
-		IntOutOfRange(const std::string &);
-		~IntOutOfRange() throw();
+	const char *what() const throw();
+	
+	IntOutOfRange(const std::string&);
+	~IntOutOfRange() throw();
 	};
 
 	class NoServerInConfigFile : public std::exception {
 	public:
 		const char *what() const throw();
+	};
+
+	class NoRelatedServerFound: public std::exception {
+		private:
+			std::string	_message;
+		public:
+			const char* what() const throw() ;
+
+			NoRelatedServerFound(int fd);
+			~NoRelatedServerFound() throw() ;
 	};
 };
 

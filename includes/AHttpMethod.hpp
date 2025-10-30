@@ -6,14 +6,14 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:37:42 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:05:08 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:08:53 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef AHTTPMETHOD_HPP
 #define AHTTPMETHOD_HPP
 
-#include "Headers.h"
+#include "Response.hpp"
 #include "Location.hpp"
 #include "Request.hpp"
 #include "Response.hpp"

@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:04:14 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:15:56 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,16 @@ Server &Server::operator=(const Server &other) {
 	return *this;
 }
 
-Server::~Server() { deleteAllClients(); }
+Server::~Server() {
+	deleteAllClients();
+	std::vector<int>::iterator it;
+	for(it = _sockfds.begin(); it != _sockfds.end(); ++it) {
+		std::cout << "close() server fd " << *it << std::endl;
+		close(*it);
+	}
+}
 
-// constructor with assignment values
+//constructor with assignment values
 Server::Server(std::map<int, ErrorPage> errorPages) {
 	_clientMaxBodySize = -1;
 	_mapDefaultErrorPage = errorPages;
@@ -79,7 +86,7 @@ void Server::addPort(const std::string &port) {
 	iss >> p;
 	if (!iss.eof())
 		throw(Error::IntExpected(port));
-	if (p < 0 || p > 65000)
+	if (p < 0 || p > 65535)
 		throw(Error::IntOutOfRange(port));
 	_ports.push_back(port);
 }
@@ -170,8 +177,25 @@ void Server::deleteAllClients() {
 }
 
 void Server::deleteClient(int fd) {
-	close(fd);
-	_mapClients.erase(fd);
+	std::cout << "Closing client with fd " << fd << std::endl;
+  close(fd);
+  _mapClients.erase(fd);
+}
+
+void	Server::addSockfd(int fd) {
+	_sockfds.push_back(fd);
+}
+
+const std::vector<int>&	Server::getSockfds() const {
+	return _sockfds;
+}
+
+bool		Server::isClient(int fd) const {
+	return (_mapClients.find(fd) != _mapClients.end());
+}
+
+bool		Server::isListener(int fd) const {
+	return (std::find(_sockfds.begin(), _sockfds.end(), fd) != _sockfds.end());
 }
 
 void Server::parseAndAddLocation(

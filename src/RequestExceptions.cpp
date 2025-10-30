@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 10:27:07 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 11:03:54 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:15:33 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,4 +114,20 @@ HttpVersionNotSupportedException::~HttpVersionNotSupportedException() throw() {}
 
 const char *HttpVersionNotSupportedException::what() const throw() {
 	return "Request: HTTP version not supported.";
+}
+
+const char* MalformedChunkException::what() const throw() {
+	return "Request: Malformed chunk in chunked transfer encoding.";
+}
+
+const char* TransferEncodingAndContentLengthException::what() const throw() {
+	return "Request: Transfer-Encoding and Content-Length are in headers.";
+}
+
+TransferCodingNotImplemented::TransferCodingNotImplemented(const std::string& val) : RequestException(NOT_IMPLEMENTED), _message("Request: Transfer coding not implemented: " + val) {}
+
+TransferCodingNotImplemented::~TransferCodingNotImplemented() throw() {}
+
+const char* TransferCodingNotImplemented::what() const throw() {
+	return _message.c_str();
 }

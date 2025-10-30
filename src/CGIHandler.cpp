@@ -6,12 +6,15 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/30 11:00:15 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:13:30 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
-#include "ctime"
+#include <ctime>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/wait.h>
 
 #define TIMEDOUT 1
 

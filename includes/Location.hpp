@@ -6,29 +6,33 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:06:03 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:12:19 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
-#include "AHttpMethod.hpp"
-#include "APage.hpp"
+# include "APage.hpp"
+# include <vector>
+# include <fstream>
 
-// class Location inherit from APage got the private attribute _name, _content,
-// _root, with the associated functions
-class Location : public APage {
-private:
-	// std::vector<AHttpMethod*>	_allowedMethods;
-	std::vector<std::string> _allowedMethods;
-	std::vector<std::string> _index;
-	bool _autoIndex;
-	long long _clientMaxBodySize;
-	std::string _uploadPath;
-	std::string _return;
-	std::string _cgiExtension;
-	std::string _cgiPath;
+/**
+ * class Location inherit from APage got the private attribute _name, _content,
+ * _root, with the associated functions
+ */
+class	Location : public APage {
+	private:
+		// std::vector<AHttpMethod*>	_allowedMethods;
+		std::vector<std::string>	_allowedMethods;
+		std::vector<std::string>	_index;
+		bool						_autoIndex;
+		long long					_clientMaxBodySize;
+		std::string					_uploadPath;
+		std::string					_return;
+		std::string					_cgiExtension;
+		std::string					_cgiPath;
+
 
 public:
 	// Canonical constructor

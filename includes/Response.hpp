@@ -6,15 +6,15 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:37:50 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/30 11:06:53 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:12:44 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __RESPONSE_HPP__
-#define __RESPONSE_HPP__
+# define __RESPONSE_HPP__
 
-#include "ErrorPage.hpp"
-#include "Headers.h"
+# include "ErrorPage.hpp"
+# include <map>
 
 class Response {
 private:

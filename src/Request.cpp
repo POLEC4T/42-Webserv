@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 11:03:51 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:15:30 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,8 @@ void Request::parseHeaders(const std::string &req) {
 	size_t endLine = req.find("\r\n");
 	std::string line = req.substr(startLine, endLine);
 
-	while (req.find("\r\n", endLine + 2) != endLine + 2) {
-		startLine = endLine + 2;
+	while (req.find("\r\n", endLine + CRLF_SIZE) != endLine + CRLF_SIZE) {
+		startLine = endLine + CRLF_SIZE;
 		endLine = req.find("\r\n", startLine);
 		line = req.substr(startLine, endLine - startLine);
 
@@ -161,4 +161,10 @@ bool Request::parsedHeaders() const { return _parsedHeaders; }
 
 bool Request::parsedBody() const { return _parsedBody; }
 
-const std::string &Request::getBody() const { return _body; }
+const std::string&  Request::getBody() const {
+	return _body;
+}
+
+void Request::appendBody(const std::string& toadd) {
+	_body.append(toadd);
+}

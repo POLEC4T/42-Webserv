@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 11:06:16 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:12:32 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,18 +77,19 @@ public:
 	Request();
 	~Request();
 
-	void parseHeaders(const std::string &reqContent);
-	void parseBody(const std::string &reqContent, size_t bodyLength);
-	void parseRequestLine(const std::string &reqContent);
-	void displayRequest() const;
-	std::string getHeaderValue(const std::string &key) const;
-	const std::string &getUri() const;
-	const std::string &getMethod() const;
-	const std::string &getVersion() const;
-	bool parsedRequestLine() const;
-	bool parsedHeaders() const;
-	bool parsedBody() const;
-	const std::string &getBody() const;
+		void				parseHeaders(const std::string &reqContent);
+		void				parseBody(const std::string &reqContent, size_t bodyLength);
+		void				parseRequestLine(const std::string &reqContent);
+		void 				displayRequest() const;
+		std::string			getHeaderValue(const std::string &key) const;
+		const std::string& 	getUri() const;
+		const std::string& 	getMethod() const;
+		const std::string&	getVersion() const;
+		const std::string&	getBody() const;
+		bool				parsedRequestLine() const;
+		bool				parsedHeaders() const;
+		bool				parsedBody() const;
+		void				appendBody(const std::string& toadd);
 };
 
 #endif
