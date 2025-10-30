@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/29 12:03:19 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 13:04:15 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,7 @@ class	Server {
 		std::map<int, ErrorPage>		_mapDefaultErrorPage;
 		std::map<int, Client>			_mapClients;
 		int								_timedOut;
-		std::vector<int>				_sockfds;	
-
-		
+		std::vector<int>				_sockfds;
 	
 	public:
 		//Canonical constructor
@@ -66,7 +64,7 @@ class	Server {
 		void		setDefaultMapErrorPage(const std::map<int, ErrorPage>&);
 
 		void					addLocation(const Location &);
-		void					addErrorPage(const ErrorPage &);
+		void					addErrorPage(ErrorPage &);
 		void					addErrorPage(const std::string &code, const std::string &root);
 		Client&					getClient(int fd);
 		void					addClient(const Client &);
@@ -77,11 +75,11 @@ class	Server {
 		bool					isClient(int fd) const;
 		bool					isListener(int fd) const;
 
-  std::map<std::string, Location> &getLocations();
+	std::map<std::string, Location> &getLocations();
 
-  // Parser
-  void parseAndAddLocation(std::vector<std::string>::iterator &,
-                           const std::vector<std::string>::iterator);
+	// Parser
+	void parseAndAddLocation(std::vector<std::string>::iterator &,
+							const std::vector<std::string>::iterator);
 };
 
 #endif

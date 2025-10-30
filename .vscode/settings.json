@@ -19,7 +19,6 @@
 		"cwctype": "cpp",
 		"deque": "cpp",
 		"map": "cpp",
-		"string": "cpp",
 		"unordered_map": "cpp",
 		"vector": "cpp",
 		"exception": "cpp",
@@ -31,6 +30,7 @@
 		"numeric": "cpp",
 		"optional": "cpp",
 		"random": "cpp",
+		"string": "cpp",
 		"string_view": "cpp",
 		"system_error": "cpp",
 		"tuple": "cpp",
@@ -45,13 +45,13 @@
 		"new": "cpp",
 		"numbers": "cpp",
 		"ostream": "cpp",
+		"ranges": "cpp",
+		"span": "cpp",
 		"sstream": "cpp",
 		"stdexcept": "cpp",
 		"streambuf": "cpp",
-		"typeinfo": "cpp",
-		"ranges": "cpp",
-		"span": "cpp",
-		"cinttypes": "cpp"
+		"cinttypes": "cpp",
+		"typeinfo": "cpp"
 	},
     "C_Cpp.errorSquiggles": "disabled"
 }

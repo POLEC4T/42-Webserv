@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestExceptions.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 10:27:07 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/27 17:16:36 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:15:33 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,44 +16,42 @@ RequestException::RequestException() : _code(400) {}
 
 RequestException::RequestException(int code) : _code(code) {}
 
-int RequestException::getCode() const {
-	return _code;
-}
+int RequestException::getCode() const { return _code; }
 
 RequestException::~RequestException() throw() {}
 
-const char* NoHeaderValueException::what() const throw() {
+const char *NoHeaderValueException::what() const throw() {
 	if (_message.empty())
 		return "Request: No header field for this key";
-	
+
 	return _message.c_str();
 }
 
-NoHeaderValueException::NoHeaderValueException(const std::string& missingKey) {
+NoHeaderValueException::NoHeaderValueException(const std::string &missingKey) {
 	_message = "Request: No header field for \"" + missingKey + "\"";
 }
 
 NoHeaderValueException::~NoHeaderValueException() throw() {}
 
-const char* RequestLineException::what() const throw() {
+const char *RequestLineException::what() const throw() {
 	return "Request: Error in the request line.";
 }
 
-const char* NoHeaderColumnException::what() const throw() {
+const char *NoHeaderColumnException::what() const throw() {
 	return "Request: A header column is missing.";
 }
 
-const char* BadHeaderNameException::what() const throw() {
+const char *BadHeaderNameException::what() const throw() {
 	if (_message.empty())
 		return "Request: bad header name";
 	return _message.c_str();
 }
 
-BadHeaderNameException::BadHeaderNameException(const std::string& headerName) {
+BadHeaderNameException::BadHeaderNameException(const std::string &headerName) {
 	if (headerName.empty())
 		_message = "Request: bad header name: empty";
 	else
-	_message = "Request: bad header name: \"" + headerName + "\"";
+		_message = "Request: bad header name: \"" + headerName + "\"";
 }
 
 BadHeaderNameException::~BadHeaderNameException() throw() {}
@@ -62,41 +60,45 @@ UriTooLongException::UriTooLongException() : RequestException(URI_TOO_LONG) {}
 
 UriTooLongException::~UriTooLongException() throw() {}
 
-const char* UriTooLongException::what() const throw() {
+const char *UriTooLongException::what() const throw() {
 	return "Request: URI too long.";
 }
 
-ContentTooLargeException::ContentTooLargeException() : RequestException(CONTENT_TOO_LARGE) {}
+ContentTooLargeException::ContentTooLargeException()
+	: RequestException(CONTENT_TOO_LARGE) {}
 
 ContentTooLargeException::~ContentTooLargeException() throw() {}
 
-const char* ContentTooLargeException::what() const throw() {
+const char *ContentTooLargeException::what() const throw() {
 	return "Request: Content too large";
 }
 
-MethodNotAllowedException::MethodNotAllowedException() : RequestException(METHOD_NOT_ALLOWED) {}
+MethodNotAllowedException::MethodNotAllowedException()
+	: RequestException(METHOD_NOT_ALLOWED) {}
 
 MethodNotAllowedException::~MethodNotAllowedException() throw() {}
 
-const char* MethodNotAllowedException::what() const throw() {
+const char *MethodNotAllowedException::what() const throw() {
 	return "Request: Method not allowed";
 }
 
-PageNotFoundException::PageNotFoundException() : RequestException(PAGE_NOT_FOUND) {}
+PageNotFoundException::PageNotFoundException()
+	: RequestException(PAGE_NOT_FOUND) {}
 
 PageNotFoundException::~PageNotFoundException() throw() {}
 
-const char* PageNotFoundException::what() const throw() {
+const char *PageNotFoundException::what() const throw() {
 	return "Request: Page not found";
 }
 
-const char* BadHeaderValueException::what() const throw() {
+const char *BadHeaderValueException::what() const throw() {
 	if (_message.empty())
 		return "Request: bad header value";
 	return _message.c_str();
 }
 
-BadHeaderValueException::BadHeaderValueException(const std::string& headerValue) {
+BadHeaderValueException::BadHeaderValueException(
+	const std::string &headerValue) {
 	if (headerValue.empty())
 		_message = "Request: bad header value: empty";
 	else
@@ -105,11 +107,12 @@ BadHeaderValueException::BadHeaderValueException(const std::string& headerValue)
 
 BadHeaderValueException::~BadHeaderValueException() throw() {}
 
-HttpVersionNotSupportedException::HttpVersionNotSupportedException() : RequestException(HTTP_VERSION_NOT_SUPPORTED) {}
+HttpVersionNotSupportedException::HttpVersionNotSupportedException()
+	: RequestException(HTTP_VERSION_NOT_SUPPORTED) {}
 
 HttpVersionNotSupportedException::~HttpVersionNotSupportedException() throw() {}
 
-const char* HttpVersionNotSupportedException::what() const throw() {
+const char *HttpVersionNotSupportedException::what() const throw() {
 	return "Request: HTTP version not supported.";
 }
 

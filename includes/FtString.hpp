@@ -3,23 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   FtString.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:33:39 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/22 15:58:14 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:17:41 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FTSTRING_HPP
-# define FTSTRING_HPP
+#define FTSTRING_HPP
 
-# include <iostream>
-# include <string>
-# include <sstream>
-# include <vector>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
-# define WHITESPACES " \n\r\t\f\v"
-# define SP ' '
+#define WHITESPACES " \n\r\t\f\v"
+#define SP ' '
 
 /**
  * 	@warning NEVER do a new FtString, else, it will leak because std::string
@@ -27,35 +27,35 @@
  */
 class FtString : public std::string {
 public:
-  FtString();
-  FtString(const std::string &copy);
-  FtString(const FtString &copy);
-  FtString &operator=(const FtString &other);
-  FtString &operator=(const std::string &other);
+	FtString();
+	FtString(const std::string &copy);
+	FtString(const FtString &copy);
+	FtString &operator=(const FtString &other);
+	FtString &operator=(const std::string &other);
 
-  typedef std::string::iterator iterator;
-  typedef std::string::const_iterator const_iterator;
-  typedef std::string::reverse_iterator reverse_iterator;
-  typedef std::string::const_reverse_iterator const_reverse_iterator;
+	typedef std::string::iterator iterator;
+	typedef std::string::const_iterator const_iterator;
+	typedef std::string::reverse_iterator reverse_iterator;
+	typedef std::string::const_reverse_iterator const_reverse_iterator;
 
-  ~FtString();
+	~FtString();
 
-  std::vector<std::string> ft_split(const std::string &delimiters) const;
-  std::vector<std::string> ft_split_word(const std::string &delimiter) const;
-  bool endsWith(const std::string &str) const;
-  bool startsOrEndsWith(const std::string &str) const;
-  bool hasXElemsSepByDel(int nbElems, const std::string &delimiter) const;
+	std::vector<std::string> ft_split(const std::string &delimiters) const;
+	std::vector<std::string> ft_split_word(const std::string &delimiter) const;
+	bool endsWith(const std::string &str) const;
+	bool startsOrEndsWith(const std::string &str) const;
+	bool hasXElemsSepByDel(int nbElems, const std::string &delimiter) const;
 
-  template <typename T> static std::string my_to_string(T value) {
-    std::ostringstream oss;
-    oss << value;
-    return (oss.str());
-  }
+	template <typename T> static std::string my_to_string(T value) {
+		std::ostringstream oss;
+		oss << value;
+		return (oss.str());
+	}
 
-  // modifiers
-  void ltrim();
-  void rtrim();
-  void trim();
+	// modifiers
+	void ltrim();
+	void rtrim();
+	void trim();
 };
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/29 12:01:52 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:12:32 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,33 +49,33 @@
 // of [Kri2001] for details.)
 // -> special case for Set-Cookie
 
-# include <map>
-# include <iostream>
-# include <sstream>
-# include <vector>
-# include <exception>
-# include <cstdlib> 
-# include "FtString.hpp" 
-# include "RequestExceptions.hpp"
+#include "FtString.hpp"
+#include "RequestExceptions.hpp"
+#include <cstdlib>
+#include <exception>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <vector>
 
-# define MAX_URI_LENGTH 8194
+#define MAX_URI_LENGTH 8194
 
 class Server;
 
 class Request {
-	private:
-		std::string _method;
-		std::string _uri;
-		std::string _version;
-		std::map<std::string, std::string> _headers;
-		std::string _body;
-		bool _parsedRequestLine;
-		bool _parsedHeaders;
-		bool _parsedBody;
-	
-	public:
-		Request();
-		~Request();
+private:
+	std::string _method;
+	std::string _uri;
+	std::string _version;
+	std::map<std::string, std::string> _headers;
+	std::string _body;
+	bool _parsedRequestLine;
+	bool _parsedHeaders;
+	bool _parsedBody;
+
+public:
+	Request();
+	~Request();
 
 		void				parseHeaders(const std::string &reqContent);
 		void				parseBody(const std::string &reqContent, size_t bodyLength);

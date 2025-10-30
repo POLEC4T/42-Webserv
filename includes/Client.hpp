@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/29 13:30:11 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:10:13 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,8 @@ class Client {
 		t_client_status		getStatus() const;
 		const std::string&	getRecvBuffer() const;
 
-		void				setStatus(t_client_status status);
-		void				setSendBuffer(const std::string& buf);
+	void setStatus(t_client_status status);
+	void setSendBuffer(const std::string &buf);
 
 		bool				receivedRequestLine() const;
 		bool				receivedHeaders() const;

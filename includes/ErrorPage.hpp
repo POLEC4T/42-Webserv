@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorPage.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 00:02:01 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/29 11:59:44 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:11:35 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,17 @@
 // _root, with the associated functions
 class ErrorPage : public APage {
 public:
-  // Canonical form
-  ErrorPage();
-  ErrorPage(const ErrorPage &cpy);
-  ErrorPage &operator=(const ErrorPage &other);
-  ~ErrorPage();
+	// Canonical form
+	ErrorPage();
+	ErrorPage(const ErrorPage &cpy);
+	ErrorPage &operator=(const ErrorPage &other);
+	~ErrorPage();
 
-  // constructor with assignation values
-  ErrorPage(std::string name, std::string root);
-  ErrorPage(std::string name, std::string root, std::string content, int code);
-  ErrorPage(std::string name, std::string content, int code);
+	// constructor with assignation values
+	ErrorPage(std::string name, std::string root);
+	ErrorPage(std::string name, std::string root, std::string content,
+			int code);
+	ErrorPage(std::string name, std::string content, int code);
 };
 
 #endif
