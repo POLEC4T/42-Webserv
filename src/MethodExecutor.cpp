@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/30 15:05:39 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/30 16:21:43 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,8 +81,10 @@ int returnHandler(Response &response, Location &loc, Request &req,
 	return 0;
 }
 
-std::string MethodExecutor::execute() {
-	std::cout << "URI " << _request.getUri() << std::endl;
+std::string MethodExecutor::execute()
+{
+	bool	check = true;
+
 	Location loc = this->getRequestLocation(this->_request, this->_server);
 	if (loc.getCode() == PAGE_NOT_FOUND)
 		return Response(this->_request.getVersion(), this->_server.getErrorPageByCode(PAGE_NOT_FOUND))
@@ -101,7 +103,14 @@ std::string MethodExecutor::execute() {
 	else if (this->_method == "DELETE" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "DELETE") != loc.getAllowedMethods().end())
 		this->_response = AHttpMethod::DELETE(fileName, this->_request, this->_server);
 	else
+	{
+		check = false;
 		this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(METHOD_NOT_ALLOWED));
+	}
+	if (check == true && this->_request.getHeaderValue("Cookie").size() != 0)
+	{
+		this->_response.setHeader("Set-Cookie", this->_request.getHeaderValue("Cookie"));
+	}	
 	return this->_response.build();
 }
 

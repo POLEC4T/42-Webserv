@@ -193,19 +193,12 @@
 
   <!-- PROFILE -->
   <section id="profile" class="section">
-    <h2 class="text-center text-2xl text-gray-100 mb-10">Profil</h2>
-    <div class="profile-card mx-auto max-w-md">
-      <h3 class="text-lg text-gray-200 mb-2">Player_42</h3>
-      <p class="text-gray-500 text-sm mb-4">Niveau 12 — Explorateur de mondes</p>
-      <div class="xp-bar">
-        <div class="xp-fill"></div>
-      </div>
-      <p class="text-xs text-gray-500 mt-2">70% vers le prochain niveau</p>
-      <div class="mt-6">
-        <a href="/login" class="btn text-sm">Modifier le profil</a>
-      </div>
-    </div>
-  </section>
+  <h2 class="text-center text-2xl text-gray-100 mb-10">Profil</h2>
+
+  <div id="profile-content" class="profile-card mx-auto max-w-md text-center text-gray-200">
+    <p class="text-gray-400 text-sm">Chargement du profil...</p>
+  </div>
+</section>
 
   <div class="separator"></div>
 
@@ -217,38 +210,6 @@
     </p>
   </footer>
 
-  <!-- FOND PIXELISÉ -->
-  <script>
-    const canvas = document.getElementById('pixel-bg');
-    const ctx = canvas.getContext('2d');
-    let stars = [];
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      stars = Array.from({ length: 80 }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 1.2 + 0.3,
-        speed: Math.random() * 0.2 + 0.05
-      }));
-    }
-
-    function drawStars() {
-      ctx.fillStyle = "#0a0a0a";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      for (let s of stars) {
-        ctx.fillStyle = "#2a2a2a";
-        ctx.fillRect(s.x, s.y, s.size, s.size);
-        s.y += s.speed;
-        if (s.y > canvas.height) s.y = 0;
-      }
-      requestAnimationFrame(drawStars);
-    }
-
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-    drawStars();
-  </script>
+  <script src="Cookie.js"></script>
 </body>
 </html>
