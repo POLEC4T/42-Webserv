@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/30 11:21:47 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:24:27 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ Location MethodExecutor::getRequestLocation(Request &req, Server &serv) {
 	return loc;
 }
 
-Response &MethodExecutor::getResponse() { return this->_response; }
+Response& MethodExecutor::getResponse() { return this->_response; }
 
 int returnHandler(Response &response, Location &loc, Request &req,
 				Server &serv) {

@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:20:35 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:23:55 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,7 @@ void Context::configFileParser(const std::string &fileName,
 }
 
 void	Context::parseAndSetMapDefaultErrorPage() {
-    std::string	fileName = "htmlFiles/errorPages/default/error_";
+    std::string	fileName = "serverData/errorPages/default/error_";
 	std::vector<int>			codes;
 	codes.push_back(BAD_REQUEST);
 	codes.push_back(FORBIDDEN);
