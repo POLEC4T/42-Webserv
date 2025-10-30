@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/29 17:25:29 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/30 14:28:31 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,10 @@ std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
   env.push_back("SERVER_PROTOCOL=HTTP/1.1");
   env.push_back("GATEWAY_INTERFACE=CGI/1.1");
   env.push_back("CONTENT_TYPE=" + req.getHeaderValue("Content-Type"));
-  //   env.push_back("CONTENT_LENGTH=" + req.getBody().size()); // todo dorian
+  std::istringstream iss(req.getBody());
+  std::string lenght;
+  iss >> lenght;
+  env.push_back("CONTENT_LENGTH=" + lenght);
   env.push_back("_SESSION=");
   env.push_back("REMOTE_ADDR" + serv.getHost());
   env.push_back("SERVER_NAME=" + serv.getNames()[0]);
@@ -247,6 +250,7 @@ std::string CGIHandler(Request& req, Location& loc, Server& serv,
       serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
       .build();
   }
+  std::cout << "FDPFDPFDPFDPFDP : "<< client.getRecvBuffer() << std::endl;
   write(ctx.pipeFdIn[1], client.getRecvBuffer().c_str(), req.getBody().size());
   ftClose(&ctx.pipeFdIn[1]);
   ctx.pid = fork();

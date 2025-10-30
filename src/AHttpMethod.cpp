@@ -6,7 +6,7 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/29 15:00:45 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/30 14:42:18 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,8 @@ Response AHttpMethod::GET(std::string fileName, Location& loc, Request& req, Ser
 
 Response	AHttpMethod::DELETE(std::string filename, Request& req, Server& serv)
 {
+    if (FtString(filename).endsWith("/"))
+        return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
     std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
         return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
@@ -219,13 +221,17 @@ Response	AHttpMethod::DELETE(std::string filename, Request& req, Server& serv)
 
 Response AHttpMethod::POST(std::string filename, Request& req, Server& serv)
 {
-    struct stat infos;
+    struct stat* infos = new struct stat;
     
-    if (stat(filename.c_str(), &infos) != 0)
+    if (stat(filename.c_str(), infos) != 0)
     {
-        if (S_ISDIR(infos.st_mode))
+        if (infos && S_ISDIR(infos->st_mode))
+        {
+            delete infos;
             return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
+        }
     }
+    delete infos;
 	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
 		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
