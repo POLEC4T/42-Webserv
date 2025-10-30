@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:25:48 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/30 11:12:23 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:25:53 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #define __METHODEXECUTOR_HPP__
 
 #include "Client.hpp"
-#include "Headers.h"
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Server.hpp"

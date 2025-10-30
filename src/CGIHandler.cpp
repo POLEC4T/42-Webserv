@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/30 11:23:44 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:26:05 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,7 +247,7 @@ std::string CGIHandler(Request &req, Location &loc, Server &serv,
 						serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
 			.build();
 	}
-	write(ctx.pipeFdIn[1], client.getBuffer().c_str(), req.getBody().size());
+	write(ctx.pipeFdIn[1], client.getRecvBuffer().c_str(), req.getBody().size());
 	ftClose(&ctx.pipeFdIn[1]);
 	ctx.pid = fork();
 	if (ctx.pid == -1) {

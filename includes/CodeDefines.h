@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:01:03 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:10:23 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:25:45 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #define CONTENT_TOO_LARGE 413
 #define URI_TOO_LONG 414
 #define INTERNAL_SERVER_ERROR 500
+#define NOT_IMPLEMENTED 501
 #define HTTP_VERSION_NOT_SUPPORTED 505
 
 #endif
