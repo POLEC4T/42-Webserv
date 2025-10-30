@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/30 11:13:30 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:20:07 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
 	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	env.push_back("CONTENT_TYPE=" + req.getHeaderValue("Content-Type"));
-	env.push_back("CONTENT_LENGTH=" + req.getBody().size());
+	env.push_back("CONTENT_LENGTH=" + FtString::my_to_string(req.getBody().size()));
 	env.push_back("_SESSION=");
 	env.push_back("REMOTE_ADDR" + serv.getHost());
 	env.push_back("SERVER_NAME=" + serv.getNames()[0]);
@@ -198,8 +198,7 @@ int executeChild(t_CGIContext ctx) {
 		std::cerr << "CGI: dup2 pipeFdIn[0] error" << std::endl;
 		std::exit(1);
 	}
-	if (dup2(ctx.pipeFdOut[1], STDOUT_FILENO) ==
-		-1 /*|| dup2(ctx.pipeFdOut[1], STDERR_FILENO) == -1*/) {
+	if (dup2(ctx.pipeFdOut[1], STDOUT_FILENO) == -1 /*|| dup2(ctx.pipeFdOut[1], STDERR_FILENO) == -1*/) {
 		std::cerr << "CGI: dup2 pipeFdOut[1] error" << std::endl;
 		freeCGIContext(ctx);
 		std::exit(1);

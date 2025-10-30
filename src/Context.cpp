@@ -6,38 +6,18 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:14:47 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:20:35 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Context.hpp"
 #include "Error.hpp"
 
-Context::Context() {}
+Context::Context() : _epollfd(-1) {}
 
 Context::~Context() {
-	close(_epollfd);
-}
-
-Context::Context(const Context &cpy) {
-	std::vector<Server>::const_iterator it = cpy._servers.begin();
-
-	while (it != cpy._servers.end()) {
-		_servers.push_back(*it);
-		it++;
-	}
-}
-
-Context &Context::operator=(const Context &other) {
-	if (this != &other) {
-		this->_servers.erase(_servers.begin(), _servers.end());
-		std::vector<Server>::const_iterator it = other._servers.begin();
-		while (it != other._servers.end()) {
-			_servers.push_back(*it);
-			it++;
-		}
-	}
-	return *this;
+	if (_epollfd != -1)
+		close(_epollfd);
 }
 
 //Getter

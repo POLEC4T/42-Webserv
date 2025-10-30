@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PixelVerse — L’élégance du rétro</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      background-color: #0a0a0a;
+      color: #d4d4d4;
+      scroll-behavior: smooth;
+      letter-spacing: 0.4px;
+    }
+
+    header {
+      background: rgba(15, 15, 15, 0.8);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    a {
+      transition: color 0.3s ease;
+    }
+
+    a:hover {
+      color: #ffffff;
+    }
+
+    .btn {
+      background: #1c1c1c;
+      border: 1px solid #444;
+      color: #e0e0e0;
+      padding: 0.9rem 2rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #2a2a2a;
+      border-color: #666;
+    }
+
+    .separator {
+      width: 70%;
+      height: 1px;
+      background: #2a2a2a;
+      margin: 4rem auto;
+    }
+
+    .section {
+      max-width: 950px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    .game-card {
+      background: #121212;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .game-card:hover {
+      border-color: #444;
+      background: #171717;
+    }
+
+    .profile-card {
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .xp-bar {
+      height: 8px;
+      background: #1a1a1a;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+
+    .xp-fill {
+      width: 70%;
+      height: 100%;
+      background: #888;
+      animation: fill 2s ease;
+    }
+
+    @keyframes fill {
+      from { width: 0; }
+      to { width: 70%; }
+    }
+
+    footer {
+      background: #0c0c0c;
+      border-top: 1px solid #1c1c1c;
+      color: #777;
+    }
+
+    /* fond animé */
+    #pixel-bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+      opacity: 0.3;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="pixel-bg"></canvas>
+
+  <!-- HEADER -->
+  <header class="fixed top-0 left-0 w-full p-5 text-center z-50">
+    <h1 class="text-xl text-gray-200 tracking-wider">PIXELVERSE</h1>
+    <nav class="mt-3 space-x-8 text-sm text-gray-500">
+      <a href="#hero">Accueil</a>
+      <a href="./request.html">Testing</a>
+      <a href="#games">Jeux</a>
+      <a href="#profile">Profil</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section id="hero" class="h-screen flex flex-col justify-center items-center text-center px-6">
+    <h1 class="text-4xl text-gray-100 mb-6">L’élégance du rétro</h1>
+    <p class="text-gray-400 text-lg max-w-2xl mb-10 leading-relaxed">
+      PixelVerse est un espace numérique sobre et immersif, où la nostalgie du pixel  
+      rencontre la finesse du design moderne. Ici, le rétro se vit autrement : clair, épuré et intemporel.
+    </p>
+    <a href="#about" class="btn">Explorer</a>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ABOUT -->
+  <section id="about" class="section text-center">
+    <h2 class="text-2xl text-gray-100 mb-8">À propos</h2>
+    <p class="text-gray-400 text-lg leading-relaxed max-w-2xl mx-auto">
+      Le projet PixelVerse est né d’une passion : celle de réunir les créateurs,  
+      les joueurs et les rêveurs autour d’une même esthétique.  
+      Pas de surenchère graphique, juste des expériences maîtrisées, nettes, et élégantes.
+    </p>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- GAMES -->
+  <section id="games" class="section">
+    <h2 class="text-center text-2xl text-gray-100 mb-10">Jeux disponibles</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div class="game-card text-center">
+        <h3 class="text-lg text-gray-200 mb-3">Snake</h3>
+        <p class="text-gray-500 text-sm mb-5">
+          Le classique, revisité dans une version sobre et fluide.  
+          Minimal, rapide et précis.
+        </p>
+        <a href="/cgi/snake.py" class="text-gray-400 hover:text-white text-sm">Jouer</a>
+      </div>
+
+      <div class="game-card text-center">
+        <h3 class="text-lg text-gray-200 mb-3">Bubble Clicker</h3>
+        <p class="text-gray-500 text-sm mb-5">
+          Teste tes réflexes dans un environnement clair et apaisant.  
+          Chaque clic compte.
+        </p>
+        <a href="/bubble" class="text-gray-400 hover:text-white text-sm">Jouer</a>
+      </div>
+
+      <div class="game-card text-center">
+        <h3 class="text-lg text-gray-400 mb-3">RPG Genesis</h3>
+        <p class="text-gray-600 text-sm mb-5">
+          En développement.  
+          Une aventure générée par IA, à la croisée du code et de l’imaginaire.
+        </p>
+        <span class="text-xs text-gray-500">Bientôt disponible</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- PROFILE -->
+  <section id="profile" class="section">
+    <h2 class="text-center text-2xl text-gray-100 mb-10">Profil</h2>
+    <div class="profile-card mx-auto max-w-md">
+      <h3 class="text-lg text-gray-200 mb-2">Player_42</h3>
+      <p class="text-gray-500 text-sm mb-4">Niveau 12 — Explorateur de mondes</p>
+      <div class="xp-bar">
+        <div class="xp-fill"></div>
+      </div>
+      <p class="text-xs text-gray-500 mt-2">70% vers le prochain niveau</p>
+      <div class="mt-6">
+        <a href="/login" class="btn text-sm">Modifier le profil</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- AUDIO -->
+  <section class="text-center py-16">
+    <h3 class="text-lg text-gray-100 mb-4">Ambiance</h3>
+    <audio controls loop class="mx-auto w-80">
+      <source src="https://files.catbox.moe/4ghm5r.mp3" type="audio/mp3">
+    </audio>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="contact" class="py-8 text-center text-sm">
+    <p>© 2025 PixelVerse — Design sobre et intemporel.</p>
+    <p class="text-gray-500 mt-2">
+      Contact : <a href="mailto:contact@pixelverse.io" class="hover:text-white">contact@pixelverse.io</a>
+    </p>
+  </footer>
+
+  <!-- FOND PIXELISÉ -->
+  <script>
+    const canvas = document.getElementById('pixel-bg');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      stars = Array.from({ length: 80 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 1.2 + 0.3,
+        speed: Math.random() * 0.2 + 0.05
+      }));
+    }
+
+    function drawStars() {
+      ctx.fillStyle = "#0a0a0a";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      for (let s of stars) {
+        ctx.fillStyle = "#2a2a2a";
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+        s.y += s.speed;
+        if (s.y > canvas.height) s.y = 0;
+      }
+      requestAnimationFrame(drawStars);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    drawStars();
+  </script>
+</body>
+</html>

@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/30 11:13:12 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:18:13 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,7 +207,7 @@ Response AHttpMethod::GET(std::string fileName, Location &loc, Request &req,
 Response AHttpMethod::DELETE(std::string filename, Request &req, Server &serv) {
 	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
-		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
+        return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
 
 	if (std::remove(filename.c_str()) != 0)
 		return Response(req.getVersion(),
