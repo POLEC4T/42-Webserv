@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:37:42 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/25 14:36:15 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:05:08 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,15 @@
 
 class Location;
 
-class	AHttpMethod {
-	private:
-		AHttpMethod();
-		virtual ~AHttpMethod() = 0;
-		
+class AHttpMethod {
+private:
+	AHttpMethod();
+	virtual ~AHttpMethod() = 0;
+
 	public:
-		static Response	GET(std::string, Location&, Request&, Server&);
-		static Response	DELETE(std::string, Request&, Server&);
-		static Response POST(std::string filename, Request& req, Server& serv);
+	static Response GET(std::string, Location &, Request &, Server &);
+	static Response DELETE(std::string, Request &, Server &);
+	static Response POST(std::string filename, Request &req, Server &serv);
 };
 
 #endif

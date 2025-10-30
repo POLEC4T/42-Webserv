@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/25 14:37:45 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:01:30 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,43 +14,27 @@
 #include "epoll.hpp"
 #include "limits.h"
 
-Client::Client() : _sentIdx(0), _status(WAITING), _fd(-1) {};
+Client::Client() : _sentIdx(0), _status(WAITING), _fd(-1){};
 
 Client::Client(int fd) : _sentIdx(0), _status(WAITING), _fd(fd){};
 
-Client::~Client() {};
+Client::~Client(){};
 
-int 	Client::getFd() const {
-	return (_fd);
-}
+int Client::getFd() const { return (_fd); }
 
-const std::string&	Client::getBuffer() const {
-	return (_recvBuffer);
-}
+const std::string &Client::getBuffer() const { return (_recvBuffer); }
 
 t_client_status Client::getStatus() const { return (_status); }
 
-void Client::setSendBuffer(const std::string& buf) {
-	_sendBuffer = buf;
-}
+void Client::setSendBuffer(const std::string &buf) { _sendBuffer = buf; }
 
+void Client::setStatus(t_client_status status) { _status = status; }
 
-void Client::setStatus(t_client_status status) {
-	_status = status;
-}
+void Client::appendBuffer(char *buffer) { _recvBuffer.append(buffer); }
 
+void Client::appendBuffer(const char *buffer) { _recvBuffer.append(buffer); }
 
-void Client::appendBuffer(char *buffer) {
-	_recvBuffer.append(buffer);
-}
-
-void Client::appendBuffer(const char *buffer) {
-	_recvBuffer.append(buffer);
-}
-
-void Client::clearBuffer() {
-	_recvBuffer.clear();
-}
+void Client::clearBuffer() { _recvBuffer.clear(); }
 
 bool Client::receivedRequestLine() const {
 	return (_recvBuffer.find("\r\n") != std::string::npos);
@@ -65,9 +49,8 @@ bool Client::receivedHeaders() const {
  * location, in the config file (out of a location scope), or the
  * default for a server: 1MB
  */
-long long getMaxBodySize(const Location& loc, const Server& serv)
-{
-	long long	defaultV = ONE_MB;
+long long getMaxBodySize(const Location &loc, const Server &serv) {
+	long long defaultV = ONE_MB;
 	if (loc.getClientMaxBodySize() != -1)
 		return loc.getClientMaxBodySize();
 	if (serv.getClientMaxBodySize() != -1)
@@ -80,7 +63,8 @@ long long getMaxBodySize(const Location& loc, const Server& serv)
  * @throws if Content-Length is not a number
  * @throws if Content-Length is larger than the allowed max body size
  */
-size_t Client::checkAndGetContentLength(Server& serv, const std::string& contentLengthStr) {
+size_t Client::checkAndGetContentLength(Server &serv,
+										const std::string &contentLengthStr) {
 	if (contentLengthStr.find_first_not_of("0123456789") != std::string::npos)
 		throw BadHeaderValueException(contentLengthStr);
 	long long contentLength = std::strtoll(contentLengthStr.c_str(), NULL, 10);
@@ -96,9 +80,10 @@ size_t Client::checkAndGetContentLength(Server& serv, const std::string& content
 
 /**
  * @throws
- * @note sets the client status to READY when the full request has been received / parsed
+ * @note sets the client status to READY when the full request has been received
+ * / parsed
  */
-void Client::parseRequest(Server& serv) {
+void Client::parseRequest(Server &serv) {
 	if (!receivedRequestLine())
 		return;
 	if (!_request.parsedRequestLine()) {
@@ -110,14 +95,15 @@ void Client::parseRequest(Server& serv) {
 	if (!_request.parsedHeaders()) {
 		_request.parseHeaders(_recvBuffer);
 	}
-	
+
 	std::string contentLengthStr = _request.getHeaderValue("Content-Length");
 	if (contentLengthStr.empty()) {
 		_status = READY;
 		return;
 	}
 
-	size_t contentLength = this->checkAndGetContentLength(serv, contentLengthStr);
+	size_t contentLength =
+		this->checkAndGetContentLength(serv, contentLengthStr);
 	if (!receivedBody(contentLength))
 		return;
 	if (!_request.parsedBody())
@@ -127,7 +113,8 @@ void Client::parseRequest(Server& serv) {
 
 /**
  * @return true if the body has been completely received.
- * @note checks from the end of headers ("\r\n\r\n") to contentLength bytes have been received
+ * @note checks from the end of headers ("\r\n\r\n") to contentLength bytes have
+ * been received
  */
 bool Client::receivedBody(size_t contentLength) const {
 	size_t crlfPos = _recvBuffer.find("\r\n\r\n");
@@ -139,7 +126,7 @@ bool Client::receivedBody(size_t contentLength) const {
 	if (bodySize < contentLength)
 		return (false);
 
-  return (true);
+	return (true);
 }
 
 /**
@@ -153,19 +140,16 @@ void Client::resetForNextRequest() {
 	_request = Request();
 }
 
-Request& Client::getRequest() {
-	return _request;
-}
+Request &Client::getRequest() { return _request; }
 
 /**
- * @brief Sends to the client (in multiple parts if needed) the pending response queued in _sendBuffer.
+ * @brief Sends to the client (in multiple parts if needed) the pending response
+ * queued in _sendBuffer.
  */
 int Client::sendPendingResponse(int epollfd) {
-	
-	ssize_t sentlen = send(_fd,
-		_sendBuffer.c_str() + _sentIdx,
-		_sendBuffer.size() - _sentIdx,
-		0);
+
+	ssize_t sentlen = send(_fd, _sendBuffer.c_str() + _sentIdx,
+						_sendBuffer.size() - _sentIdx, 0);
 
 	if (sentlen == -1) {
 		std::cout << "send: " << strerror(errno) << std::endl;
@@ -176,15 +160,11 @@ int Client::sendPendingResponse(int epollfd) {
 
 	if (_sentIdx >= _sendBuffer.size()) {
 		std::cout << "_sendBuffer completely sent" << std::endl;
-		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLET, _fd) == -1) {
+		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLET, _fd) ==
+			-1) {
 			return (EXIT_FAILURE);
 		}
 		this->resetForNextRequest();
 	}
 	return (EXIT_SUCCESS);
 }
-
-
-
-
-

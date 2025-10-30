@@ -3,38 +3,37 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:25:48 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/27 19:02:02 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:06:09 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __METHODEXECUTOR_HPP__
 #define __METHODEXECUTOR_HPP__
 
-#include <sys/types.h>
-#include "Headers.h"
 #include "Client.hpp"
-#include "Server.hpp"
+#include "Headers.h"
 #include "Request.hpp"
 #include "Response.hpp"
+#include "Server.hpp"
+#include <sys/types.h>
 
-class   MethodExecutor
-{
-    private:
-        Server &_server;
-        Client _client;
-        std::string _method;
-        Request _request;
-        Response    _response;
+class MethodExecutor {
+private:
+	Server &_server;
+	Client _client;
+	std::string _method;
+	Request _request;
+	Response _response;
 
-    public:
-        MethodExecutor(Server&, Client&);
-        std::string execute();
-        Response& getResponse();
-        static Location    getRequestLocation(Request&, Server&);
-        ~MethodExecutor();
+public:
+	MethodExecutor(Server &, Client &);
+	std::string execute();
+	Response &getResponse();
+	static Location getRequestLocation(Request &, Server &);
+	~MethodExecutor();
 };
 
 #endif

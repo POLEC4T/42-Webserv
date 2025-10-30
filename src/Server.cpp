@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/28 19:11:26 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/30 11:04:14 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,30 +19,30 @@ Server::Server() {
 }
 
 Server::Server(const Server &cpy) {
-  _name = cpy._name;
-  _timedOut = cpy._timedOut;
-  _ports = cpy._ports;
-  _host = cpy._host;
-  _clientMaxBodySize = cpy._clientMaxBodySize;
-  _mapLocation = cpy._mapLocation;
-  _mapErrorPage = cpy._mapErrorPage;
-  this->_mapDefaultErrorPage = cpy._mapDefaultErrorPage;
-  _mapClients = cpy._mapClients;
+	_name = cpy._name;
+	_timedOut = cpy._timedOut;
+	_ports = cpy._ports;
+	_host = cpy._host;
+	_clientMaxBodySize = cpy._clientMaxBodySize;
+	_mapLocation = cpy._mapLocation;
+	_mapErrorPage = cpy._mapErrorPage;
+	this->_mapDefaultErrorPage = cpy._mapDefaultErrorPage;
+	_mapClients = cpy._mapClients;
 }
 
 Server &Server::operator=(const Server &other) {
-  if (this != &other) {
-	this->_timedOut = other._timedOut;
-    this->_name = other._name;
-    this->_ports = other._ports;
-    this->_host = other._host;
-    this->_clientMaxBodySize = other._clientMaxBodySize;
-    this->_mapLocation = other._mapLocation;
-    this->_mapErrorPage = other._mapErrorPage;
-    this->_mapDefaultErrorPage = other._mapDefaultErrorPage;
-    this->_mapClients = other._mapClients;
-  }
-  return *this;
+	if (this != &other) {
+		this->_timedOut = other._timedOut;
+		this->_name = other._name;
+		this->_ports = other._ports;
+		this->_host = other._host;
+		this->_clientMaxBodySize = other._clientMaxBodySize;
+		this->_mapLocation = other._mapLocation;
+		this->_mapErrorPage = other._mapErrorPage;
+		this->_mapDefaultErrorPage = other._mapDefaultErrorPage;
+		this->_mapClients = other._mapClients;
+	}
+	return *this;
 }
 
 Server::~Server() { deleteAllClients(); }
@@ -58,22 +58,22 @@ Server::Server(std::map<int, ErrorPage> errorPages) {
 void Server::addName(const std::string &name) { _name.push_back(name); }
 
 void Server::setClientMaxBodySize(int clientMaxBodySize) {
-  _clientMaxBodySize = clientMaxBodySize;
+	_clientMaxBodySize = clientMaxBodySize;
 }
 
 void Server::setHost(const std::string &host) { _host = host; }
 
 void Server::setClientMaxBodySize(std::string clientMaxBodySize) {
-  int maxBodySize = 0;
-  std::istringstream iss(clientMaxBodySize);
+	int maxBodySize = 0;
+	std::istringstream iss(clientMaxBodySize);
 
-  iss >> maxBodySize;
-  if (!iss.eof())
-	throw (Error::IntExpected(clientMaxBodySize));
-  setClientMaxBodySize(maxBodySize);
+	iss >> maxBodySize;
+	if (!iss.eof())
+		throw(Error::IntExpected(clientMaxBodySize));
+	setClientMaxBodySize(maxBodySize);
 }
 
-void Server::addPort(const std::string &port) { 
+void Server::addPort(const std::string &port) {
 	int p = 0;
 	std::istringstream iss(port);
 	iss >> p;
@@ -86,14 +86,14 @@ void Server::addPort(const std::string &port) {
 
 void Server::setTimeOut(const std::string time) {
 	int timedOut = 0;
-  std::istringstream iss(time);
+	std::istringstream iss(time);
 
-  iss >> timedOut;
-  if (!iss.eof())
-	throw (Error::IntExpected(time));
-  if (timedOut < 0 || timedOut > 20)
-	throw (Error::IntOutOfRange(time));
-  _timedOut = timedOut;
+	iss >> timedOut;
+	if (!iss.eof())
+		throw(Error::IntExpected(time));
+	if (timedOut < 0 || timedOut > 20)
+		throw(Error::IntOutOfRange(time));
+	_timedOut = timedOut;
 }
 
 // Getter
@@ -101,53 +101,47 @@ const std::vector<std::string> &Server::getNames() const { return _name; }
 
 const std::vector<std::string> &Server::getPorts() const { return _ports; }
 
-long long	Server::getClientMaxBodySize() const {
-	return _clientMaxBodySize;
-}
+long long Server::getClientMaxBodySize() const { return _clientMaxBodySize; }
 
-int	Server::getTimedOutValue() const {
-	return _timedOut;
-}
-
-
+int Server::getTimedOutValue() const { return _timedOut; }
 
 const std::string &Server::getHost() const { return _host; }
 
 // Specific map
 void Server::addLocation(const Location &location) {
-  _mapLocation.insert(std::make_pair(location.getName(), location));
+	_mapLocation.insert(std::make_pair(location.getName(), location));
 }
 
 APage &Server::getLocationByName(const std::string &name) {
-  std::map<std::string, Location>::iterator it = _mapLocation.find(name);
-  if (it == _mapLocation.end()) {
-    return (this->getErrorPageByCode(404));
-  }
-  return it->second;
+	std::map<std::string, Location>::iterator it = _mapLocation.find(name);
+	if (it == _mapLocation.end()) {
+		return (this->getErrorPageByCode(404));
+	}
+	return it->second;
 }
 
 void Server::addErrorPage(const ErrorPage &errorPage) {
-  _mapErrorPage.insert(std::make_pair(errorPage.getCode(), errorPage));
+	_mapErrorPage.insert(std::make_pair(errorPage.getCode(), errorPage));
 }
 
 ErrorPage &Server::getErrorPageByCode(const int code) {
-  std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
-  if (it == _mapErrorPage.end()) {
-    return _mapDefaultErrorPage.find(code)->second;
-  }
-  return it->second;
+	std::map<int, ErrorPage>::iterator it = _mapErrorPage.find(code);
+	if (it == _mapErrorPage.end()) {
+		return _mapDefaultErrorPage.find(code)->second;
+	}
+	return it->second;
 }
 
 void Server::addErrorPage(const std::string &name, const std::string &root) {
-  ErrorPage errorPage(name, root);
-  int code = 0;
-  std::istringstream iss(name);
+	ErrorPage errorPage(name, root);
+	int code = 0;
+	std::istringstream iss(name);
 
-  iss >> code;
-  if (!iss.eof())
-    throw(Error::IntExpected(name));
-  errorPage.setCode(code);
-  addErrorPage(errorPage);
+	iss >> code;
+	if (!iss.eof())
+		throw(Error::IntExpected(name));
+	errorPage.setCode(code);
+	addErrorPage(errorPage);
 }
 
 Client &Server::getClient(int fd) { return (_mapClients[fd]); }
@@ -157,16 +151,16 @@ Client &Server::getClient(int fd) { return (_mapClients[fd]); }
  * The warning should never happen, but just in case
  */
 void Server::addClient(const Client &client) {
-  if (_mapClients.find(client.getFd()) != _mapClients.end()) {
-    std::cout << "Warning: client with fd " << client.getFd()
-              << " already exists, overwriting it" << std::endl;
-    deleteClient(client.getFd());
-  }
-  _mapClients[client.getFd()] = client;
+	if (_mapClients.find(client.getFd()) != _mapClients.end()) {
+		std::cout << "Warning: client with fd " << client.getFd()
+				<< " already exists, overwriting it" << std::endl;
+		deleteClient(client.getFd());
+	}
+	_mapClients[client.getFd()] = client;
 }
 
 void Server::deleteAllClients() {
-  std::map<int, Client>::iterator it;
+	std::map<int, Client>::iterator it;
 
 	for (it = _mapClients.begin(); it != _mapClients.end(); ++it) {
 		std::cout << "Closing client with fd " << it->first << std::endl;
@@ -176,20 +170,19 @@ void Server::deleteAllClients() {
 }
 
 void Server::deleteClient(int fd) {
-  close(fd);
-  _mapClients.erase(fd);
+	close(fd);
+	_mapClients.erase(fd);
 }
 
 void Server::parseAndAddLocation(
-    std::vector<std::string>::iterator &it,
-    const std::vector<std::string>::iterator itEnd) {
-  int isClosed = 0;
-  Location newLocation;
+	std::vector<std::string>::iterator &it,
+	const std::vector<std::string>::iterator itEnd) {
+	int isClosed = 0;
+	Location newLocation;
 
 	newLocation.setName(*it);
 	++it;
-	while (it != itEnd)
-	{
+	while (it != itEnd) {
 		if (*it == "{")
 			isClosed++;
 		else if (*it == "}")
@@ -199,92 +192,83 @@ void Server::parseAndAddLocation(
 			if (it != itEnd)
 				newLocation.setRoot(*it);
 			if ((it + 1) == itEnd || *(it + 1) != ";")
-				throw (Error::DidNotFindSemicolon(*it));
-		}
-		else if (*it == "allowed_methods") {
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it == "allowed_methods") {
 			it++;
 			while (it != itEnd && *it != ";") {
 				newLocation.addAllowedMethods(*it);
 				it++;
 			}
 			if (it == itEnd || *it != ";")
-				throw (Error::DidNotFindSemicolon(*it));
-		}
-		else if (*it == "index") {
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it == "index") {
 			it++;
 			while (it != itEnd && *it != ";") {
 				newLocation.addIndex(*it);
 				it++;
 			}
 			if (it == itEnd || *it != ";")
-				throw (Error::DidNotFindSemicolon(*it));
-		}
-		else if (*it == "autoindex") {
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it == "autoindex") {
 			it++;
 			if (it != itEnd && *it == "on")
 				newLocation.setAutoIndex(true);
 			else if (it != itEnd && *it == "off")
 				newLocation.setAutoIndex(false);
 			else
-				throw (Error::UnknownToken(*it));
+				throw(Error::UnknownToken(*it));
 			if ((it + 1) == itEnd || *(it + 1) != ";")
-				throw (Error::DidNotFindSemicolon(*it));
-		}
-		else if (*it == "return") {
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it == "return") {
 			it++;
 			if (it != itEnd && (it + 1) != itEnd) {
 				newLocation.setReturn(*it + " " + *(it + 1));
 				it++;
 			}
 			if ((it + 1) == itEnd || *(it + 1) != ";")
-				throw (Error::DidNotFindSemicolon(*(it)));
+				throw(Error::DidNotFindSemicolon(*(it)));
 			it++;
-		}
-		else if (*it == "upload_path") {
+		} else if (*it == "upload_path") {
 			it++;
 			if (it != itEnd) {
 				newLocation.setUploadPath(*it);
 			}
 			if ((it + 1) == itEnd || *(it + 1) != ";")
-				throw (Error::DidNotFindSemicolon(*it));
-		}
-		else if (*it == "cgi_extension") {
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it == "cgi_extension") {
 			it++;
 			if (it != itEnd) {
 				newLocation.setCgiExtension(*it);
 			}
 			if ((it + 1) == itEnd || *(it + 1) != ";")
-				throw (Error::DidNotFindSemicolon(*it));
-		}
-		else if (*it == "cgi_path") {
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it == "cgi_path") {
 			it++;
 			if (it != itEnd) {
 				newLocation.setCgiPath(*it);
 			}
 			if ((it + 1) == itEnd || *(it + 1) != ";")
-				throw (Error::DidNotFindSemicolon(*it));
-		}
-		else if (*it == "client_max_body_size") {
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it == "client_max_body_size") {
 			it++;
 			if (it != itEnd) {
 				newLocation.setClientMaxBodySize(*it);
 			}
 			if ((it + 1) == itEnd || *(it + 1) != ";")
-				throw (Error::DidNotFindSemicolon(*it));
-		}
-		else if (*it != ";")
-			throw (Error::UnknownToken(*it));
+				throw(Error::DidNotFindSemicolon(*it));
+		} else if (*it != ";")
+			throw(Error::UnknownToken(*it));
 		if (isClosed == 0)
 			break;
 		it++;
 	}
 	if (isClosed != 0)
-		throw (Error::ErrorBracketParseFile());
+		throw(Error::ErrorBracketParseFile());
 	addLocation(newLocation);
 }
 
 void Server::setDefaultMapErrorPage(const std::map<int, ErrorPage> &map) {
-  this->_mapDefaultErrorPage = map;
+	this->_mapDefaultErrorPage = map;
 }
 
 std::map<std::string, Location> &Server::getLocations() { return _mapLocation; }
