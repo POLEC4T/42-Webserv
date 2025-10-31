@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 14:49:06 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/10/31 12:49:59 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,17 @@ Context::~Context() {
 }
 
 //Getter
+bool					Context::isRunningCgi(int fd) {
+	std::map<int, t_Cgi>::iterator it = _mapRunningCgi.find(fd);
+	if (it == _mapRunningCgi.end())
+		return false;
+	return true;
+}
+
+t_Cgi&					Context::getRunningCgi(int fd) {
+	return _mapRunningCgi[fd];
+}
+
 std::vector<Server>&	Context::getServers() {
 	return _servers;
 }
@@ -34,6 +45,10 @@ int	Context::getEpollFd() const {
 }
 
 // Setter
+void	Context::addCgi(t_Cgi& cgi) {
+	_mapRunningCgi[cgi.fd] = cgi;
+}
+
 void Context::addServer(const Server &server) { _servers.push_back(server); }
 
 void	Context::setEpollFd(int fd) {
@@ -42,6 +57,16 @@ void	Context::setEpollFd(int fd) {
 
 
 // functions
+// std::string	Context::checkTimedOutCgi() {
+// 	for (std::map<int, t_Cgi>::iterator it = _mapRunningCgi.begin(); it != _mapRunningCgi.end(); ++it) {
+// 		t_Cgi cgi = it->second;
+// 		if (time() - cgi.startTime >= cgi.timeOut) {
+// 			kill(cgi.pid);
+// 			waitpid
+// 		}
+// 	}
+// }
+
 int getContent(std::string fileName, std::string &content, char separator) {
 	std::string line;
 	size_t i;
