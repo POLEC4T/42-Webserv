@@ -6,14 +6,14 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/31 12:50:28 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/31 14:33:48 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Context.hpp"
 #include "MethodExecutor.hpp"
 #include "defines.h"
 #include "epoll.hpp"
-#include "Context.hpp"
 #include <ctime>
 #include <fcntl.h>
 #include <sys/wait.h>
@@ -204,8 +204,6 @@ std::string readToHTTPBody(int fd) {
 	return content;
 }
 
-void handle_alarm(int signo) { (void)signo; }
-
 int timedOutHandling(t_CGIContext &ctx, int timedOut, std::string &content) {
 	int waitPidRet = 0;
 	int timer_value = timedOut != -1 ? timedOut : 5;
@@ -242,7 +240,8 @@ int executeChild(t_CGIContext ctx) {
 	std::exit(1);
 }
 
-int CGIHandler(Request &req, Location &loc, Server &serv, Client &client, Context& ctx) {
+int CGIHandler(Request &req, Location &loc, Server &serv, Client &client,
+			Context &ctx) {
 	t_CGIContext cgiCtx;
 	std::string content;
 	std::string method = req.getMethod();
@@ -290,11 +289,19 @@ int CGIHandler(Request &req, Location &loc, Server &serv, Client &client, Contex
 		ev.data.fd = cgiCtx.pipeFdOut[0];
 		epoll_ctl(ctx.getEpollFd(), EPOLL_CTL_ADD, cgiCtx.pipeFdOut[0], &ev);
 
-		freeCGIContextMainProcess(cgiCtx)
-		// set value for t_CGI;
+		freeCGIContextMainProcess(cgiCtx);
+
+		CGI cgi(serv, client);
+
+		cgi.setFd(cgiCtx.pipeFdOut[0]);
+		cgi.setPid(cgiCtx.pid);
+
+		ctx.addCgi(cgi);
+
 		return CGI_PENDING;
-		cgiCtx.timedOut = timedOutHandling(cgiCtx, serv.getTimedOutValue(), content);
 	}
+	return INTERNAL_SERVER_ERROR;
+}
 
 	// if (ctx.timedOut == TIMEDOUT) {
 	// 	std::cerr << "CGI: timed out." << std::endl;
@@ -320,4 +327,4 @@ int CGIHandler(Request &req, Location &loc, Server &serv, Client &client, Contex
 	// 		.build();
 	// }
 	// return content;
-}
+

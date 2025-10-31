@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/31 12:48:24 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/31 15:14:34 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,18 +16,10 @@
 # include "Server.hpp"
 # include "FtString.hpp"
 # include "Location.hpp"
+# include "CGI.hpp"
 
 class Location;
-
-struct s_Cgi {
-	int pid;
-	int outputFd;
-	int clientFd;
-	int startTime;
-	int timeOut;
-	std::string output;
-	bool done;
-}	t_Cgi;
+class CGI;
 
 class Context {
 	private:
@@ -36,7 +28,7 @@ class Context {
 		Location					_currentLocation;
 		std::map<int, ErrorPage>	_mapDefaultErrorPage;
 		int							_epollfd;
-		std::map<int, t_Cgi>		_mapRunningCgi;
+		std::map<int, CGI>			_mapRunningCgi;
 
 	public:
 		Context();
@@ -44,18 +36,18 @@ class Context {
 		
 		//Getter
 		bool							isRunningCgi(int fd);
-		t_Cgi							getRunningCgi(int fd);
 		std::vector<Server>&			getServers() ;
 		const std::map<int, ErrorPage>&	getMapDefaultErrorPage() const ;
 		int								getEpollFd() const ;
 		
 		//Setter
-		void	addCgi(t_Cgi);
+		void	addCgi(CGI&);
 		void	addServer(const Server& server);
 		void	setEpollFd(int fd);
 		
 		//functions
-		void	checkTimedOutCgi();
+		void	handleEventCgi(int fd);
+		void	checkRunningCgi();
 		void	configFileParser(const std::string& fileName, std::map<int, ErrorPage>);
 		void	parseAndAddServer(std::vector<std::string>::iterator&,
 				const std::vector<std::string>::iterator&, std::map<int, ErrorPage>);

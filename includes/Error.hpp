@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:34:04 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/30 11:41:49 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/31 14:57:26 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,11 @@ public:
 	class CgiValuesError: public std::exception {
 		public:
 			const char *what() const throw();
+	};
+
+	class CgiNotFound: public std::exception {
+		public:
+			const char* what() const throw() ;
 	};
 };
 

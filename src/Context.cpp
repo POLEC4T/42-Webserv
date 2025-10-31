@@ -6,12 +6,16 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/31 12:49:59 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/31 15:05:22 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Context.hpp"
 #include "Error.hpp"
+#include "Response.hpp"
+#include <sys/wait.h>
+
+int queueResponse(Client &client, std::string &response, int epollfd);
 
 Context::Context() : _epollfd(-1) {}
 
@@ -20,52 +24,79 @@ Context::~Context() {
 		close(_epollfd);
 }
 
-//Getter
-bool					Context::isRunningCgi(int fd) {
-	std::map<int, t_Cgi>::iterator it = _mapRunningCgi.find(fd);
+// Getter
+bool Context::isRunningCgi(int fd) {
+	std::map<int, CGI>::iterator it = _mapRunningCgi.find(fd);
 	if (it == _mapRunningCgi.end())
 		return false;
 	return true;
 }
 
-t_Cgi&					Context::getRunningCgi(int fd) {
-	return _mapRunningCgi[fd];
-}
-
-std::vector<Server>&	Context::getServers() {
-	return _servers;
-}
+std::vector<Server> &Context::getServers() { return _servers; }
 
 const std::map<int, ErrorPage> &Context::getMapDefaultErrorPage() const {
 	return _mapDefaultErrorPage;
 }
 
-int	Context::getEpollFd() const {
-	return _epollfd;
-}
+int Context::getEpollFd() const { return _epollfd; }
 
 // Setter
-void	Context::addCgi(t_Cgi& cgi) {
-	_mapRunningCgi[cgi.fd] = cgi;
+void Context::addCgi(CGI &cgi) {
+	_mapRunningCgi.insert(std::make_pair(cgi.getFd(), cgi));
 }
 
 void Context::addServer(const Server &server) { _servers.push_back(server); }
 
-void	Context::setEpollFd(int fd) {
-	_epollfd = fd;
+void Context::setEpollFd(int fd) { _epollfd = fd; }
+
+void Context::handleEventCgi(int fd) {
+	std::map<int, CGI>::iterator it = _mapRunningCgi.find(fd);
+	if (it == _mapRunningCgi.end())
+		return;
+
+	CGI &cgi = it->second;
+
+	char buffer[1024];
+	int bytes = read(fd, buffer, sizeof(buffer));
+	if (bytes > 0) {
+		cgi.appendOutput(buffer);
+	}
+
+	int status;
+	pid_t r = waitpid(cgi.getPid(), &status, WNOHANG);
+	if (r == cgi.getPid()) {
+		queueResponse(cgi.getClient(), cgi.getOutput(), _epollfd);
+		fd = cgi.getFd();
+		if (fd != -1)
+			close(fd);
+		_mapRunningCgi.erase(fd);
+		return;
+	}
 }
 
+void Context::checkRunningCgi() {
+	int now = time(NULL);
+	std::string response;
+	int fd;
 
-// functions
-// std::string	Context::checkTimedOutCgi() {
-// 	for (std::map<int, t_Cgi>::iterator it = _mapRunningCgi.begin(); it != _mapRunningCgi.end(); ++it) {
-// 		t_Cgi cgi = it->second;
-// 		if (time() - cgi.startTime >= cgi.timeOut) {
-// 			kill(cgi.pid);
-// 			waitpid
-// 		}
-// 	}
-// }
+	for (std::map<int, CGI>::iterator it = _mapRunningCgi.begin();
+		it != _mapRunningCgi.end(); ++it) {
+		CGI &cgi = it->second;
+		if (now - cgi.getStartTime() >= cgi.getTimeOutValue()) {
+			kill(cgi.getPid(), SIGKILL);
+			waitpid(cgi.getPid(), NULL, 0);
+			fd = cgi.getFd();
+			if (fd != -1)
+				close(fd);
+			response =
+				Response(cgi.getClient().getRequest().getVersion(),
+						cgi.getServer().getErrorPageByCode(REQUEST_TIMEOUT))
+					.build();
+			queueResponse(cgi.getClient(), response, _epollfd);
+			_mapRunningCgi.erase(it);
+		}
+	}
+}
 
 int getContent(std::string fileName, std::string &content, char separator) {
 	std::string line;
@@ -170,7 +201,7 @@ void Context::parseAndAddServer(std::vector<std::string>::iterator &it,
 }
 
 void Context::configFileParser(const std::string &fileName,
-							std::map<int, ErrorPage> errorPages) {
+							   std::map<int, ErrorPage> errorPages) {
 	FtString content;
 	std::vector<std::string> tokens;
 
@@ -178,7 +209,7 @@ void Context::configFileParser(const std::string &fileName,
 	addSpace(content, ';');
 	tokens = content.ft_split(" \n\b\t\r\v\f");
 	for (std::vector<std::string>::iterator it = tokens.begin();
-		it != tokens.end(); it++) {
+		 it != tokens.end(); it++) {
 		if (*it == "server")
 			parseAndAddServer(++it, tokens.end(), errorPages);
 	}
@@ -186,9 +217,9 @@ void Context::configFileParser(const std::string &fileName,
 		throw(Error::NoServerInConfigFile());
 }
 
-void	Context::parseAndSetMapDefaultErrorPage() {
-    std::string	fileName = "serverData/errorPages/default/error_";
-	std::vector<int>			codes;
+void Context::parseAndSetMapDefaultErrorPage() {
+	std::string fileName = "serverData/errorPages/default/error_";
+	std::vector<int> codes;
 	codes.push_back(BAD_REQUEST);
 	codes.push_back(FORBIDDEN);
 	codes.push_back(PAGE_NOT_FOUND);
@@ -201,10 +232,9 @@ void	Context::parseAndSetMapDefaultErrorPage() {
 	codes.push_back(HTTP_VERSION_NOT_SUPPORTED);
 
 	for (size_t i = 0; i < codes.size(); i++) {
-		std::string	content;
+		std::string content;
 		std::string codeStr = FtString::my_to_string<int>(codes[i]);
-		std::string	name = "error_" + codeStr;
-
+		std::string name = "error_" + codeStr;
 
 		getContent(fileName + codeStr + ".html", content, '\n');
 		ErrorPage errorPage(name, content, codes[i]);
@@ -215,7 +245,7 @@ void	Context::parseAndSetMapDefaultErrorPage() {
 /**
  * @return true if fd is one of the listening sockets of any server
  */
-bool	Context::isListenerFd(int fd) const {
+bool Context::isListenerFd(int fd) const {
 	std::vector<Server>::const_iterator it;
 	for (it = _servers.begin(); it != _servers.end(); ++it) {
 		if (it->isListener(fd))
@@ -228,7 +258,7 @@ bool	Context::isListenerFd(int fd) const {
  * This fd must be either a listening socket or a client socket
  * @throw Error::NoRelatedServersFound if no server is found for this fd
  */
-Server&	Context::getRelatedServer(int fd) {
+Server &Context::getRelatedServer(int fd) {
 	std::vector<Server>::iterator servIt;
 	std::vector<int> sockfds;
 	std::vector<Client> clients;
@@ -237,5 +267,5 @@ Server&	Context::getRelatedServer(int fd) {
 		if (servIt->isClient(fd) || servIt->isListener(fd))
 			return (*servIt);
 	}
-	throw (Error::NoRelatedServerFound(fd));
+	throw(Error::NoRelatedServerFound(fd));
 }
