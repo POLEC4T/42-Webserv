@@ -59,7 +59,7 @@ html_body = """<!DOCTYPE html>
     <h1 class="text-xl text-gray-200 tracking-wider">PIXELVERSE</h1>
     <nav class="mt-3 space-x-8 text-sm text-gray-500">
       <a href="../index.html">Accueil</a>
-      <a href="../requete.html">Testing</a>
+      <a href="../request.html">Testing</a>
       <a href="../index.html#games" class="text-white">Jeux</a>
       <a href="../index.html#profile" class="text-white">Profil</a>
     </nav>
