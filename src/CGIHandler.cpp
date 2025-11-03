@@ -6,7 +6,11 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2025/11/03 15:19:50 by dmazari          ###   ########.fr       */
+=======
+/*   Updated: 2025/11/03 16:42:29 by dmazari          ###   ########.fr       */
+>>>>>>> 815b393201a4fee13d7db4bea304f31b4dc64e1f
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +177,7 @@ void freeCGIContext(t_CGIContext& ctx) {
 	closeFdOfContext(ctx);
 }
 
+<<<<<<< HEAD
 void freeCGIContextMainProcess(t_CGIContext &ctx) {
 	if (ctx.args)
 		freeCharArray(ctx.args);
@@ -221,6 +226,8 @@ int timedOutHandling(t_CGIContext &ctx, int timedOut, std::string &content) {
 	return (EXIT_SUCCESS);
 }
 
+=======
+>>>>>>> 815b393201a4fee13d7db4bea304f31b4dc64e1f
 int executeChild(t_CGIContext ctx) {
 	if (dup2(ctx.pipeFdIn[0], STDIN_FILENO) == -1) {
 		freeCGIContext(ctx);
