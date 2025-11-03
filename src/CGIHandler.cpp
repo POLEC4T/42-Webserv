@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/31 14:33:48 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/03 11:33:02 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ typedef struct s_CGIContext {
 	int timedOut;
 } t_CGIContext;
 
-std::string getCgiExtensionInUri(Request &req) {
+std::string	getCgiExtensionInUri(Request &req) {
 	FtString token = req.getUri();
 	std::vector<std::string> parts = token.ft_split("?");
 	const std::string &pathOnly = parts.size() > 0 ? parts[0] : std::string();
@@ -222,13 +222,13 @@ int timedOutHandling(t_CGIContext &ctx, int timedOut, std::string &content) {
 }
 
 int executeChild(t_CGIContext ctx) {
+	std::cout << "serv mort ?" << std::endl;
 	if (dup2(ctx.pipeFdIn[0], STDIN_FILENO) == -1) {
 		freeCGIContext(ctx);
 		std::cerr << "CGI: dup2 pipeFdIn[0] error" << std::endl;
 		std::exit(1); // todo ca free ?
 	}
-	if (dup2(ctx.pipeFdOut[1], STDOUT_FILENO) ==
-		-1 /*|| dup2(ctx.pipeFdOut[1], STDERR_FILENO) == -1*/) {
+	if (dup2(ctx.pipeFdOut[1], STDOUT_FILENO) == -1 /*|| dup2(ctx.pipeFdOut[1], STDERR_FILENO) == -1*/) {
 		std::cerr << "CGI: dup2 pipeFdOut[1] error" << std::endl;
 		freeCGIContext(ctx);
 		std::exit(1);
@@ -284,10 +284,10 @@ int CGIHandler(Request &req, Location &loc, Server &serv, Client &client,
 	} else {
 		ftClose(&cgiCtx.pipeFdOut[1]);
 
-		struct epoll_event ev;
-		ev.events = EPOLLIN;
-		ev.data.fd = cgiCtx.pipeFdOut[0];
-		epoll_ctl(ctx.getEpollFd(), EPOLL_CTL_ADD, cgiCtx.pipeFdOut[0], &ev);
+		if (my_epoll_ctl(ctx.getEpollFd(), EPOLL_CTL_ADD, EPOLLIN, cgiCtx.pipeFdOut[0]) == -1) {
+			freeCGIContext(cgiCtx);
+			return DELETE_CLIENT;
+		}
 
 		freeCGIContextMainProcess(cgiCtx);
 

@@ -3,18 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   CGI.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/31 13:55:23 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/31 15:14:09 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/03 11:02:10 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CGI.hpp"
 
-CGI::CGI(Server& server, Client& client) {
-	_server = server;
-	_client = client;
+CGI::CGI(Server& server, Client& client): _server(server), _client(client) {
 	int timeOut = server.getTimedOutValue();
 	_pid = 0;
 	_output = "";
@@ -23,9 +21,7 @@ CGI::CGI(Server& server, Client& client) {
 	_startTime = time(NULL);
 }
 
-CGI::CGI(const CGI& other) {
-	_server = other._server;
-	_client = other._client;
+CGI::CGI(const CGI& other) : _server(other._server), _client(other._client) {
 	_pid = other._pid;
 	_fd = other._fd;
 	_startTime = other._startTime;

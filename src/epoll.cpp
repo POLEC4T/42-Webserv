@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   epoll.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/31 15:12:21 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/03 11:37:22 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ int launchEpoll(Context &ctx) {
 	while (1) {
 		if (PRINT)
 			std::cout << "epoll_waiting" << std::endl;
-		eventsReady = epoll_wait(ctx.getEpollFd(), events, NB_EVENTS, -1); //TODO timeout return 0
+		eventsReady = epoll_wait(ctx.getEpollFd(), events, NB_EVENTS, 1000); //TODO timeout return 0
 		if (eventsReady == -1) {
 			std::cerr << "epoll_wait: " << strerror(errno) << std::endl;
 			return (EXIT_FAILURE);
@@ -73,7 +73,7 @@ int launchEpoll(Context &ctx) {
 		if (PRINT)
 			std::cout << eventsReady << " event(s)" << std::endl;
 		for (int i = 0; i < eventsReady; ++i) {
-			if (ctx.isRunningCgi(events[i].data.fd))
+			if (ctx.isRunningCGI(events[i].data.fd))
 				ctx.handleEventCgi(events[i].data.fd);
 			else
 			{
@@ -103,7 +103,7 @@ int launchEpoll(Context &ctx) {
 				}
 			}
 		}
-		ctx.checkRunningCgi();
+		ctx.checkTimedOutCGI();
 		if (PRINT)
 			std::cout << "-----\n";
 	}
@@ -299,6 +299,8 @@ static int handleClientIn(Server& server, Client& client, Context& ctx) {
 
 		if (isCGI(client.getRequest(), loc)) {
 			int ret = CGIHandler(client.getRequest(), loc, server, client, ctx);
+			if (ret == DELETE_CLIENT)
+				return (EXIT_FAILURE);
 			if (ret != CGI_PENDING)
 				response = Response(client.getRequest().getVersion(),
 							server.getErrorPageByCode(ret)).build();

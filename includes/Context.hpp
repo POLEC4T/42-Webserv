@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/31 15:14:34 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/03 11:09:52 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,14 +28,14 @@ class Context {
 		Location					_currentLocation;
 		std::map<int, ErrorPage>	_mapDefaultErrorPage;
 		int							_epollfd;
-		std::map<int, CGI>			_mapRunningCgi;
+		std::map<int, CGI>			_mapRunningCGIs;
 
 	public:
 		Context();
 		~Context();
 		
 		//Getter
-		bool							isRunningCgi(int fd);
+		bool							isRunningCGI(int fd);
 		std::vector<Server>&			getServers() ;
 		const std::map<int, ErrorPage>&	getMapDefaultErrorPage() const ;
 		int								getEpollFd() const ;
@@ -47,7 +47,7 @@ class Context {
 		
 		//functions
 		void	handleEventCgi(int fd);
-		void	checkRunningCgi();
+		void	checkTimedOutCGI();
 		void	configFileParser(const std::string& fileName, std::map<int, ErrorPage>);
 		void	parseAndAddServer(std::vector<std::string>::iterator&,
 				const std::vector<std::string>::iterator&, std::map<int, ErrorPage>);
