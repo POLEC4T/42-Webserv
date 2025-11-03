@@ -3,14 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2025/11/03 15:19:50 by dmazari          ###   ########.fr       */
-=======
-/*   Updated: 2025/11/03 16:42:29 by dmazari          ###   ########.fr       */
->>>>>>> 815b393201a4fee13d7db4bea304f31b4dc64e1f
+/*   Updated: 2025/11/03 18:46:57 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,57 +173,6 @@ void freeCGIContext(t_CGIContext& ctx) {
 	closeFdOfContext(ctx);
 }
 
-<<<<<<< HEAD
-void freeCGIContextMainProcess(t_CGIContext &ctx) {
-	if (ctx.args)
-		freeCharArray(ctx.args);
-	if (ctx.env)
-		freeCharArray(ctx.env);
-	ftClose(&ctx.pipeFdIn[0]);
-	ftClose(&ctx.pipeFdIn[1]);
-	ftClose(&ctx.pipeFdOut[1]);
-}
-
-std::string readToHTTPBody(int fd) {
-	int bytes = 0;
-	std::string content;
-	char buffer[20];
-	errno = 0;
-
-	while (1) {
-		bytes = read(fd, buffer, 19);
-		if (bytes == -1) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				break;
-			return std::string();
-		}
-		if (bytes == 0)
-			break;
-		buffer[bytes] = '\0';
-		content += buffer;
-	}
-	return content;
-}
-
-int timedOutHandling(t_CGIContext &ctx, int timedOut, std::string &content) {
-	int waitPidRet = 0;
-	int timer_value = timedOut != -1 ? timedOut : 5;
-	time_t start = time(NULL);
-
-	while (waitPidRet == 0) {
-		waitPidRet = waitpid(ctx.pid, &ctx.status, WNOHANG);
-		if (time(NULL) - start >= timer_value) {
-			kill(ctx.pid, SIGKILL);
-			waitpid(ctx.pid, NULL, 0);
-			return (TIMEDOUT);
-		}
-		content += readToHTTPBody(ctx.pipeFdOut[0]);
-	}
-	return (EXIT_SUCCESS);
-}
-
-=======
->>>>>>> 815b393201a4fee13d7db4bea304f31b4dc64e1f
 int executeChild(t_CGIContext ctx) {
 	if (dup2(ctx.pipeFdIn[0], STDIN_FILENO) == -1) {
 		freeCGIContext(ctx);
