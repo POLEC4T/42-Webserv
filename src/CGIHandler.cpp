@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/11/03 11:33:02 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 13:04:45 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,7 +222,6 @@ int timedOutHandling(t_CGIContext &ctx, int timedOut, std::string &content) {
 }
 
 int executeChild(t_CGIContext ctx) {
-	std::cout << "serv mort ?" << std::endl;
 	if (dup2(ctx.pipeFdIn[0], STDIN_FILENO) == -1) {
 		freeCGIContext(ctx);
 		std::cerr << "CGI: dup2 pipeFdIn[0] error" << std::endl;

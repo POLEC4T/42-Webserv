@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 11:54:51 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 13:09:10 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,21 +110,19 @@ void Context::checkTimedOutCGI() {
 		std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
 		if (now - cgi.getStartTime() >= cgi.getTimeOutValue()) {
 			std::cout << "Going to kill" << std::endl;
-			kill(cgi.getPid(), SIGKILL);
-			if (waitpid(cgi.getPid(), NULL, 0) == -1) {
-				std::cerr << "waitpid failed" << std::endl;
-				continue;
-			}
 			fd = cgi.getFd();
 			if (fd != -1)
 				close(fd);
 			response =
 				Response(cgi.getClient().getRequest().getVersion(),
-						cgi.getServer().getErrorPageByCode(REQUEST_TIMEOUT))
-					.build();
+					cgi.getServer().getErrorPageByCode(REQUEST_TIMEOUT)).build();
 			std::cout << "response: " << response << std::endl;
 			std::cout << "cgi.getClient(): " << cgi.getClient().getFd() << std::endl;
-			if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE) {
+			if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE)
+				continue;
+			kill(cgi.getPid(), SIGKILL);
+			if (waitpid(cgi.getPid(), NULL, 0) == -1) {
+				std::cerr << "waitpid failed" << std::endl;
 				continue;
 			}
 			CGIsToErase.push_back(fd);
