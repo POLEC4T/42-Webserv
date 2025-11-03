@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 16:47:21 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/30 13:31:33 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/01 22:24:04 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,29 +14,32 @@
 #include "Server.hpp"
 #include "epoll.hpp"
 
-int main(int ac, char **av) {
+int main(int ac, char **av)
+{
 	Context ctx;
 
-	if (ac != 2)
-	{
-		std::cerr << "Usage: ./webserv [ConfigFile]" << std::endl;
+	if (ac > 2) {
+		std::cerr << "Usage: ./webserv [ ConfigFile < .conf > ]" << std::endl;
 		return 1;
 	}
 	try {
 		ctx.parseAndSetMapDefaultErrorPage();
-	}
-	catch (std::exception& e) {
+	} catch (std::exception& e) {
 		std::cerr << e.what() << std::endl;
 		return 1;
 	}
+
 	std::map<int, ErrorPage> errorPages = ctx.getMapDefaultErrorPage();
-	if (ac != 2)
-	{
-		std::cerr << "Usage: ./webserv [ConfigFile]" << std::endl;
+	std::string config("configs/default.conf");
+
+	if (ac == 2)
+		config = av[1];
+	if (!FtString(std::string(config)).endsWith(".conf")) {
+		std::cerr << "Error: Wrong configuration File Extension" << std::endl;
 		return 1;
 	}
 	try {
-		ctx.configFileParser(av[1], ctx.getMapDefaultErrorPage());
+		ctx.configFileParser(config, ctx.getMapDefaultErrorPage());
 	}
 	catch (std::exception& e) {
 		std::cerr << e.what() << std::endl;

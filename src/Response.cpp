@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:47:45 by faoriol           #+#    #+#             */
-/*   Updated: 2025/11/03 15:16:08 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 15:20:10 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,22 @@
 #include "ErrorPage.hpp"
 #include "FtString.hpp"
 
-Response::Response() { _code = 0; }
+Response::Response()
+{
+	_code = 0;
+}
 
-Response::Response(std::string v, int c, std::string s, std::string b) {
+Response::Response(std::string v, int c, std::string s, std::string b)
+{
 	this->_status = s;
 	this->_code = c;
 	this->_version = v;
 	this->_body = b;
 	this->_headers["Content-Length"] = FtString::my_to_string(b.size());
-	// this->_headers["Content-type"] = "text/html";
 }
 
-Response::Response(std::string v, ErrorPage &page) {
+Response::Response(std::string v, ErrorPage &page)
+{
 	this->_status = page.getName();
 	this->_code = page.getCode();
 	this->_version = v;
@@ -37,8 +41,10 @@ Response::Response(std::string v, ErrorPage &page) {
 	// this->_headers["Content-type"] = "text/html";
 }
 
-Response &Response::operator=(const Response &other) {
-	if (this != &other) {
+Response &Response::operator=(const Response &other)
+{
+	if (this != &other)
+	{
 		this->_status = other._status;
 		this->_code = other._code;
 		this->_version = other._version;
@@ -48,23 +54,25 @@ Response &Response::operator=(const Response &other) {
 	return *this;
 }
 
-void Response::setHeader(const std::string &key, const std::string &value) {
+void Response::setHeader(const std::string &key, const std::string &value)
+{
 	this->_headers[key] = value;
 }
 
-void Response::setBody(const std::string &body) { this->_body = body; }
+void Response::setBody(const std::string &body)
+{
+	this->_body = body;
+}
 
-std::string Response::build() {
+std::string Response::build()
+{
 	std::string res;
-	std::stringstream stream;
-	stream << this->_code;
-	std::string str;
-	stream >> str;
+	std::stringstream stream; stream << this->_code;
+	std::string str; stream >> str;
 
 	res = this->_version + SP + str + SP + this->_status + "\r\n";
-	for (std::map<std::string, std::string>::iterator it =
-			this->_headers.begin();
-		it != this->_headers.end(); it++) {
+	for (std::map<std::string, std::string>::iterator it = this->_headers.begin(); it != this->_headers.end(); it++)
+	{
 		res += it->first;
 		res += ": ";
 		res += it->second;
@@ -76,15 +84,28 @@ std::string Response::build() {
 	return res;
 }
 
-std::string Response::getVersion() const { return (this->_version); }
+std::string Response::getVersion() const
+{
+	return (this->_version);
+}
 
-int Response::getCode() const { return this->_code; }
+int Response::getCode() const
+{
+	return this->_code;
+}
 
-std::string Response::getStatus() const { return this->_status; }
+std::string Response::getStatus() const
+{
+	return this->_status;
+}
 
-std::string Response::getBody() const { return this->_body; }
+std::string Response::getBody() const
+{
+	return this->_body;
+}
 
-std::map<std::string, std::string> Response::getHeaders() const {
+std::map<std::string, std::string> Response::getHeaders() const
+{
 	return this->_headers;
 }
 

@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/11/03 13:39:56 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 15:19:50 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@
 
 typedef struct s_CGIContext {
 	std::string cgiPath;
-	char **env;
-	char **args;
+	char** env;
+	char** args;
 	int pipeFdIn[2];
 	int pipeFdOut[2];
 	int pid;
@@ -32,10 +32,10 @@ typedef struct s_CGIContext {
 	int timedOut;
 } t_CGIContext;
 
-std::string	getCgiExtensionInUri(Request &req) {
+std::string getCgiExtensionInUri(Request& req) {
 	FtString token = req.getUri();
 	std::vector<std::string> parts = token.ft_split("?");
-	const std::string &pathOnly = parts.size() > 0 ? parts[0] : std::string();
+	const std::string& pathOnly = parts.size() > 0 ? parts[0] : std::string();
 	size_t extensionIndex = pathOnly.find('.');
 
 	if (extensionIndex == std::string::npos)
@@ -45,7 +45,7 @@ std::string	getCgiExtensionInUri(Request &req) {
 	return extension;
 }
 
-bool isCGI(Request &req, Location &loc) {
+bool isCGI(Request& req, Location& loc) {
 	std::string method = req.getMethod();
 	std::string extension = getCgiExtensionInUri(req);
 
@@ -58,10 +58,10 @@ bool isCGI(Request &req, Location &loc) {
 	return false;
 }
 
-char **vectorToCharArray(std::vector<std::string> vec) {
-	char **strs;
+char** vectorToCharArray(std::vector<std::string> vec) {
+	char** strs;
 
-	strs = new (std::nothrow) char *[vec.size() + 1];
+	strs = new (std::nothrow) char* [vec.size() + 1];
 	if (!strs)
 		return NULL;
 	for (size_t i = 0; i < vec.size(); i++) {
@@ -79,7 +79,7 @@ char **vectorToCharArray(std::vector<std::string> vec) {
 	return strs;
 }
 
-void freeCharArray(char **strs) {
+void freeCharArray(char** strs) {
 	for (size_t i = 0; strs && strs[i]; i++) {
 		delete[] strs[i];
 	}
@@ -87,7 +87,7 @@ void freeCharArray(char **strs) {
 		delete[] strs;
 }
 
-void ftClose(int *fd) {
+void ftClose(int* fd) {
 	if (*fd != -1)
 		close(*fd);
 	*fd = -1;
@@ -115,7 +115,7 @@ std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
 	return (env);
 }
 
-void initCGIContext(t_CGIContext &ctx) {
+void initCGIContext(t_CGIContext& ctx) {
 	ctx.args = NULL;
 	ctx.env = NULL;
 	ctx.pipeFdIn[0] = -1;
@@ -126,7 +126,7 @@ void initCGIContext(t_CGIContext &ctx) {
 	ctx.timedOut = 0;
 }
 
-int getContext(t_CGIContext &ctx, Location &loc, Request &req, Server &serv) {
+int getContext(t_CGIContext& ctx, Location& loc, Request& req, Server& serv) {
 	std::vector<std::string> envVec;
 	std::vector<std::string> argsVec;
 	std::vector<std::string> tokens;
@@ -150,7 +150,7 @@ int getContext(t_CGIContext &ctx, Location &loc, Request &req, Server &serv) {
 	return (EXIT_SUCCESS);
 }
 
-int initCgiPipes(t_CGIContext &ctx) {
+int initCgiPipes(t_CGIContext& ctx) {
 	if (pipe(ctx.pipeFdOut) || pipe(ctx.pipeFdIn))
 		return EXIT_FAILURE;
 	if (fcntl(ctx.pipeFdOut[0], F_SETFL, O_NONBLOCK) == -1)
@@ -158,14 +158,14 @@ int initCgiPipes(t_CGIContext &ctx) {
 	return EXIT_SUCCESS;
 }
 
-void closeFdOfContext(t_CGIContext &ctx) {
+void closeFdOfContext(t_CGIContext& ctx) {
 	ftClose(&ctx.pipeFdIn[0]);
 	ftClose(&ctx.pipeFdIn[1]);
 	ftClose(&ctx.pipeFdOut[0]);
 	ftClose(&ctx.pipeFdOut[1]);
 }
 
-void freeCGIContext(t_CGIContext &ctx) {
+void freeCGIContext(t_CGIContext& ctx) {
 	if (ctx.args)
 		freeCharArray(ctx.args);
 	if (ctx.env)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/10/31 12:37:07 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/03 15:20:02 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,14 @@
 
 std::string readPage(std::string fileName);
 
-MethodExecutor::MethodExecutor(Server &s, Client &c) : _server(s), _client(c) {
+MethodExecutor::MethodExecutor(Server &s, Client &c) : _server(s), _client(c)
+{
 	this->_request = this->_client.getRequest();
 	this->_method = this->_request.getMethod();
 }
 
-Location MethodExecutor::getRequestLocation(Request &req, Server &serv) {
+Location MethodExecutor::getRequestLocation(Request &req, Server &serv)
+{
 	std::string path(req.getUri());
 	std::map<std::string, Location> &locations = serv.getLocations();
 
@@ -32,9 +34,10 @@ Location MethodExecutor::getRequestLocation(Request &req, Server &serv) {
 		path = "/";
 	else if (l != std::string::npos)
 		path = path.substr(0, l);
-	while (1) {
-		for (std::map<std::string, Location>::iterator it = locations.begin();
-			it != locations.end(); it++) {
+	while (1)
+	{
+		for (std::map<std::string, Location>::iterator it = locations.begin();it != locations.end(); it++)
+		{
 			if (it->first == path)
 				return it->second;
 		}
@@ -49,42 +52,40 @@ Location MethodExecutor::getRequestLocation(Request &req, Server &serv) {
 		else
 			break;
 	}
-	Location loc;
-	loc.setCode(404);
+	Location loc; loc.setCode(404);
 	return loc;
 }
 
-Response& MethodExecutor::getResponse() { return this->_response; }
+Response& MethodExecutor::getResponse()
+{
+	return this->_response;
+}
 
-int returnHandler(Response &response, Location &loc, Request &req,
-				Server &serv) {
+int returnHandler(Response &response, Location &loc, Request &req, Server &serv)
+{
 	if (loc.getReturn().size() == 0)
 		return 1;
-
-	std::vector<std::string> split =
-		static_cast<FtString>(loc.getReturn()).ft_split(" ");
+	std::vector<std::string> split = static_cast<FtString>(loc.getReturn()).ft_split(" ");
 	int i = 0;
-	std::istringstream stream(split[0]);
-	stream >> i;
-	if (!stream.eof() || (i < 300 || i > 308)) {
-		response =
-			Response(req.getVersion(), serv.getErrorPageByCode(BAD_REQUEST));
+	std::istringstream stream(split[0]); stream >> i;
+
+	if (!stream.eof() || (i < 300 || i > 308))
+	{
+		response = Response(req.getVersion(), serv.getErrorPageByCode(BAD_REQUEST));
 		return 0;
 	}
-
-	response = Response(req.getVersion(), std::atoi(split[0].c_str()),
-						"Redirection", "");
+	response = Response(req.getVersion(), std::atoi(split[0].c_str()), "Redirection", "");
 	response.setHeader("Location", split[1]);
 	return 0;
 }
 
-std::string MethodExecutor::execute() {
-	std::cout << "URI " << _request.getUri() << std::endl;
+std::string MethodExecutor::execute()
+{
+	bool	check = true;
+
 	Location loc = this->getRequestLocation(this->_request, this->_server);
 	if (loc.getCode() == PAGE_NOT_FOUND)
-		return Response(this->_request.getVersion(),
-						this->_server.getErrorPageByCode(PAGE_NOT_FOUND))
-			.build();
+		return Response(this->_request.getVersion(), this->_server.getErrorPageByCode(PAGE_NOT_FOUND)).build();
 	if (returnHandler(this->_response, loc, this->_request, this->_server) == 0)
 		return this->_response.build();
 	std::string fileName(loc.getRoot());
@@ -97,9 +98,14 @@ std::string MethodExecutor::execute() {
 	else if (this->_method == "DELETE" && std::find(loc.getAllowedMethods().begin(), loc.getAllowedMethods().end(), "DELETE") != loc.getAllowedMethods().end())
 		this->_response = AHttpMethod::DELETE(fileName, this->_request, this->_server);
 	else
-		this->_response =
-			Response(this->_request.getVersion(),
-					this->_server.getErrorPageByCode(METHOD_NOT_ALLOWED));
+	{
+		check = false;
+		this->_response = Response(this->_request.getVersion(), this->_server.getErrorPageByCode(METHOD_NOT_ALLOWED));
+	}
+	if (check == true && this->_request.getHeaderValue("Cookie").size() != 0)
+	{
+		this->_response.setHeader("Set-Cookie", this->_request.getHeaderValue("Cookie"));
+	}
 	return this->_response.build();
 }
 
