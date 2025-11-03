@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 16:17:39 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/04 00:44:01 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "Response.hpp"
 #include <string.h>
 #include <sys/wait.h>
+#include <algorithm>
 
 int queueResponse(Client &client, std::string &response, int epollfd);
 void	ftClose(int* fd);
@@ -67,18 +68,33 @@ void Context::addServer(const Server &server) { _servers.push_back(server); }
 
 void Context::setEpollFd(int fd) { _epollfd = fd; }
 
-int Context::handleEventCgi(int fd) {
+int	parseTheOutputOfCGI(std::string& output) {
+	size_t statusPlace = output.find("HTTP/1.1", 0);
+	if (statusPlace == output.size())
+		return (EXIT_SUCCESS);
+	statusPlace = output.find("Status", 0);
+	if (statusPlace == output.size())
+		return (EXIT_FAILURE);
+
+	output.replace(statusPlace, 7, "HTTP/1.1");
+	
+	return EXIT_SUCCESS;
+}
+
+void Context::handleEventCgi(int fd) {
 	std::map<int, CGI>::iterator it = _mapRunningCGIs.find(fd);
 	if (it == _mapRunningCGIs.end())
-		return EXIT_SUCCESS;
+		return ;
 
+	std::cout << "Handling CGI event with fd: " << fd << std::endl;
 	CGI &cgi = it->second;
 
 	char buffer[MAX_RECV];
 	int bytes = read(fd, buffer, MAX_RECV - 1);
 	if (bytes == -1) {
-		std::cerr << "recv:" << strerror(errno) << std::endl;
-		return EXIT_FAILURE;
+		std::cerr << "read:" << strerror(errno) << std::endl;
+		cgi.getServer().deleteClient(cgi.getClient().getFd());
+		return ;
 	} else if (bytes > 0) {
 		buffer[bytes] = '\0';
 		cgi.appendOutput(buffer);
@@ -88,12 +104,38 @@ int Context::handleEventCgi(int fd) {
 	pid_t r = waitpid(cgi.getPid(), &status, WNOHANG);
 
 	if (r == cgi.getPid()) {
-		queueResponse(cgi.getClient(), cgi.getOutput(), _epollfd);
+		if (status != 0) {
+			std::cerr << "CGI process " << cgi.getPid() << " finished with status "
+					<< WEXITSTATUS(status) << std::endl;
+			std::string response = Response(cgi.getClient().getRequest().getVersion(),
+				cgi.getServer().getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
+			if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE) {
+				cgi.getServer().deleteClient(cgi.getClient().getFd());
+			}
+		}
+		else {
+			if (parseTheOutputOfCGI(cgi.getOutput()) == EXIT_FAILURE) 
+			{
+				std::string response = Response(cgi.getClient().getRequest().getVersion(),
+				cgi.getServer().getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
+				if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE) {
+					cgi.getServer().deleteClient(cgi.getClient().getFd());
+			}
+			}
+			else if (queueResponse(cgi.getClient(), cgi.getOutput(), _epollfd) == EXIT_FAILURE) {
+				cgi.getServer().deleteClient(cgi.getClient().getFd());
+			}
+		}
 		close(fd);
 		_mapRunningCGIs.erase(fd);
 	}
-	return EXIT_SUCCESS;
+	return ;
 }
+
+/* The code snippet `PRINT) std::cout << "EPOLLIN fd: "` seems to be a typo or a mistake in
+	the code. It looks like there is a missing opening parenthesis after `PRINT`. The correct
+	syntax should be `if (PRINT) { std::cout << "EPOLLIN fd: "; }`. */
+	
 
 void Context::checkTimedOutCGI() {
 	int 		now = time(NULL);
@@ -105,11 +147,11 @@ void Context::checkTimedOutCGI() {
 
 	for (itMap = _mapRunningCGIs.begin(); itMap != _mapRunningCGIs.end(); ++itMap) {
 		CGI &cgi = itMap->second;
-		// std::cout << "PID child: " << cgi.getPid() << std::endl;
-		// std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
+		std::cout << "PID child: " << cgi.getPid() << std::endl;
+		std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
 		if (now - cgi.getStartTime() >= cgi.getTimeOutValue()) {
 			
-			// std::cout << "Going to kill" << std::endl;
+			std::cout << "Going to kill" << std::endl;
 
 			fd = cgi.getFd();
 
@@ -245,7 +287,7 @@ void Context::parseAndAddServer(std::vector<std::string>::iterator &it,
 }
 
 void Context::configFileParser(const std::string &fileName,
-							   std::map<int, ErrorPage> errorPages) {
+							std::map<int, ErrorPage> errorPages) {
 	FtString content;
 	std::vector<std::string> tokens;
 
@@ -253,7 +295,7 @@ void Context::configFileParser(const std::string &fileName,
 	addSpace(content, ';');
 	tokens = content.ft_split(" \n\b\t\r\v\f");
 	for (std::vector<std::string>::iterator it = tokens.begin();
-		 it != tokens.end(); it++) {
+		it != tokens.end(); it++) {
 		if (*it == "server")
 			parseAndAddServer(++it, tokens.end(), errorPages);
 	}

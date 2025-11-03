@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGI.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/31 13:51:52 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 11:01:48 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 00:05:54 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,30 +18,31 @@
 
 class CGI {
 	private:
-		Server&			_server;
-		Client&			_client;
-		int				_pid;
-		int				_fd;
-		int				_startTime;
-		int				_timeOut;
-		std::string		_output;
+		Server		&_server;
+		Client		&_client;
+		int			_pid;
+		int			_fd;
+		int			_startTime;
+		int			_timeOut;
+		std::string	_output;
+
 	public:
-		CGI(Server&, Client&);
-		CGI(const CGI&);
+		CGI(Server &, Client &);
+		CGI(const CGI &);
 		~CGI();
 
-		Client&	getClient();
-		int	getClientFd();
-		Server&	getServer();
-		int	getPid();
-		int	getFd();
-		int	getStartTime();
-		int	getTimeOutValue();
-		std::string&	getOutput();
+		Client		&getClient();
+		Server		&getServer();
+		int			getClientFd();
+		int			getPid();
+		int			getFd();
+		int			getStartTime();
+		int			getTimeOutValue();
+		std::string	&getOutput();
 
 		void	setPid(int);
 		void	setFd(int);
-		void	appendOutput(const std::string&);
-	};
+		void	appendOutput(const std::string &);
+};
 
 #endif
