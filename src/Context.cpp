@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 13:09:10 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 13:33:16 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include <sys/wait.h>
 
 int queueResponse(Client &client, std::string &response, int epollfd);
+void	ftClose(int* fd);
+
 
 Context::Context() : _epollfd(-1) {}
 
@@ -65,10 +67,10 @@ void Context::addServer(const Server &server) { _servers.push_back(server); }
 
 void Context::setEpollFd(int fd) { _epollfd = fd; }
 
-void Context::handleEventCgi(int fd) {
+int Context::handleEventCgi(int fd) {
 	std::map<int, CGI>::iterator it = _mapRunningCGIs.find(fd);
 	if (it == _mapRunningCGIs.end())
-		return;
+		return EXIT_SUCCESS;
 
 	CGI &cgi = it->second;
 
@@ -76,7 +78,7 @@ void Context::handleEventCgi(int fd) {
 	int bytes = read(fd, buffer, MAX_RECV - 1);
 	if (bytes == -1) {
 		std::cerr << "recv:" << strerror(errno) << std::endl;
-		return ; // todo
+		return EXIT_FAILURE;
 	} else if (bytes > 0) {
 		buffer[bytes] = '\0';
 		cgi.appendOutput(buffer);
@@ -84,20 +86,19 @@ void Context::handleEventCgi(int fd) {
 
 	int status;
 	pid_t r = waitpid(cgi.getPid(), &status, WNOHANG);
+
 	if (r == cgi.getPid()) {
 		queueResponse(cgi.getClient(), cgi.getOutput(), _epollfd);
-		fd = cgi.getFd();
-		if (fd != -1)
-			close(fd);
+		ftClose(&fd);
 		_mapRunningCGIs.erase(fd);
-		return;
 	}
+	return EXIT_SUCCESS;
 }
 
 void Context::checkTimedOutCGI() {
 	int now = time(NULL);
 
-	std::cout << "In check time out" << std::endl;
+	// std::cout << "In check time out" << std::endl;
 
 	std::string response;
 	int fd;
@@ -111,20 +112,24 @@ void Context::checkTimedOutCGI() {
 		if (now - cgi.getStartTime() >= cgi.getTimeOutValue()) {
 			std::cout << "Going to kill" << std::endl;
 			fd = cgi.getFd();
-			if (fd != -1)
-				close(fd);
 			response =
-				Response(cgi.getClient().getRequest().getVersion(),
-					cgi.getServer().getErrorPageByCode(REQUEST_TIMEOUT)).build();
+			Response(cgi.getClient().getRequest().getVersion(),
+			cgi.getServer().getErrorPageByCode(REQUEST_TIMEOUT)).build();
 			std::cout << "response: " << response << std::endl;
 			std::cout << "cgi.getClient(): " << cgi.getClient().getFd() << std::endl;
 			if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE)
 				continue;
+
 			kill(cgi.getPid(), SIGKILL);
+			std::cout << "Before waitpid" << std::endl;
 			if (waitpid(cgi.getPid(), NULL, 0) == -1) {
 				std::cerr << "waitpid failed" << std::endl;
 				continue;
 			}
+			std::cout << "After waitpid" << std::endl;
+
+			if (fd != -1)
+				close(fd);
 			CGIsToErase.push_back(fd);
 		}
 	}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGI.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/31 13:55:23 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 11:02:10 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 13:34:15 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ CGI::CGI(Server& server, Client& client): _server(server), _client(client) {
 	_pid = 0;
 	_output = "";
 	_fd = -1;
-	_timeOut = timeOut != -1 ? timeOut : 3;
+	_timeOut = timeOut != -1 ? timeOut : 4;
 	_startTime = time(NULL);
 }
 

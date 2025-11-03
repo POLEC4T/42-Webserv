@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/11/03 13:04:45 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 13:39:56 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,7 +227,7 @@ int executeChild(t_CGIContext ctx) {
 		std::cerr << "CGI: dup2 pipeFdIn[0] error" << std::endl;
 		std::exit(1); // todo ca free ?
 	}
-	if (dup2(ctx.pipeFdOut[1], STDOUT_FILENO) == -1 /*|| dup2(ctx.pipeFdOut[1], STDERR_FILENO) == -1*/) {
+	if (dup2(ctx.pipeFdOut[1], STDOUT_FILENO) == -1 || dup2(ctx.pipeFdOut[1], STDERR_FILENO) == -1) {
 		std::cerr << "CGI: dup2 pipeFdOut[1] error" << std::endl;
 		freeCGIContext(ctx);
 		std::exit(1);
@@ -249,6 +249,9 @@ int CGIHandler(Request &req, Location &loc, Server &serv, Client &client,
 	std::string scriptPath =
 		uriParts.size() ? loc.getRoot() + uriParts[0] : std::string();
 
+  std::cout << "debut de cgi handler" << std::endl;
+
+    
 	if (getContext(cgiCtx, loc, req, serv)) {
 		freeCGIContext(cgiCtx);
 		std::cerr << "CGI: Get context error" << std::endl;
@@ -279,9 +282,10 @@ int CGIHandler(Request &req, Location &loc, Server &serv, Client &client,
 	}
 
 	if (cgiCtx.pid == 0) {
-		executeChild(cgiCtx);
+    executeChild(cgiCtx);
 	} else {
-		ftClose(&cgiCtx.pipeFdOut[1]);
+    std::cout << "child pid: " << cgiCtx.pid << std::endl;
+    ftClose(&cgiCtx.pipeFdOut[1]);
 
 		if (my_epoll_ctl(ctx.getEpollFd(), EPOLL_CTL_ADD, EPOLLIN, cgiCtx.pipeFdOut[0]) == -1) {
 			freeCGIContext(cgiCtx);

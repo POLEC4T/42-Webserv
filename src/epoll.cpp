@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   epoll.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 11:37:22 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 13:28:00 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,18 +63,22 @@ int launchEpoll(Context &ctx) {
 	}
 	
 	while (1) {
-		if (PRINT)
-			std::cout << "epoll_waiting" << std::endl;
-		eventsReady = epoll_wait(ctx.getEpollFd(), events, NB_EVENTS, 1000); //TODO timeout return 0
+		// if (PRINT)
+		// 	std::cout << "epoll_waiting" << std::endl;
+		eventsReady = epoll_wait(ctx.getEpollFd(), events, NB_EVENTS, 1000);
 		if (eventsReady == -1) {
 			std::cerr << "epoll_wait: " << strerror(errno) << std::endl;
 			return (EXIT_FAILURE);
 		}
-		if (PRINT)
-			std::cout << eventsReady << " event(s)" << std::endl;
+		// if (PRINT)
+		// 	std::cout << eventsReady << " event(s)" << std::endl;
 		for (int i = 0; i < eventsReady; ++i) {
-			if (ctx.isRunningCGI(events[i].data.fd))
-				ctx.handleEventCgi(events[i].data.fd);
+			if (PRINT)
+				std::cout << "-----\n";
+			if (ctx.isRunningCGI(events[i].data.fd)) {
+				if (ctx.handleEventCgi(events[i].data.fd) == EXIT_FAILURE)
+					std::cout << "Salut faut faire ca" << std::endl;
+			}
 			else
 			{
 				Server& server = ctx.getRelatedServer(events[i].data.fd);
@@ -104,8 +108,6 @@ int launchEpoll(Context &ctx) {
 			}
 		}
 		ctx.checkTimedOutCGI();
-		if (PRINT)
-			std::cout << "-----\n";
 	}
 	return 0;
 }
