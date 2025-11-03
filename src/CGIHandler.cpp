@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/10/30 15:05:50 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/11/03 16:42:29 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,46 +168,6 @@ void freeCGIContext(t_CGIContext& ctx) {
 	if (ctx.env)
 		freeCharArray(ctx.env);
 	closeFdOfContext(ctx);
-}
-
-std::string readToHTTPBody(int fd) {
-	int bytes = 0;
-	std::string content;
-	char buffer[20];
-	errno = 0;
-
-	while (1) {
-		bytes = read(fd, buffer, 19);
-		if (bytes == -1) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				break;
-			return std::string();
-		}
-		if (bytes == 0)
-			break;
-		buffer[bytes] = '\0';
-		content += buffer;
-	}
-	return content;
-}
-
-void handle_alarm(int signo) { (void)signo; }
-
-int timedOutHandling(t_CGIContext& ctx, int timedOut, std::string& content) {
-	int waitPidRet = 0;
-	int timer_value = timedOut != -1 ? timedOut : 5;
-	time_t start = time(NULL);
-
-	while (waitPidRet == 0) {
-		waitPidRet = waitpid(ctx.pid, &ctx.status, WNOHANG);
-		if (time(NULL) - start >= timer_value) {
-			kill(ctx.pid, SIGKILL);
-			waitpid(ctx.pid, NULL, 0);
-			return (TIMEDOUT);
-		}
-		content += readToHTTPBody(ctx.pipeFdOut[0]);
-	}
-	return (EXIT_SUCCESS);
 }
 
 int executeChild(t_CGIContext ctx) {
