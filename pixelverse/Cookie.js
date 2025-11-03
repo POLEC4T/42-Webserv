@@ -30,13 +30,15 @@ function renderProfile() {
         setCookie("id", id);
     }
 
+    let level = Math.floor((Math.random() * 100));
+    let l = Math.floor(100 - level);
+
     container.innerHTML = `
       <h3 class="text-lg text-gray-200 mb-2">Player_${id}</h3>
-      <p class="text-gray-500 text-sm mb-4">Niveau 12 — Explorateur de mondes</p>
+      <p class="text-gray-500 text-sm mb-4">Niveau ${level}</p>
       <div class="xp-bar bg-gray-700 rounded-full overflow-hidden h-3">
-        <div class="xp-fill bg-green-500 h-3" style="width:70%"></div>
+        <div class="xp-fill bg-green-500 h-3" style="width:${level}%"></div>
       </div>
-      <p class="text-xs text-gray-500 mt-2">70% vers le prochain niveau</p>
       <div class="mt-6">
         <button id="change-id" class="btn text-sm">Modifier le profil</button>
       </div>
