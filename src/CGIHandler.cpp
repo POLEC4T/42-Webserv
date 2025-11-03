@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/11/03 17:06:55 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:14:57 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,7 +193,7 @@ void freeCGIContextMainProcess(t_CGIContext &ctx) {
 }
 
 int executeChild(t_CGIContext ctxCGI) {
-	if (1) {
+	if (dup2(ctxCGI.pipeFdIn[0], STDIN_FILENO) == -1) {
 		freeCGIContext(ctxCGI);
 		std::cerr << "CGI: dup2 pipeFdIn[0] error" << std::endl;
 		throw (Error::ErrorCGI());
