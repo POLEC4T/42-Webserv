@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 13:12:05 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 16:27:22 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ class Context {
 		void	setEpollFd(int fd);
 		
 		//functions
-		int	handleEventCgi(int fd);
+		int		handleEventCgi(int fd);
 		void	checkTimedOutCGI();
 		void	configFileParser(const std::string& fileName, std::map<int, ErrorPage>);
 		void	parseAndAddServer(std::vector<std::string>::iterator&,
@@ -54,6 +54,7 @@ class Context {
 		void	parseAndSetMapDefaultErrorPage();
 		bool	isListenerFd(int fd) const;
 		Server&	getRelatedServer(int fd);
+		void	checkTimedOutClients();
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 17:48:52 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 09:57:07 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 16:24:44 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,5 +17,6 @@
 # define TIMED_OUT 2
 # define CGI_PENDING 3
 # define DELETE_CLIENT 4
+# define DEFAULT_TIMEOUT 3
 
 #endif

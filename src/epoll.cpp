@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 14:26:47 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:26:34 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,15 +63,11 @@ int launchEpoll(Context &ctx) {
 	}
 	
 	while (1) {
-		// if (PRINT)
-		// 	std::cout << "epoll_waiting" << std::endl;
 		eventsReady = epoll_wait(ctx.getEpollFd(), events, NB_EVENTS, 1000);
 		if (eventsReady == -1) {
 			std::cerr << "epoll_wait: " << strerror(errno) << std::endl;
 			return (EXIT_FAILURE);
 		}
-		// if (PRINT)
-		// 	std::cout << eventsReady << " event(s)" << std::endl;
 		for (int i = 0; i < eventsReady; ++i) {
 			if (PRINT)
 				std::cout << "-----\n";
@@ -108,6 +104,7 @@ int launchEpoll(Context &ctx) {
 			}
 		}
 		ctx.checkTimedOutCGI();
+		ctx.checkTimedOutClients();
 	}
 	return 0;
 }

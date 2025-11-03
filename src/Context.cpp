@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 14:28:10 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:31:40 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,9 @@
 #include "Response.hpp"
 #include <string.h>
 #include <sys/wait.h>
+#include "defines.h"
 
-int queueResponse(Client &client, std::string &response, int epollfd);
+int		queueResponse(Client &client, std::string &response, int epollfd);
 void	ftClose(int* fd);
 
 
@@ -150,6 +151,37 @@ void Context::checkTimedOutCGI() {
 		_mapRunningCGIs.erase(*itFd);
 	}
 }
+
+/**
+ * queueResponse 408 to timed out clients and close the connection
+ */
+void	Context::checkTimedOutClients() {
+	std::vector<Server>::iterator itserv;
+	std::map<int, Client>::iterator itcl;
+	std::string response;
+	
+
+	for (itserv = _servers.begin(); itserv < _servers.end(); ++itserv) {
+		std::map<int, Client>& clients = itserv->getClients();
+		for (itcl = clients.begin(); itcl != clients.end(); ++itcl) {
+			Client& client = itcl->second;
+			if (client.getRecvBuffer().empty() || client.getStatus() == READY)
+				continue; // todo : maybe faire une liste de client qui ont recu une premiere request ? comme ca on itere seulement sur ceux la
+			if (client.getRequest().hasTimedOut(itserv->getTimedOutValue())) {
+				std::cout << "client timed out: fd " << client.getFd() << std::endl;
+				response = Response(client.getRequest().getVersion(),
+									itserv->getErrorPageByCode(REQUEST_TIMEOUT)).build();
+
+				if (queueResponse(client, response, _epollfd) == EXIT_FAILURE) {
+					itserv->deleteClient(client.getFd());
+					continue;
+				}
+				client.setDeleteAfterResponse(true);
+			}
+		}
+	}
+}
+
 
 int getContent(std::string fileName, std::string &content, char separator) {
 	std::string line;
