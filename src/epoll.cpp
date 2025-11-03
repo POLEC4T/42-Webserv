@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   epoll.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 14:26:47 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 15:06:48 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,21 +63,22 @@ int launchEpoll(Context &ctx) {
 	}
 	
 	while (1) {
-		// if (PRINT)
-		// 	std::cout << "epoll_waiting" << std::endl;
+		if (PRINT)
+			std::cout << "epoll_waiting" << std::endl;
 		eventsReady = epoll_wait(ctx.getEpollFd(), events, NB_EVENTS, 1000);
 		if (eventsReady == -1) {
 			std::cerr << "epoll_wait: " << strerror(errno) << std::endl;
 			return (EXIT_FAILURE);
 		}
-		// if (PRINT)
-		// 	std::cout << eventsReady << " event(s)" << std::endl;
+		if (PRINT)
+			std::cout << eventsReady << " event(s)" << std::endl;
 		for (int i = 0; i < eventsReady; ++i) {
 			if (PRINT)
 				std::cout << "-----\n";
 			if (ctx.isRunningCGI(events[i].data.fd)) {
-				if (ctx.handleEventCgi(events[i].data.fd) == EXIT_FAILURE)
+				if (ctx.handleEventCgi(events[i].data.fd) == EXIT_FAILURE) {
 					std::cout << "Salut faut faire ca" << std::endl;
+				}
 			}
 			else
 			{
@@ -299,6 +300,8 @@ static int handleClientIn(Server& server, Client& client, Context& ctx) {
 			return queueResponse(client, response, ctx.getEpollFd()) == EXIT_FAILURE;
 		}
 
+		std::cout << "Request uri: " << client.getRequest().getUri() << std::endl;
+		
 		if (isCGI(client.getRequest(), loc)) {
 			int ret = CGIHandler(client.getRequest(), loc, server, client, ctx);
 			if (ret == DELETE_CLIENT)

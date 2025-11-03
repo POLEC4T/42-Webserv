@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 14:28:10 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 15:05:10 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,46 +98,39 @@ int Context::handleEventCgi(int fd) {
 }
 
 void Context::checkTimedOutCGI() {
-	int now = time(NULL);
-
-	// std::cout << "In check time out" << std::endl;
-
+	int 		now = time(NULL);
+	int 		fd;
 	std::string response;
-	int fd;
+
+	std::vector<int> 			CGIsToErase;
 	std::map<int, CGI>::iterator itMap;
-	std::vector<int> CGIsToErase;
 
 	for (itMap = _mapRunningCGIs.begin(); itMap != _mapRunningCGIs.end(); ++itMap) {
 		CGI &cgi = itMap->second;
 		std::cout << "PID child: " << cgi.getPid() << std::endl;
 		std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
 		if (now - cgi.getStartTime() >= cgi.getTimeOutValue()) {
+			
 			std::cout << "Going to kill" << std::endl;
+
 			fd = cgi.getFd();
-			response = Response(
-				cgi
-				.getClient()
-				.getRequest()
-				.getVersion(),
-				cgi.getServer().getErrorPageByCode(REQUEST_TIMEOUT)).build();
-			std::cout << "res len: " << response.size() << std::endl;
-			std::cout << "cgi.getClient(): " << cgi.getClient().getFd() << std::endl;
+
 			cgi.getClient().setDeleteAfterResponse(true);
-			if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE)
-				continue;
 
 			kill(cgi.getPid(), SIGKILL);
-			std::cout << "Before waitpid" << std::endl;
-			int status;
-			if (waitpid(cgi.getPid(), &status, 0) == -1) {
+			if (waitpid(cgi.getPid(), NULL, 0) == -1) {
 				std::cerr << "waitpid failed" << std::endl;
-				continue;
+				response = Response(cgi.getClient().getRequest().getVersion(),
+					cgi.getServer().getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
+			} else {
+				response = Response(cgi.getClient().getRequest().getVersion(),
+					cgi.getServer().getErrorPageByCode(GATEWAY_TIMEOUT)).build();
 			}
-
-			std::cout << "waitpid status: " << status << std::endl;
-
-			if (fd != -1)
-				close(fd);
+		
+			if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE)
+				cgi.getServer().deleteClient(cgi.getClient().getFd());
+			
+			close(fd);
 			CGIsToErase.push_back(fd);
 		}
 	}
@@ -283,6 +276,7 @@ void Context::parseAndSetMapDefaultErrorPage() {
 	codes.push_back(INTERNAL_SERVER_ERROR);
 	codes.push_back(NOT_IMPLEMENTED);
 	codes.push_back(HTTP_VERSION_NOT_SUPPORTED);
+	codes.push_back(GATEWAY_TIMEOUT);
 
 	for (size_t i = 0; i < codes.size(); i++) {
 		std::string content;
