@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 15:05:10 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 16:17:39 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,6 @@ void Context::addServer(const Server &server) { _servers.push_back(server); }
 void Context::setEpollFd(int fd) { _epollfd = fd; }
 
 int Context::handleEventCgi(int fd) {
-	std::cout << "begin handleEventCgi " << std::endl;
 	std::map<int, CGI>::iterator it = _mapRunningCGIs.find(fd);
 	if (it == _mapRunningCGIs.end())
 		return EXIT_SUCCESS;
@@ -93,7 +92,6 @@ int Context::handleEventCgi(int fd) {
 		close(fd);
 		_mapRunningCGIs.erase(fd);
 	}
-	std::cout << "r: " << r << std::endl;
 	return EXIT_SUCCESS;
 }
 
@@ -107,11 +105,11 @@ void Context::checkTimedOutCGI() {
 
 	for (itMap = _mapRunningCGIs.begin(); itMap != _mapRunningCGIs.end(); ++itMap) {
 		CGI &cgi = itMap->second;
-		std::cout << "PID child: " << cgi.getPid() << std::endl;
-		std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
+		// std::cout << "PID child: " << cgi.getPid() << std::endl;
+		// std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
 		if (now - cgi.getStartTime() >= cgi.getTimeOutValue()) {
 			
-			std::cout << "Going to kill" << std::endl;
+			// std::cout << "Going to kill" << std::endl;
 
 			fd = cgi.getFd();
 

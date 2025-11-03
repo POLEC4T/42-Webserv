@@ -3,15 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   Error.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:36:13 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/31 14:55:25 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/03 16:19:46 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "Error.hpp"
 # include "FtString.hpp"
+
+Error::ErrorCGI::ErrorCGI(const int errorCode, const int pid, const int fd): _errorCode(errorCode), _pid(pid), _fdToClose(fd) {}
+
+Error::ErrorCGI::~ErrorCGI() throw() {}
+
+int Error::ErrorCGI::getErrorCode() {
+	return _errorCode;
+}
+
+int Error::ErrorCGI::getPid() {
+	return _pid;
+}
+
+int Error::ErrorCGI::getFdToClose() {
+	return _fdToClose;
+}
 
 Error::CanNotOpenFile::CanNotOpenFile(const std::string &message) {
 	_message = "Can't open the file: " + message + ".";

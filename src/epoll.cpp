@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 15:06:48 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 16:17:15 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,9 @@
 # include "CodeDefines.h"
 # include "defines.h"
 # include "Context.hpp"
+# include "Error.hpp"
 
+# include <sys/wait.h>
 # include <sys/epoll.h>
 # include <fcntl.h>
 # include <errno.h>
@@ -63,18 +65,18 @@ int launchEpoll(Context &ctx) {
 	}
 	
 	while (1) {
-		if (PRINT)
-			std::cout << "epoll_waiting" << std::endl;
+		// if (PRINT)
+		// 	std::cout << "epoll_waiting" << std::endl;
 		eventsReady = epoll_wait(ctx.getEpollFd(), events, NB_EVENTS, 1000);
 		if (eventsReady == -1) {
 			std::cerr << "epoll_wait: " << strerror(errno) << std::endl;
 			return (EXIT_FAILURE);
 		}
-		if (PRINT)
-			std::cout << eventsReady << " event(s)" << std::endl;
+		// if (PRINT)
+		// 	std::cout << eventsReady << " event(s)" << std::endl;
 		for (int i = 0; i < eventsReady; ++i) {
-			if (PRINT)
-				std::cout << "-----\n";
+			// if (PRINT)
+			// 	std::cout << "-----\n";
 			if (ctx.isRunningCGI(events[i].data.fd)) {
 				if (ctx.handleEventCgi(events[i].data.fd) == EXIT_FAILURE) {
 					std::cout << "Salut faut faire ca" << std::endl;
@@ -90,8 +92,8 @@ int launchEpoll(Context &ctx) {
 				} else {
 					Client& client = server.getClient(events[i].data.fd);
 					if (events[i].events & EPOLLIN) {
-						if (PRINT)
-							std::cout << "EPOLLIN fd: " << client.getFd() << std::endl;
+						// if (PRINT)
+						// 	std::cout << "EPOLLIN fd: " << client.getFd() << std::endl;
 						if (handleClientIn(server, client, ctx) == EXIT_FAILURE) {
 							server.deleteClient(client.getFd());
 							continue;
@@ -303,14 +305,26 @@ static int handleClientIn(Server& server, Client& client, Context& ctx) {
 		std::cout << "Request uri: " << client.getRequest().getUri() << std::endl;
 		
 		if (isCGI(client.getRequest(), loc)) {
-			int ret = CGIHandler(client.getRequest(), loc, server, client, ctx);
-			if (ret == DELETE_CLIENT)
-				return (EXIT_FAILURE);
-			if (ret != CGI_PENDING)
-				response = Response(client.getRequest().getVersion(),
-							server.getErrorPageByCode(ret)).build();
-			else
+			try {
+				CGIHandler(client.getRequest(), loc, server, client, ctx);
 				return EXIT_SUCCESS;
+			}
+			catch (Error::ErrorCGI& e)
+			{
+				std::cout << "catch" << std::endl;
+				int retValue = e.getErrorCode();
+				int pid = e.getPid();
+				int fdToClose = e.getFdToClose();
+				if (fdToClose != -1)
+					close(fdToClose);
+				if (pid != -1)
+					waitpid(pid, NULL, 0);
+				if (retValue == DELETE_CLIENT)
+					return (EXIT_FAILURE);
+				if (retValue != CGI_PENDING)
+					response = Response(client.getRequest().getVersion(),
+							server.getErrorPageByCode(retValue)).build();
+			} 
 		}
 		else
 			response = MethodExecutor(server, client).execute();
