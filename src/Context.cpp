@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 13:33:16 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 14:28:10 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ void Context::addServer(const Server &server) { _servers.push_back(server); }
 void Context::setEpollFd(int fd) { _epollfd = fd; }
 
 int Context::handleEventCgi(int fd) {
+	std::cout << "begin handleEventCgi " << std::endl;
 	std::map<int, CGI>::iterator it = _mapRunningCGIs.find(fd);
 	if (it == _mapRunningCGIs.end())
 		return EXIT_SUCCESS;
@@ -89,9 +90,10 @@ int Context::handleEventCgi(int fd) {
 
 	if (r == cgi.getPid()) {
 		queueResponse(cgi.getClient(), cgi.getOutput(), _epollfd);
-		ftClose(&fd);
+		close(fd);
 		_mapRunningCGIs.erase(fd);
 	}
+	std::cout << "r: " << r << std::endl;
 	return EXIT_SUCCESS;
 }
 
@@ -112,21 +114,27 @@ void Context::checkTimedOutCGI() {
 		if (now - cgi.getStartTime() >= cgi.getTimeOutValue()) {
 			std::cout << "Going to kill" << std::endl;
 			fd = cgi.getFd();
-			response =
-			Response(cgi.getClient().getRequest().getVersion(),
-			cgi.getServer().getErrorPageByCode(REQUEST_TIMEOUT)).build();
-			std::cout << "response: " << response << std::endl;
+			response = Response(
+				cgi
+				.getClient()
+				.getRequest()
+				.getVersion(),
+				cgi.getServer().getErrorPageByCode(REQUEST_TIMEOUT)).build();
+			std::cout << "res len: " << response.size() << std::endl;
 			std::cout << "cgi.getClient(): " << cgi.getClient().getFd() << std::endl;
+			cgi.getClient().setDeleteAfterResponse(true);
 			if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE)
 				continue;
 
 			kill(cgi.getPid(), SIGKILL);
 			std::cout << "Before waitpid" << std::endl;
-			if (waitpid(cgi.getPid(), NULL, 0) == -1) {
+			int status;
+			if (waitpid(cgi.getPid(), &status, 0) == -1) {
 				std::cerr << "waitpid failed" << std::endl;
 				continue;
 			}
-			std::cout << "After waitpid" << std::endl;
+
+			std::cout << "waitpid status: " << status << std::endl;
 
 			if (fd != -1)
 				close(fd);
