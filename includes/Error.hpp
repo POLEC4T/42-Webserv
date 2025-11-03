@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:34:04 by dmazari           #+#    #+#             */
-/*   Updated: 2025/11/03 16:19:37 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:03:13 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,8 @@
 class Error {
 public:
 	class ErrorCGI : public std::exception {
-		private:
-			int	_errorCode;
-			int	_pid;
-			int _fdToClose;
 		public:
-			int getErrorCode();
-			int	getPid();
-			int getFdToClose();
-
-			ErrorCGI(const int errorCode, const int pid, const int fd);
+			ErrorCGI();
 			~ErrorCGI() throw();
 	};
 

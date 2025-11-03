@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 16:17:15 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:14:21 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -305,35 +305,18 @@ static int handleClientIn(Server& server, Client& client, Context& ctx) {
 		std::cout << "Request uri: " << client.getRequest().getUri() << std::endl;
 		
 		if (isCGI(client.getRequest(), loc)) {
-			try {
-				CGIHandler(client.getRequest(), loc, server, client, ctx);
-				return EXIT_SUCCESS;
-			}
-			catch (Error::ErrorCGI& e)
-			{
-				std::cout << "catch" << std::endl;
-				int retValue = e.getErrorCode();
-				int pid = e.getPid();
-				int fdToClose = e.getFdToClose();
-				if (fdToClose != -1)
-					close(fdToClose);
-				if (pid != -1)
-					waitpid(pid, NULL, 0);
-				if (retValue == DELETE_CLIENT)
-					return (EXIT_FAILURE);
-				if (retValue != CGI_PENDING)
-					response = Response(client.getRequest().getVersion(),
+			int retValue = CGIHandler(client.getRequest(), loc, server, client, ctx);
+			if (retValue != CGI_PENDING)
+				response = Response(client.getRequest().getVersion(),
 							server.getErrorPageByCode(retValue)).build();
-			} 
+			else
+				return EXIT_SUCCESS;
 		}
 		else
 			response = MethodExecutor(server, client).execute();
 	} catch (const RequestException& re) {
 		std::cerr << re.what() << std::endl;
 		response = Response("HTTP/1.1", server.getErrorPageByCode(re.getCode())).build();
-	} catch (const std::exception& e) {
-		std::cerr << "Unhandled exception (should never happen): " << e.what() << std::endl;
-		response = Response("HTTP/1.1", server.getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
 	}
 
 	return (queueResponse(client, response, ctx.getEpollFd()) == EXIT_FAILURE);

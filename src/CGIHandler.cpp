@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/11/03 16:15:26 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:06:55 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,7 +170,7 @@ int initCgiPipes(t_CGIContext& ctx) {
 void closeFdOfContext(t_CGIContext& ctx) {
 	ftClose(&ctx.pipeFdIn[0]);
 	ftClose(&ctx.pipeFdIn[1]);
-	close(ctx.pipeFdOut[0]);
+	ftClose(&ctx.pipeFdOut[0]);
 	ftClose(&ctx.pipeFdOut[1]);
 }
 
@@ -196,18 +196,18 @@ int executeChild(t_CGIContext ctxCGI) {
 	if (1) {
 		freeCGIContext(ctxCGI);
 		std::cerr << "CGI: dup2 pipeFdIn[0] error" << std::endl;
-		throw (Error::ErrorCGI(INTERNAL_SERVER_ERROR, ctxCGI.pid, ctxCGI.pipeFdOut[0]));
+		throw (Error::ErrorCGI());
 	}
 	if (dup2(ctxCGI.pipeFdOut[1], STDOUT_FILENO) == -1 || dup2(ctxCGI.pipeFdOut[1], STDERR_FILENO) == -1) {
 		std::cerr << "CGI: dup2 pipeFdOut[1] error" << std::endl;
 		freeCGIContext(ctxCGI);
-		throw (Error::ErrorCGI(INTERNAL_SERVER_ERROR, ctxCGI.pid, ctxCGI.pipeFdOut[0]));
+		throw (Error::ErrorCGI());
 	}
 	closeFdOfContext(ctxCGI);
 	execve(ctxCGI.args[0], ctxCGI.args, ctxCGI.env);
 	freeCGIContext(ctxCGI);
 	std::cerr << "CGI: execve error" << std::endl;
-	throw (Error::ErrorCGI(INTERNAL_SERVER_ERROR, ctxCGI.pid, ctxCGI.pipeFdOut[0]));
+	throw (Error::ErrorCGI());
 }
 
 int CGIHandler(Request &req, Location &loc, Server &serv, Client &client,
@@ -273,29 +273,3 @@ int CGIHandler(Request &req, Location &loc, Server &serv, Client &client,
 	}
 	return INTERNAL_SERVER_ERROR;
 }
-
-	// if (ctx.timedOut == TIMEDOUT) {
-	// 	std::cerr << "CGI: timed out." << std::endl;
-	// 	return Response(req.getVersion(),
-	// 					serv.getErrorPageByCode(REQUEST_TIMEOUT))
-	// 		.build();
-	// }
-
-	// if (!WIFEXITED(ctx.status)) {
-	// 	freeCGIContext(ctx);
-	// 	std::cerr << "CGI: child exit error" << std::endl;
-	// 	return Response(req.getVersion(),
-	// 					serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
-	// 		.build();
-	// }
-
-	// freeCGIContext(ctx);
-
-	// if (content.empty()) {
-	// 	std::cerr << "CGI: read from CGI return error" << std::endl;
-	// 	return Response(req.getVersion(),
-	// 					serv.getErrorPageByCode(INTERNAL_SERVER_ERROR))
-	// 		.build();
-	// }
-	// return content;
-
