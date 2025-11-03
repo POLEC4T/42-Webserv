@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 13:18:35 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/03 11:05:19 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,8 @@ void Server::addName(const std::string &name) { _name.push_back(name); }
 void Server::setClientMaxBodySize(int clientMaxBodySize) {
 	_clientMaxBodySize = clientMaxBodySize;
 }
+
+
 
 void Server::setHost(const std::string &host) { _host = host; }
 
@@ -195,7 +197,7 @@ void Server::deleteAllClients() {
 
 	for (it = _mapClients.begin(); it != _mapClients.end(); ++it) {
 		if (PRINT)
-			std::cout << "Closing client with fd " << it->first << std::endl;
+			std::cout << "(deleteAllClients) close() client fd " << it->first << std::endl;
 		close(it->first);
 	}
 	_mapClients.clear();
@@ -204,7 +206,7 @@ void Server::deleteAllClients() {
 void Server::deleteClient(int fd) {
 	if (_mapClients.find(fd) != _mapClients.end()) {
 		if (PRINT)
-			std::cout << "Closing client with fd " << fd << std::endl;
+			std::cout << "(deleteClient) close() client fd " << fd << std::endl;
 		close(fd);
 		_mapClients.erase(fd);
 	} else {

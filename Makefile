@@ -26,7 +26,8 @@ SRCS = main.cpp \
 	$(SRC_DIR)/epoll_utils.cpp \
 	$(SRC_DIR)/Client.cpp \
 	$(SRC_DIR)/Error.cpp \
-	$(SRC_DIR)/CGIHandler.cpp
+	$(SRC_DIR)/CGIHandler.cpp \
+	$(SRC_DIR)/CGI.cpp
 
 HEADERS = $(INC_DIR)/AHttpMethod.hpp \
 	$(INC_DIR)/APage.hpp \
@@ -44,7 +45,8 @@ HEADERS = $(INC_DIR)/AHttpMethod.hpp \
 	$(INC_DIR)/Error.hpp \
 	$(INC_DIR)/Response.hpp \
 	$(INC_DIR)/defines.h \
-	$(INC_DIR)/MethodExecutor.hpp
+	$(INC_DIR)/MethodExecutor.hpp \
+	$(INC_DIR)/CGI.hpp
 
 OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 

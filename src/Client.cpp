@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 14:49:03 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 14:26:36 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ _fd(-1),
 _currChunkPart(SIZE),
 _parsedChunksIdx(0),
 _maxBodySize(0),
-_contentLength(0)
+_contentLength(0),
+_deleteAfterResponse(false)
 {};
 
 Client::Client(int fd) :
@@ -46,7 +47,8 @@ _fd(fd),
 _currChunkPart(SIZE),
 _parsedChunksIdx(0),
 _maxBodySize(0),
-_contentLength(0)
+_contentLength(0),
+_deleteAfterResponse(false)
 {};
 
 Client::~Client(){};
@@ -69,6 +71,11 @@ const std::string&	Client::getRecvBuffer() const {
 	return (_recvBuffer);
 }
 
+bool Client::getDeleteAfterResponse() const {
+	return (_deleteAfterResponse);
+}
+
+
 void Client::setSendBuffer(const std::string& buf) {
 	_sendBuffer = buf;
 }
@@ -76,6 +83,11 @@ void Client::setSendBuffer(const std::string& buf) {
 void Client::setStatus(t_client_status status) {
 	_status = status;
 }
+
+void Client::setDeleteAfterResponse(bool b) {
+	_deleteAfterResponse = b;
+}
+
 
 /**
  * @return true if the request line has been completely received.
@@ -332,6 +344,7 @@ void Client::resetForNextRequest() {
 	_sentIdx = 0;
 	_maxBodySize = 0;
 	_contentLength = 0;
+	_deleteAfterResponse = false;
 }
 
 Request &Client::getRequest() { return _request; }
@@ -357,6 +370,8 @@ int Client::sendPendingResponse(int epollfd) {
 	if (_sentIdx >= _sendBuffer.size()) {
 		if (PRINT)
 			std::cout << "_sendBuffer completely sent" << std::endl;
+		if (_deleteAfterResponse)
+			return (EXIT_FAILURE);
 		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN, _fd) == -1) {
 			return (EXIT_FAILURE);
 		}
