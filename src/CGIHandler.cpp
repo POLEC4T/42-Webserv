@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/11/03 17:14:57 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 23:03:06 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,7 +260,7 @@ int CGIHandler(Request &req, Location &loc, Server &serv, Client &client,
 			return DELETE_CLIENT;
 		}
 
-		freeCGIContextMainProcess(cgiCtx);
+		// freeCGIContextMainProcess(cgiCtx);
 
 		CGI cgi(serv, client);
 
