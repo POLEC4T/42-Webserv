@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGI.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/31 13:51:52 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/04 00:05:54 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/04 12:49:08 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class CGI {
 	private:
 		Server		&_server;
 		Client		&_client;
+		Request		&_request;
 		int			_pid;
 		int			_fd;
 		int			_startTime;
@@ -27,12 +28,13 @@ class CGI {
 		std::string	_output;
 
 	public:
-		CGI(Server &, Client &);
+		CGI(Server &, Client &, Request&);
 		CGI(const CGI &);
 		~CGI();
 
 		Client		&getClient();
 		Server		&getServer();
+		Request		&getRequest();
 		int			getClientFd();
 		int			getPid();
 		int			getFd();

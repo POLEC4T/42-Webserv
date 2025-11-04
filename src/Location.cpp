@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:55:50 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/04 10:19:54 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,10 +90,6 @@ void Location::setUploadPath(const std::string &uploadPath) {
 }
 
 // Getter
-
-// std::vector<AHttpMethod*>   Location::getAllowedMethods() {
-//     return _allowedMethods;
-// }
 
 bool Location::getAutoIndex() { return _autoIndex; }
 

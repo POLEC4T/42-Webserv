@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/11/03 15:20:36 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/04 13:24:29 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ int returnHandler(Response &response, Location &loc, Request &req, Server &serv)
 	int i = 0;
 	std::istringstream stream(split[0]); stream >> i;
 
-	if (!stream.eof() || (i < 300 || i > 308))
+	if (stream.fail() || !stream.eof() || (i < 300 || i > 308))
 	{
 		response = Response(req.getVersion(), serv.getErrorPageByCode(BAD_REQUEST));
 		return 0;

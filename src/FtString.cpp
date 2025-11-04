@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FtString.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:38:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 11:21:12 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/04 14:30:15 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,12 +78,11 @@ FtString::ft_split_word(const std::string &delimiter) const {
 			continue;
 		}
 		j = i + 1;
-		while (++j < this->size() && !isDelim)
+		while (++j <= this->size() && !isDelim)
 			isDelim = this->substr(j, delimiter.size()) == delimiter;
 		token = this->substr(i, (j - 1) - i);
 		tokens.push_back(token);
 		i = j + delimiter.size() - 1;
-		i++;
 	}
 	return (tokens);
 }

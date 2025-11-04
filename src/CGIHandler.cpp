@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/11/03 23:38:10 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/04 15:54:56 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void ftClose(int *fd) {
 }
 
 std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
-								Request &req, Server &serv) {
+								Request &req, Server &serv, Location &loc) {
 	std::vector<std::string> env;
 
 	if (tokens.size() == 2)
@@ -116,8 +116,8 @@ std::vector<std::string> setEnvCGI(std::vector<std::string> tokens,
 		env.push_back("CONTENT_LENGTH=" +
 					FtString::my_to_string(req.getBody().size()));
 
-	env.push_back("PATH_INFO=");
-	env.push_back("PATH_TRANSLATED=");
+	env.push_back("PATH_INFO=" + tokens[0]);
+	env.push_back("PATH_TRANSLATED=" + loc.getRoot());
 
 	std::string cookie = req.getHeaderValue("Cookie");
 	if (!cookie.empty())
@@ -146,7 +146,7 @@ int getContext(t_CGIContext &ctx, Location &loc, Request &req, Server &serv) {
 	ctx.cgiPath = loc.getCgiByExtension(getCgiExtensionInUri(req));
 	token = req.getUri();
 	tokens = token.ft_split("?");
-	envVec = setEnvCGI(tokens, req, serv);
+	envVec = setEnvCGI(tokens, req, serv, loc);
 	argsVec.push_back(ctx.cgiPath);
 	argsVec.push_back(loc.getRoot() + tokens[0]);
 	ctx.env = vectorToCharArray(envVec);
@@ -193,14 +193,13 @@ void freeCGIContextMainProcess(t_CGIContext &ctx) {
 	ftClose(&ctx.pipeOutputCGI[1]);
 }
 
-int executeChild(t_CGIContext ctxCGI) {
+void executeChild(t_CGIContext ctxCGI) {
 	if (dup2(ctxCGI.pipeInputCGI[0], STDIN_FILENO) == -1) {
 		freeCGIContext(ctxCGI);
 		std::cerr << "CGI: dup2 pipeInputCGI[0] error" << std::endl;
 		throw(Error::ErrorCGI());
 	}
-	if (dup2(ctxCGI.pipeOutputCGI[1], STDOUT_FILENO) == -1 
-	/* ||dup2(ctxCGI.pipeOutputCGI[1], STDERR_FILENO) == -1*/) {
+	if (dup2(ctxCGI.pipeOutputCGI[1], STDOUT_FILENO) == -1) {
 		std::cerr << "CGI: dup2 pipeOutputCGI[1] error" << std::endl;
 		freeCGIContext(ctxCGI);
 		throw(Error::ErrorCGI());
@@ -240,7 +239,7 @@ int CGIHandler(Request &req, Location &loc, Server &serv, Client &client,
 		return INTERNAL_SERVER_ERROR;
 	}
 
-	write(cgiCtx.pipeInputCGI[1], client.getRecvBuffer().c_str(),
+	write(cgiCtx.pipeInputCGI[1], req.getBody().c_str(),
 		req.getBody().size());
 	ftClose(&cgiCtx.pipeInputCGI[1]);
 	cgiCtx.pid = fork();
@@ -264,7 +263,7 @@ int CGIHandler(Request &req, Location &loc, Server &serv, Client &client,
 
 		freeCGIContextMainProcess(cgiCtx);
 
-		CGI cgi(serv, client);
+		CGI cgi(serv, client, req);
 
 		cgi.setFd(cgiCtx.pipeOutputCGI[0]);
 		cgi.setPid(cgiCtx.pid);
