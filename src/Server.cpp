@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 16:49:22 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 13:55:47 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,10 +215,11 @@ void Server::deleteClient(int fd) {
 		close(fd);
 		_mapClients.erase(fd);
 	} else {
-		if (PRINT)
+		if (PRINT) {
 			std::cout
 				<< "Warning: trying to delete non-existing client with fd "
 				<< fd << std::endl;
+		}
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/04 11:38:44 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 14:36:40 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include "defines.h"
-
-// strerror
 #include <string.h>
 #include "Error.hpp"
 
@@ -390,7 +388,8 @@ int Client::readPacket() {
 		std::cerr << "recv:" << strerror(errno) << std::endl;
 		return (EXIT_FAILURE);
 	} else if (sizeRead == 0) {
-		std::cerr << "Client disconnected, fd: " << _fd << std::endl;
+		if (PRINT)
+			std::cout << "Client disconnected, fd: " << _fd << std::endl;
 		return (EXIT_FAILURE);
 	}
 	if (_recvBuffer.empty())

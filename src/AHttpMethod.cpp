@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/30 14:48:50 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 14:07:17 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,16 +222,20 @@ Response	AHttpMethod::DELETE(std::string filename, Request& req, Server& serv)
 Response AHttpMethod::POST(std::string filename, Request& req, Server& serv)
 {
     struct stat* infos = new struct stat;
-    
+	std::memset(infos, 0, sizeof(struct stat));
+	
     if (stat(filename.c_str(), infos) != 0)
     {
+		std::cout << "File does not exist, will be created: " << filename << std::endl;
         if (infos && S_ISDIR(infos->st_mode))
         {
+			std::cout << "POST to a directory is forbidden: " << filename << std::endl;
             delete infos;
             return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
         }
     }
     delete infos;
+	std::cout << "Writing to file: " << filename << std::endl;
 	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
 		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));

@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/04 11:36:43 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 13:35:40 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,8 +158,7 @@ static int initServerFds(Server& server) {
 
 		struct addrinfo *curraddr = addrinfos;
 		while (curraddr) {
-			if (PRINT)
-				std::cout << printIP(((struct sockaddr_in *)curraddr->ai_addr)->sin_addr.s_addr) << ":" << ntohs(((struct sockaddr_in *)curraddr->ai_addr)->sin_port) << " -> ";
+			std::cout << printIP(((struct sockaddr_in *)curraddr->ai_addr)->sin_addr.s_addr) << ":" << ntohs(((struct sockaddr_in *)curraddr->ai_addr)->sin_port) << " -> ";
 
 			int fd = socket(curraddr->ai_family,
 							curraddr->ai_socktype,
@@ -204,8 +203,7 @@ static int initServerFds(Server& server) {
 				continue;
 			}
 			server.addSockfd(fd);
-			if (PRINT)
-				std::cout << "OK" << std::endl;
+			std::cout << "OK" << std::endl;
 			curraddr = curraddr->ai_next;
 		}
 		freeaddrinfo(addrinfos);
@@ -317,7 +315,8 @@ static int handleClientIn(Server& server, Client& client, Context& ctx) {
 }
 
 /**
- * @note If the modification to EPOLLOUT fails, the connection has to be closed
+ * @brief Queues the response to be sent to the client and modifies epoll to listen for EPOLLOUT events on the client fd
+ * @note on EXIT_FAILURE returned, the client connection has to be closed
  */
 int queueResponse(Client &client, std::string& response, int epollfd) {
 	if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLOUT, client.getFd()) == EXIT_FAILURE)
