@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpMethod.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/11/03 21:29:53 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/11/04 14:45:02 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,17 +218,18 @@ Response	AHttpMethod::DELETE(std::string filename, Request& req, Server& serv)
 
 Response AHttpMethod::POST(std::string filename, Request& req, Server& serv)
 {
-	struct stat* infos = new struct stat;
+    struct stat* infos = new struct stat;
+	std::memset(infos, 0, sizeof(struct stat));
 	
-	if (stat(filename.c_str(), infos) != 0)
-	{
-		if (infos && S_ISDIR(infos->st_mode))
-		{
-			delete infos;
-			return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
-		}
-	}
-	delete infos;
+    if (stat(filename.c_str(), infos) != 0)
+    {
+        if (infos && S_ISDIR(infos->st_mode))
+        {
+            delete infos;
+            return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
+        }
+    }
+    delete infos;
 	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
 		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));

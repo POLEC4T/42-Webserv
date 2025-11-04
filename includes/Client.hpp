@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:53:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 16:42:25 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 14:33:44 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ class Client {
 		size_t					_currChunkSize;
 		long long				_maxBodySize;
 		long long				_contentLength;
-		bool					_deleteAfterResponse; // delete the client after the next response is sent
+		bool					_deleteAfterResponse; // delete the client after the next sent response
 		size_t					_checkAndGetContentLength(const std::string& contentLengthStr);
 		t_chunk_state			_parseChunkData(const std::string& chunks, size_t& pos);
 		t_chunk_state			_parseChunkSize(const std::string& chunks, size_t& pos);

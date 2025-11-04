@@ -1,24 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RequestExceptions.cpp                              :+:      :+:    :+:   */
+/*   ParsePacketExceptions.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 10:27:07 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 11:15:33 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/04 11:36:43 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RequestExceptions.hpp"
+#include "ParsePacketExceptions.hpp"
 
-RequestException::RequestException() : _code(400) {}
+ParsePacketException::ParsePacketException() : _code(400) {}
 
-RequestException::RequestException(int code) : _code(code) {}
+ParsePacketException::ParsePacketException(int code) : _code(code) {}
 
-int RequestException::getCode() const { return _code; }
+int ParsePacketException::getCode() const { return _code; }
 
-RequestException::~RequestException() throw() {}
+ParsePacketException::~ParsePacketException() throw() {}
 
 const char *NoHeaderValueException::what() const throw() {
 	if (_message.empty())
@@ -56,7 +56,7 @@ BadHeaderNameException::BadHeaderNameException(const std::string &headerName) {
 
 BadHeaderNameException::~BadHeaderNameException() throw() {}
 
-UriTooLongException::UriTooLongException() : RequestException(URI_TOO_LONG) {}
+UriTooLongException::UriTooLongException() : ParsePacketException(URI_TOO_LONG) {}
 
 UriTooLongException::~UriTooLongException() throw() {}
 
@@ -65,7 +65,7 @@ const char *UriTooLongException::what() const throw() {
 }
 
 ContentTooLargeException::ContentTooLargeException()
-	: RequestException(CONTENT_TOO_LARGE) {}
+	: ParsePacketException(CONTENT_TOO_LARGE) {}
 
 ContentTooLargeException::~ContentTooLargeException() throw() {}
 
@@ -74,7 +74,7 @@ const char *ContentTooLargeException::what() const throw() {
 }
 
 MethodNotAllowedException::MethodNotAllowedException()
-	: RequestException(METHOD_NOT_ALLOWED) {}
+	: ParsePacketException(METHOD_NOT_ALLOWED) {}
 
 MethodNotAllowedException::~MethodNotAllowedException() throw() {}
 
@@ -83,7 +83,7 @@ const char *MethodNotAllowedException::what() const throw() {
 }
 
 PageNotFoundException::PageNotFoundException()
-	: RequestException(PAGE_NOT_FOUND) {}
+	: ParsePacketException(PAGE_NOT_FOUND) {}
 
 PageNotFoundException::~PageNotFoundException() throw() {}
 
@@ -108,7 +108,7 @@ BadHeaderValueException::BadHeaderValueException(
 BadHeaderValueException::~BadHeaderValueException() throw() {}
 
 HttpVersionNotSupportedException::HttpVersionNotSupportedException()
-	: RequestException(HTTP_VERSION_NOT_SUPPORTED) {}
+	: ParsePacketException(HTTP_VERSION_NOT_SUPPORTED) {}
 
 HttpVersionNotSupportedException::~HttpVersionNotSupportedException() throw() {}
 
@@ -124,7 +124,7 @@ const char* TransferEncodingAndContentLengthException::what() const throw() {
 	return "Request: Transfer-Encoding and Content-Length are in headers.";
 }
 
-TransferCodingNotImplemented::TransferCodingNotImplemented(const std::string& val) : RequestException(NOT_IMPLEMENTED), _message("Request: Transfer coding not implemented: " + val) {}
+TransferCodingNotImplemented::TransferCodingNotImplemented(const std::string& val) : ParsePacketException(NOT_IMPLEMENTED), _message("Request: Transfer coding not implemented: " + val) {}
 
 TransferCodingNotImplemented::~TransferCodingNotImplemented() throw() {}
 

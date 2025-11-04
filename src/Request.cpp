@@ -6,12 +6,13 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 17:25:01 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 11:26:42 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "Server.hpp"
+#include "defines.h"
 
 Request::Request()
 : 
@@ -156,6 +157,7 @@ void Request::setStartTime(time_t time) {
 }
 
 bool Request::hasTimedOut(time_t maxTime) const {
-	std::cout << (time(NULL) - _startTime) << "s >= " << maxTime << "s" << std::endl;
+	if (PRINT)
+		std::cout << (time(NULL) - _startTime) << "s >= " << maxTime << "s" << std::endl;
 	return (time(NULL) - _startTime >= maxTime);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:36:13 by dmazari           #+#    #+#             */
-/*   Updated: 2025/11/03 17:06:14 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/04 11:24:12 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ Error::NoPageFound::NoPageFound(const std::string &message) {
 Error::NoPageFound::~NoPageFound() throw() {}
 
 Error::DidNotFindSemicolon::DidNotFindSemicolon(const std::string &message) {
-	_message = "Following '" + message + "' any semicolon was found.";
+	_message = "Following '" + message + "' no semicolon was found.";
 }
 
 Error::DidNotFindSemicolon::~DidNotFindSemicolon() throw() {}
@@ -85,7 +85,7 @@ const char *Error::IntExpected::what() const throw() {
 }
 
 const char *Error::NoServerInConfigFile::what() const throw() {
-	return "Any server was found in the config file.";
+	return "No server was found in the config file.";
 }
 
 Error::NoRelatedServerFound::NoRelatedServerFound(int fd) {

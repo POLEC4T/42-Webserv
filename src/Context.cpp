@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/04 10:01:08 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 11:29:28 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <algorithm>
+#include "defines.h"
 
 int		queueResponse(Client &client, std::string &response, int epollfd);
 void	ftClose(int* fd);
@@ -42,7 +43,7 @@ Context::~Context() {
 
 // Getter
 /**
- * @return true if the eventfd is the fd of the CGI
+ * @return true if the eventfd is the fd of a CGI
  */
 bool Context::isRunningCGI(int eventfd) {
 	std::map<int, CGI>::iterator it = _mapRunningCGIs.find(eventfd);
@@ -147,11 +148,12 @@ void Context::checkTimedOutCGI() {
 
 	for (itMap = _mapRunningCGIs.begin(); itMap != _mapRunningCGIs.end(); ++itMap) {
 		CGI &cgi = itMap->second;
-		std::cout << "PID child: " << cgi.getPid() << std::endl;
-		std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
+		if (PRINT)
+			std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
 		if (now - cgi.getStartTime() >= cgi.getTimeOutValue()) {
 			
-			std::cout << "Going to kill" << std::endl;
+			if (PRINT)
+				std::cout << "Going to kill" << std::endl;
 
 			fd = cgi.getFd();
 
@@ -198,7 +200,7 @@ void	Context::checkTimedOutClients() {
 		for (itcl = clients.begin(); itcl != clients.end(); ++itcl) {
 			Client& client = itcl->second;
 			if (client.getRecvBuffer().empty() || client.getStatus() == READY)
-				continue; // todo : maybe faire une liste de client qui ont recu une premiere request ? comme ca on itere seulement sur ceux la
+				continue;
 			if (client.getRequest().hasTimedOut(itserv->getTimedOutValue())) {
 				std::cout << "client timed out: fd " << client.getFd() << std::endl;
 				response = Response(client.getRequest().getVersion(),
