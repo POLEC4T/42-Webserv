@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 14:26:36 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:41:49 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -393,6 +393,9 @@ int Client::readPacket() {
 		std::cerr << "Client disconnected, fd: " << _fd << std::endl;
 		return (EXIT_FAILURE);
 	}
+	std::cout << "rec size: " << _recvBuffer.size() << std::endl;
+	if (_recvBuffer.empty())
+		_request.setStartTime(time(NULL));
 	_recvBuffer.append(buffer, sizeRead);
 	return (EXIT_SUCCESS);
 }

@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 13:04:32 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 11:05:19 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 16:49:22 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 Server::Server() {
 	_clientMaxBodySize = -1;
-	_timedOut = -1;
+	_timedOut = DEFAULT_TIMEOUT;
 }
 
 Server::Server(const Server &cpy) {
@@ -60,7 +60,7 @@ Server::~Server() {
 Server::Server(std::map<int, ErrorPage> errorPages) {
 	_clientMaxBodySize = -1;
 	_mapDefaultErrorPage = errorPages;
-	_timedOut = -1;
+	_timedOut = DEFAULT_TIMEOUT;
 }
 
 // Setter
@@ -117,6 +117,11 @@ long long Server::getClientMaxBodySize() const { return _clientMaxBodySize; }
 int Server::getTimedOutValue() const { return _timedOut; }
 
 const std::string &Server::getHost() const { return _host; }
+
+std::map<int, Client>& Server::getClients() {
+	return _mapClients;
+}
+
 
 // Specific map
 void Server::addLocation(const Location &location) {

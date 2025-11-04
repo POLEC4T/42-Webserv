@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 11:15:30 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:25:01 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,33 +14,15 @@
 #include "Server.hpp"
 
 Request::Request()
-	: _parsedRequestLine(false), _parsedHeaders(false), _parsedBody(false) {}
+: 
+_parsedRequestLine(false),
+_parsedHeaders(false),
+_parsedBody(false),
+_startTime(0)
+{}
 
 Request::~Request() {}
 
-/** RFC 7230:
- * - check if header must be unique (Content-Length, Host, etc) 400
- * - No whitespace is allowed between the header field-name and colon : 400
- * - whitespace before and after value : ca degage au parsing
- * -  A server that receives an obs-fold in a request message that is not
- *   within a message/http container MUST either reject the message by
- *   sending a 400 (Bad Request) (obs-fold ou obselete-folding c'est quand
- *   la value est \n, et que la ligne d'apres commence par un espace ou un \t)
- * - est ce qu'on a une taille maximale de ligne ? (key + value)
- * - value: (check RFC 7230: 3.2.6)
- * 		check valid chars
- * 		handle quoted strings "..."
- * 		handle comments (...)
- * 		put \ in front of wanted chars
- * 		handle spaces and ','
- * 		sometimes / is valid and other times not ????? type MIME allows
- it -> WHAATTTTT : User-AgentMozilla/5.0 Chaîne libre (souvent avec /, mais pas
- un type MIME).
- * 		' ' are valid, but only to separate tokens, quoted-strings and
- comments
- * - discuter du header Transfer-Encoding, ca a l'air hyper complexe, est ce
- qu'on doit vraiment le faire ? ou on va s'arreter ?
- */
 /**
  * @throws if no ':' found in a header line
  * @throws if header name is invalid (empty or ends with space)
@@ -167,4 +149,13 @@ const std::string&  Request::getBody() const {
 
 void Request::appendBody(const std::string& toadd) {
 	_body.append(toadd);
+}
+
+void Request::setStartTime(time_t time) {
+	_startTime = time;
+}
+
+bool Request::hasTimedOut(time_t maxTime) const {
+	std::cout << (time(NULL) - _startTime) << "s >= " << maxTime << "s" << std::endl;
+	return (time(NULL) - _startTime >= maxTime);
 }

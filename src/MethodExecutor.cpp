@@ -6,13 +6,15 @@
 /*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/11/03 21:10:59 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/11/04 12:48:34 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "MethodExecutor.hpp"
 #include "AHttpMethod.hpp"
 
+bool isCGI(Request &req, Location &loc);
+int CGIHandler(Request &req, Location &loc, Server &serv, Client &client);
 std::string readPage(std::string fileName);
 
 MethodExecutor::MethodExecutor(Server &s, Client &c) : _server(s), _client(c)

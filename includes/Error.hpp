@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:34:04 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/31 14:57:26 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:03:13 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,12 @@
 
 class Error {
 public:
+	class ErrorCGI : public std::exception {
+		public:
+			ErrorCGI();
+			~ErrorCGI() throw();
+	};
+
 	class CanNotOpenFile : public std::exception {
 	private:
 		std::string _message;
