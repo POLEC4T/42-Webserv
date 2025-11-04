@@ -6,42 +6,183 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 14:49:06 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:31:40 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Context.hpp"
 #include "Error.hpp"
+#include "Response.hpp"
+#include <string.h>
+#include <sys/wait.h>
+#include "defines.h"
+
+int		queueResponse(Client &client, std::string &response, int epollfd);
+void	ftClose(int* fd);
+
 
 Context::Context() : _epollfd(-1) {}
 
 Context::~Context() {
 	if (_epollfd != -1)
 		close(_epollfd);
+
+	int fd = -1;
+	std::map<int, CGI>::iterator itMap;
+	for (itMap = _mapRunningCGIs.begin(); itMap != _mapRunningCGIs.end(); ++itMap) {
+		CGI &cgi = itMap->second;
+		kill(cgi.getPid(), SIGKILL);
+		waitpid(cgi.getPid(), NULL, 0);
+		fd = cgi.getFd();
+		if (fd != -1)
+			close(fd);
+	}
+	_mapRunningCGIs.clear();
 }
 
-//Getter
-std::vector<Server>&	Context::getServers() {
-	return _servers;
+// Getter
+/**
+ * @return true if the eventfd is the fd of the CGI
+ */
+bool Context::isRunningCGI(int eventfd) {
+	std::map<int, CGI>::iterator it = _mapRunningCGIs.find(eventfd);
+	if (it == _mapRunningCGIs.end())
+		return false;
+	return true;
 }
+
+std::vector<Server> &Context::getServers() { return _servers; }
 
 const std::map<int, ErrorPage> &Context::getMapDefaultErrorPage() const {
 	return _mapDefaultErrorPage;
 }
 
-int	Context::getEpollFd() const {
-	return _epollfd;
-}
+int Context::getEpollFd() const { return _epollfd; }
 
 // Setter
+void Context::addCgi(CGI &cgi) {
+	_mapRunningCGIs.insert(std::make_pair(cgi.getFd(), cgi));
+}
+
 void Context::addServer(const Server &server) { _servers.push_back(server); }
 
-void	Context::setEpollFd(int fd) {
-	_epollfd = fd;
+void Context::setEpollFd(int fd) { _epollfd = fd; }
+
+int Context::handleEventCgi(int fd) {
+	std::cout << "begin handleEventCgi " << std::endl;
+	std::map<int, CGI>::iterator it = _mapRunningCGIs.find(fd);
+	if (it == _mapRunningCGIs.end())
+		return EXIT_SUCCESS;
+
+	CGI &cgi = it->second;
+
+	char buffer[MAX_RECV];
+	int bytes = read(fd, buffer, MAX_RECV - 1);
+	if (bytes == -1) {
+		std::cerr << "recv:" << strerror(errno) << std::endl;
+		return EXIT_FAILURE;
+	} else if (bytes > 0) {
+		buffer[bytes] = '\0';
+		cgi.appendOutput(buffer);
+	}
+
+	int status;
+	pid_t r = waitpid(cgi.getPid(), &status, WNOHANG);
+
+	if (r == cgi.getPid()) {
+		queueResponse(cgi.getClient(), cgi.getOutput(), _epollfd);
+		close(fd);
+		_mapRunningCGIs.erase(fd);
+	}
+	std::cout << "r: " << r << std::endl;
+	return EXIT_SUCCESS;
+}
+
+void Context::checkTimedOutCGI() {
+	int now = time(NULL);
+
+	// std::cout << "In check time out" << std::endl;
+
+	std::string response;
+	int fd;
+	std::map<int, CGI>::iterator itMap;
+	std::vector<int> CGIsToErase;
+
+	for (itMap = _mapRunningCGIs.begin(); itMap != _mapRunningCGIs.end(); ++itMap) {
+		CGI &cgi = itMap->second;
+		std::cout << "PID child: " << cgi.getPid() << std::endl;
+		std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
+		if (now - cgi.getStartTime() >= cgi.getTimeOutValue()) {
+			std::cout << "Going to kill" << std::endl;
+			fd = cgi.getFd();
+			response = Response(
+				cgi
+				.getClient()
+				.getRequest()
+				.getVersion(),
+				cgi.getServer().getErrorPageByCode(REQUEST_TIMEOUT)).build();
+			std::cout << "res len: " << response.size() << std::endl;
+			std::cout << "cgi.getClient(): " << cgi.getClient().getFd() << std::endl;
+			cgi.getClient().setDeleteAfterResponse(true);
+			if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE)
+				continue;
+
+			kill(cgi.getPid(), SIGKILL);
+			std::cout << "Before waitpid" << std::endl;
+			int status;
+			if (waitpid(cgi.getPid(), &status, 0) == -1) {
+				std::cerr << "waitpid failed" << std::endl;
+				continue;
+			}
+
+			std::cout << "waitpid status: " << status << std::endl;
+
+			if (fd != -1)
+				close(fd);
+			CGIsToErase.push_back(fd);
+		}
+	}
+
+	std::vector<int>::iterator itFd;
+
+	for (itFd = CGIsToErase.begin(); itFd != CGIsToErase.end(); ++itFd)
+	{
+		std::cout << "Erasing CGI with fd: " << *itFd << std::endl;
+		_mapRunningCGIs.erase(*itFd);
+	}
+}
+
+/**
+ * queueResponse 408 to timed out clients and close the connection
+ */
+void	Context::checkTimedOutClients() {
+	std::vector<Server>::iterator itserv;
+	std::map<int, Client>::iterator itcl;
+	std::string response;
+	
+
+	for (itserv = _servers.begin(); itserv < _servers.end(); ++itserv) {
+		std::map<int, Client>& clients = itserv->getClients();
+		for (itcl = clients.begin(); itcl != clients.end(); ++itcl) {
+			Client& client = itcl->second;
+			if (client.getRecvBuffer().empty() || client.getStatus() == READY)
+				continue; // todo : maybe faire une liste de client qui ont recu une premiere request ? comme ca on itere seulement sur ceux la
+			if (client.getRequest().hasTimedOut(itserv->getTimedOutValue())) {
+				std::cout << "client timed out: fd " << client.getFd() << std::endl;
+				response = Response(client.getRequest().getVersion(),
+									itserv->getErrorPageByCode(REQUEST_TIMEOUT)).build();
+
+				if (queueResponse(client, response, _epollfd) == EXIT_FAILURE) {
+					itserv->deleteClient(client.getFd());
+					continue;
+				}
+				client.setDeleteAfterResponse(true);
+			}
+		}
+	}
 }
 
 
-// functions
 int getContent(std::string fileName, std::string &content, char separator) {
 	std::string line;
 	size_t i;
@@ -145,7 +286,7 @@ void Context::parseAndAddServer(std::vector<std::string>::iterator &it,
 }
 
 void Context::configFileParser(const std::string &fileName,
-							std::map<int, ErrorPage> errorPages) {
+							   std::map<int, ErrorPage> errorPages) {
 	FtString content;
 	std::vector<std::string> tokens;
 
@@ -153,7 +294,7 @@ void Context::configFileParser(const std::string &fileName,
 	addSpace(content, ';');
 	tokens = content.ft_split(" \n\b\t\r\v\f");
 	for (std::vector<std::string>::iterator it = tokens.begin();
-		it != tokens.end(); it++) {
+		 it != tokens.end(); it++) {
 		if (*it == "server")
 			parseAndAddServer(++it, tokens.end(), errorPages);
 	}
@@ -161,9 +302,9 @@ void Context::configFileParser(const std::string &fileName,
 		throw(Error::NoServerInConfigFile());
 }
 
-void	Context::parseAndSetMapDefaultErrorPage() {
-    std::string	fileName = "serverData/errorPages/default/error_";
-	std::vector<int>			codes;
+void Context::parseAndSetMapDefaultErrorPage() {
+	std::string fileName = "serverData/errorPages/default/error_";
+	std::vector<int> codes;
 	codes.push_back(BAD_REQUEST);
 	codes.push_back(FORBIDDEN);
 	codes.push_back(PAGE_NOT_FOUND);
@@ -176,10 +317,9 @@ void	Context::parseAndSetMapDefaultErrorPage() {
 	codes.push_back(HTTP_VERSION_NOT_SUPPORTED);
 
 	for (size_t i = 0; i < codes.size(); i++) {
-		std::string	content;
+		std::string content;
 		std::string codeStr = FtString::my_to_string<int>(codes[i]);
-		std::string	name = "error_" + codeStr;
-
+		std::string name = "error_" + codeStr;
 
 		getContent(fileName + codeStr + ".html", content, '\n');
 		ErrorPage errorPage(name, content, codes[i]);
@@ -190,7 +330,7 @@ void	Context::parseAndSetMapDefaultErrorPage() {
 /**
  * @return true if fd is one of the listening sockets of any server
  */
-bool	Context::isListenerFd(int fd) const {
+bool Context::isListenerFd(int fd) const {
 	std::vector<Server>::const_iterator it;
 	for (it = _servers.begin(); it != _servers.end(); ++it) {
 		if (it->isListener(fd))
@@ -203,7 +343,7 @@ bool	Context::isListenerFd(int fd) const {
  * This fd must be either a listening socket or a client socket
  * @throw Error::NoRelatedServersFound if no server is found for this fd
  */
-Server&	Context::getRelatedServer(int fd) {
+Server &Context::getRelatedServer(int fd) {
 	std::vector<Server>::iterator servIt;
 	std::vector<int> sockfds;
 	std::vector<Client> clients;
@@ -212,5 +352,5 @@ Server&	Context::getRelatedServer(int fd) {
 		if (servIt->isClient(fd) || servIt->isListener(fd))
 			return (*servIt);
 	}
-	throw (Error::NoRelatedServerFound(fd));
+	throw(Error::NoRelatedServerFound(fd));
 }

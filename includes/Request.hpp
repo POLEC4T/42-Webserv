@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 11:12:32 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/03 16:17:16 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,32 +64,35 @@ class Server;
 
 class Request {
 private:
-	std::string _method;
-	std::string _uri;
-	std::string _version;
-	std::map<std::string, std::string> _headers;
-	std::string _body;
-	bool _parsedRequestLine;
-	bool _parsedHeaders;
-	bool _parsedBody;
+	std::string 						_method;
+	std::string 						_uri;
+	std::string 						_version;
+	std::map<std::string, std::string>	_headers;
+	std::string 						_body;
+	bool 								_parsedRequestLine;
+	bool 								_parsedHeaders;
+	bool 								_parsedBody;
+	time_t								_startTime; // set to we received the first packet of the request
 
 public:
 	Request();
 	~Request();
 
-		void				parseHeaders(const std::string &reqContent);
-		void				parseBody(const std::string &reqContent, size_t bodyLength);
-		void				parseRequestLine(const std::string &reqContent);
-		void 				displayRequest() const;
-		std::string			getHeaderValue(const std::string &key) const;
-		const std::string& 	getUri() const;
-		const std::string& 	getMethod() const;
-		const std::string&	getVersion() const;
-		const std::string&	getBody() const;
-		bool				parsedRequestLine() const;
-		bool				parsedHeaders() const;
-		bool				parsedBody() const;
-		void				appendBody(const std::string& toadd);
+	void				parseHeaders(const std::string &reqContent);
+	void				parseBody(const std::string &reqContent, size_t bodyLength);
+	void				parseRequestLine(const std::string &reqContent);
+	void 				displayRequest() const;
+	std::string			getHeaderValue(const std::string &key) const;
+	const std::string& 	getUri() const;
+	const std::string& 	getMethod() const;
+	const std::string&	getVersion() const;
+	const std::string&	getBody() const;
+	bool				parsedRequestLine() const;
+	bool				parsedHeaders() const;
+	bool				parsedBody() const;
+	void				appendBody(const std::string& toadd);
+	void				setStartTime(time_t);
+	bool				hasTimedOut(time_t maxTime) const;
 };
 
 #endif

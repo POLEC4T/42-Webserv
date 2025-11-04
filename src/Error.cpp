@@ -6,7 +6,7 @@
 /*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:36:13 by dmazari           #+#    #+#             */
-/*   Updated: 2025/10/30 11:43:55 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/10/31 14:55:25 by mazakov          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,4 +109,8 @@ const char *Error::IntOutOfRange::what() const throw() {
 
 const char* Error::CgiValuesError::what() const throw() {
 	return "Config file CGI setter error: expected format 'cgi <extension> <path>;'";
+}
+
+const char* Error::CgiNotFound::what() const throw() {
+	return "No related CGI found.";
 }

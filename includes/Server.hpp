@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:07:38 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 13:04:15 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/03 16:42:42 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,11 +57,12 @@ class	Server {
 		long long							getClientMaxBodySize() const ;
 		int									getTimedOutValue() const ;
 		const std::string&					getHost() const;
+		std::map<int, Client>&				getClients();
 		
 		//Specific map
-		APage&		getLocationByName(const std::string&);
-		ErrorPage&	getErrorPageByCode(const int);
-		void		setDefaultMapErrorPage(const std::map<int, ErrorPage>&);
+		APage&					getLocationByName(const std::string&);
+		ErrorPage&				getErrorPageByCode(const int);
+		void					setDefaultMapErrorPage(const std::map<int, ErrorPage>&);
 
 		void					addLocation(const Location &);
 		void					addErrorPage(ErrorPage &);

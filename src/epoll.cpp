@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 14:54:26 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:26:34 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,15 @@
 #define NB_EVENTS 1024
 #define BUFFER_SIZE 1024
 
+bool isCGI(Request &req, Location &loc);
+int CGIHandler(Request &req, Location &loc, Server &serv, Client &client, Context& ctx);
+
+
 static int initServerFds(Server& server);
 static int initEpoll(Context &ctx);
 static int addClient(Server &server, int servfd, int epollfd);
-static int queueResponse(Client &client, std::string& response, int epollfd);
-static int handleClientIn(Server& server, Client& client, int epollfd);
+static int handleClientIn(Server& server, Client& client, Context& ctx);
+int queueResponse(Client &client, std::string& response, int epollfd);
 
 int launchEpoll(Context &ctx) {
 	std::vector<Server>::iterator it;
@@ -59,43 +63,48 @@ int launchEpoll(Context &ctx) {
 	}
 	
 	while (1) {
-		if (PRINT)
-			std::cout << "epoll_waiting" << std::endl;
-		eventsReady = epoll_wait(ctx.getEpollFd(), events, NB_EVENTS, -1); //TODO timeout return 0
+		eventsReady = epoll_wait(ctx.getEpollFd(), events, NB_EVENTS, 1000);
 		if (eventsReady == -1) {
 			std::cerr << "epoll_wait: " << strerror(errno) << std::endl;
 			return (EXIT_FAILURE);
 		}
-		if (PRINT)
-			std::cout << eventsReady << " event(s)" << std::endl;
 		for (int i = 0; i < eventsReady; ++i) {
-			Server& server = ctx.getRelatedServer(events[i].data.fd);
-			if (ctx.isListenerFd(events[i].data.fd)) {
-				if (addClient(server, events[i].data.fd, ctx.getEpollFd()) == EXIT_FAILURE) {
-					continue;
-				}
-			} else {
-				Client& client = server.getClient(events[i].data.fd);
-				if (events[i].events & EPOLLIN) {
-					if (PRINT)
-						std::cout << "EPOLLIN fd: " << client.getFd() << std::endl;
-					if (handleClientIn(server, client, ctx.getEpollFd()) == EXIT_FAILURE) {
-						server.deleteClient(client.getFd());
+			if (PRINT)
+				std::cout << "-----\n";
+			if (ctx.isRunningCGI(events[i].data.fd)) {
+				if (ctx.handleEventCgi(events[i].data.fd) == EXIT_FAILURE)
+					std::cout << "Salut faut faire ca" << std::endl;
+			}
+			else
+			{
+				Server& server = ctx.getRelatedServer(events[i].data.fd);
+				if (ctx.isListenerFd(events[i].data.fd)) {
+					if (addClient(server, events[i].data.fd, ctx.getEpollFd()) == EXIT_FAILURE) {
 						continue;
 					}
-				}
-				if (events[i].events & EPOLLOUT) {
-					if (PRINT)
-						std::cout << "EPOLLOUT fd: " << client.getFd() << std::endl;
-					if (client.sendPendingResponse(ctx.getEpollFd()) == EXIT_FAILURE) {
-						server.deleteClient(client.getFd());
-						continue;
+				} else {
+					Client& client = server.getClient(events[i].data.fd);
+					if (events[i].events & EPOLLIN) {
+						if (PRINT)
+							std::cout << "EPOLLIN fd: " << client.getFd() << std::endl;
+						if (handleClientIn(server, client, ctx) == EXIT_FAILURE) {
+							server.deleteClient(client.getFd());
+							continue;
+						}
+					}
+					if (events[i].events & EPOLLOUT) {
+						if (PRINT)
+							std::cout << "EPOLLOUT fd: " << client.getFd() << std::endl;
+						if (client.sendPendingResponse(ctx.getEpollFd()) == EXIT_FAILURE) {
+							server.deleteClient(client.getFd());
+							continue;
+						}
 					}
 				}
 			}
 		}
-		if (PRINT)
-			std::cout << "-----\n";
+		ctx.checkTimedOutCGI();
+		ctx.checkTimedOutClients();
 	}
 	return 0;
 }
@@ -231,10 +240,44 @@ static int addClient(Server &server, int servfd, int epollfd) {
 	return (EXIT_SUCCESS);
 }
 
+static Location getRequestLocation(Request &req, Server &serv) {
+	std::string path(req.getUri());
+	std::map<std::string, Location> &locations = serv.getLocations();
+
+	std::map<std::string, Location>::iterator it = locations.find(path);
+	if (it != locations.end())
+		return it->second;
+	size_t l = path.find_last_of('/');
+	if (l == 0)
+		path = "/";
+	else if (l != std::string::npos)
+		path = path.substr(0, l);
+	while (1) {
+		for (std::map<std::string, Location>::iterator it = locations.begin();
+			it != locations.end(); it++) {
+			if (it->first == path)
+				return it->second;
+		}
+		if (path.empty() || path == "/")
+			break;
+
+		l = path.find_last_of('/');
+		if (l == 0)
+			path = "/";
+		else if (l != std::string::npos)
+			path = path.substr(0, l);
+		else
+			break;
+	}
+	Location loc;
+	loc.setCode(404);
+	return loc;
+}
+
 /**
  * @note If any error occurs, the function returns EXIT_FAILURE to signal the caller to delete the client
  */
-static int handleClientIn(Server& server, Client& client, int epollfd) {
+static int handleClientIn(Server& server, Client& client, Context& ctx) {
 
 	if (client.readPacket() == EXIT_FAILURE)
 		return (EXIT_FAILURE);
@@ -245,7 +288,26 @@ static int handleClientIn(Server& server, Client& client, int epollfd) {
 		client.parsePacket(server);
 		if (client.getStatus() == WAITING)
 			return (EXIT_SUCCESS);
-		response = MethodExecutor(server, client).execute();
+
+		Location loc = getRequestLocation(client.getRequest(), server);
+		if (loc.getCode() == PAGE_NOT_FOUND)
+		{
+			response = Response(client.getRequest().getVersion(), server.getErrorPageByCode(PAGE_NOT_FOUND)).build();
+			return queueResponse(client, response, ctx.getEpollFd()) == EXIT_FAILURE;
+		}
+
+		if (isCGI(client.getRequest(), loc)) {
+			int ret = CGIHandler(client.getRequest(), loc, server, client, ctx);
+			if (ret == DELETE_CLIENT)
+				return (EXIT_FAILURE);
+			if (ret != CGI_PENDING)
+				response = Response(client.getRequest().getVersion(),
+							server.getErrorPageByCode(ret)).build();
+			else
+				return EXIT_SUCCESS;
+		}
+		else
+			response = MethodExecutor(server, client).execute();
 	} catch (const RequestException& re) {
 		std::cerr << re.what() << std::endl;
 		response = Response("HTTP/1.1", server.getErrorPageByCode(re.getCode())).build();
@@ -254,13 +316,13 @@ static int handleClientIn(Server& server, Client& client, int epollfd) {
 		response = Response("HTTP/1.1", server.getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
 	}
 
-	return (queueResponse(client, response, epollfd) == EXIT_FAILURE);
+	return (queueResponse(client, response, ctx.getEpollFd()) == EXIT_FAILURE);
 }
 
 /**
  * @note If the modification to EPOLLOUT fails, the connection will be closed
  */
-static int queueResponse(Client &client, std::string& response, int epollfd) {
+int queueResponse(Client &client, std::string& response, int epollfd) {
 	if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLOUT, client.getFd()) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 	client.setSendBuffer(response);
