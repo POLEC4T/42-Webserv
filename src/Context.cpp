@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/04 15:26:03 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 16:01:32 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,16 +69,82 @@ void Context::addServer(const Server &server) { _servers.push_back(server); }
 
 void Context::setEpollFd(int fd) { _epollfd = fd; }
 
-int	parseTheOutputOfCGI(std::string& output) {
-	size_t statusPlace = output.find("HTTP/1.1", 0);
-	if (statusPlace == output.size())
-		return (EXIT_SUCCESS);
-	statusPlace = output.find("Status", 0);
-	if (statusPlace == output.size())
-		return (EXIT_FAILURE);
-
-	output.replace(statusPlace, 7, "HTTP/1.1");
+std::map<std::string, std::string>	parseTheHeaderOfCGI(std::string& header, int& code, std::string& status) {
+	std::map<std::string, std::string> headerValues;
+	FtString myString = header;
+	std::vector<std::string> tokens = myString.ft_split_word("\r\n");
+	if (tokens.size() == 1)
+		tokens = myString.ft_split("\n");
 	
+	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); ++it) {
+		FtString token = *it;
+		std::vector<std::string> lineValues = token.ft_split(":");
+		if (lineValues.size() < 2)
+		{
+			std::cerr << "Malformed header line in CGI response: " << *it << std::endl;
+			return std::map<std::string, std::string>();
+		}
+		if (lineValues.at(0) == "Status") {
+			FtString value = lineValues.at(1);
+			std::vector<std::string> values = value.ft_split(" ");
+			if (values.size() < 2)
+			{
+				std::cerr << "Invalid status line in CGI response: " << *it << std::endl;
+				return std::map<std::string, std::string>();
+			}
+			std::istringstream iss(values[0]);
+			iss >> code;
+			if (iss.fail() || !iss.eof())
+			{
+				std::cerr << "Invalid status code in CGI response: " << values[0] << std::endl;
+				return std::map<std::string, std::string>();
+			}
+			for (std::vector<std::string>::iterator it = (values.begin()) + 1; it != values.end(); ++it)
+			{
+				status += *it;
+				if ((it + 1) != values.end())
+					status += " ";
+			}
+		}
+		else
+			headerValues[lineValues[0]] = lineValues[1];
+	}
+	return headerValues;
+}
+
+std::string	buildingFullResponse(std::string& header, const std::string& body, Request& req) {
+	int code;
+	std::string status;
+	std::map<std::string, std::string>	finalHeader = parseTheHeaderOfCGI(header, code, status);
+	if (finalHeader.empty())
+		return std::string();
+	Response response = Response(req.getVersion(), code, status, body);
+	for (std::map<std::string, std::string>::iterator it = finalHeader.begin(); it != finalHeader.end(); ++it) {
+		response.setHeader(it->first, it->second);
+	}
+	return response.build();
+}
+
+int	parseTheOutputOfCGI(std::string& output, Request& req) {
+	std::cout << "CGI Output:\n" << output << std::endl;
+	size_t statusPlace = output.find("Status:", 0);
+	if (statusPlace == std::string::npos)
+	{
+		std::cerr << "No Status line in the CGI response" << std::endl;
+		return (EXIT_FAILURE);
+	}
+	
+	FtString	token = output;
+	std::vector<std::string> tokens = token.ft_split_word("\r\n\r\n");
+	if (tokens.size() == 1)
+	{
+		std::cerr << "There's no empty line in the CGI response" << std::endl;
+		return (EXIT_FAILURE);
+	}
+
+	output = buildingFullResponse(tokens[0], tokens.size() >= 2 ? tokens[1] : "", req);
+	if (output.empty())
+		return EXIT_FAILURE;
 	return EXIT_SUCCESS;
 }
 
@@ -105,27 +171,16 @@ void Context::handleEventCgi(int fd) {
 	pid_t r = waitpid(cgi.getPid(), &status, WNOHANG);
 
 	if (r == cgi.getPid()) {
-		if (status != 0) {
-			std::cerr << "CGI process " << cgi.getPid() << " finished with status "
-					<< WEXITSTATUS(status) << std::endl;
-			std::string response = Response(cgi.getClient().getRequest().getVersion(),
-				cgi.getServer().getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
-			if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE) {
-				cgi.getServer().deleteClient(cgi.getClient().getFd());
-			}
+		std::string response;
+		if (parseTheOutputOfCGI(cgi.getOutput(), cgi.getRequest()) == EXIT_FAILURE) 
+		{
+			response = Response(cgi.getClient().getRequest().getVersion(),
+			cgi.getServer().getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
 		}
-		else {
-			if (parseTheOutputOfCGI(cgi.getOutput()) == EXIT_FAILURE) 
-			{
-				std::string response = Response(cgi.getClient().getRequest().getVersion(),
-				cgi.getServer().getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
-				if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE) {
-					cgi.getServer().deleteClient(cgi.getClient().getFd());
-			}
-			}
-			else if (queueResponse(cgi.getClient(), cgi.getOutput(), _epollfd) == EXIT_FAILURE) {
-				cgi.getServer().deleteClient(cgi.getClient().getFd());
-			}
+		else
+			response = cgi.getOutput(); 
+		if (queueResponse(cgi.getClient(), response, _epollfd) == EXIT_FAILURE) {
+			cgi.getServer().deleteClient(cgi.getClient().getFd());
 		}
 		close(fd);
 		_mapRunningCGIs.erase(fd);

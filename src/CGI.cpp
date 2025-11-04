@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   CGI.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/31 13:55:23 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/04 11:30:26 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 15:59:17 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "CGI.hpp"
 # include "defines.h"
 
-CGI::CGI(Server& server, Client& client): _server(server), _client(client) {
+CGI::CGI(Server& server, Client& client, Request& request): _server(server), _client(client), _request(request) {
 	int timeOut = server.getTimedOutValue();
 	_pid = 0;
 	_output = "";
@@ -22,7 +22,7 @@ CGI::CGI(Server& server, Client& client): _server(server), _client(client) {
 	_startTime = time(NULL);
 }
 
-CGI::CGI(const CGI& other) : _server(other._server), _client(other._client) {
+CGI::CGI(const CGI& other) : _server(other._server), _client(other._client), _request(other._request) {
 	_pid = other._pid;
 	_fd = other._fd;
 	_startTime = other._startTime;
@@ -42,6 +42,10 @@ int	CGI::getClientFd() {
 
 Server&	CGI::getServer() {
 	return _server;
+}
+
+Request& CGI::getRequest() {
+	return _request;
 }
 
 int	CGI::getPid() {
