@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:47:45 by faoriol           #+#    #+#             */
-/*   Updated: 2025/11/04 14:48:06 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/04 16:00:12 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ Response::Response(std::string v, ErrorPage &page)
 		FtString::my_to_string(page.getContent().size());
 	if (page.getCode() == 504 || page.getCode() == 408)
 		this->_headers["Connection"] = "close";
-	// this->_headers["Content-type"] = "text/html";
 }
 
 Response &Response::operator=(const Response &other)

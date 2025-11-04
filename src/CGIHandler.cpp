@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 12:19:19 by dorianmazar       #+#    #+#             */
-/*   Updated: 2025/11/04 15:54:56 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/04 15:59:22 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ typedef struct s_CGIContext {
 	int timedOut;
 } t_CGIContext;
 
-std::string getCgiExtensionInUri(Request &req) {
+std::string	getCgiExtensionInUri(Request &req) {
 	FtString token = req.getUri();
 	std::vector<std::string> parts = token.ft_split("?");
 	const std::string &pathOnly = parts.size() > 0 ? parts[0] : std::string();

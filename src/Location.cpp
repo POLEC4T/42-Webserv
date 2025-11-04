@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:40:35 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/04 10:19:54 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/04 15:59:57 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,6 @@ void Location::setUploadPath(const std::string &uploadPath) {
 }
 
 // Getter
-
 bool Location::getAutoIndex() { return _autoIndex; }
 
 const std::vector<std::string> Location::getIndex() { return _index; }

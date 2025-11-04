@@ -1,39 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RequestExceptions.hpp                              :+:      :+:    :+:   */
+/*   ParsePacketExceptions.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 10:24:54 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/10/30 11:12:40 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/04 11:36:43 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef REQUESTEXCEPTIONS_HPP
-#define REQUESTEXCEPTIONS_HPP
+#ifndef PARSEPACKETEXCEPTIONS_HPP
+#define PARSEPACKETEXCEPTIONS_HPP
 
 #include "CodeDefines.h"
 #include <exception>
 #include <iostream>
 
-class RequestException : public std::exception {
+class ParsePacketException : public std::exception {
 protected:
 	int _code;
 
 public:
-	RequestException();
-	RequestException(int code);
-	virtual ~RequestException() throw();
+	ParsePacketException();
+	ParsePacketException(int code);
+	virtual ~ParsePacketException() throw();
 	int getCode() const;
 	virtual const char *what() const throw() = 0;
 };
 
-class RequestLineException : public RequestException {
+class RequestLineException : public ParsePacketException {
 public:
 	virtual const char *what() const throw();
 };
-class NoHeaderValueException : public RequestException {
+class NoHeaderValueException : public ParsePacketException {
 private:
 	std::string _message;
 
@@ -43,7 +43,7 @@ public:
 	~NoHeaderValueException() throw();
 };
 
-class BadHeaderNameException : public RequestException {
+class BadHeaderNameException : public ParsePacketException {
 private:
 	std::string _message;
 
@@ -53,7 +53,7 @@ public:
 	~BadHeaderNameException() throw();
 };
 
-class BadHeaderValueException : public RequestException {
+class BadHeaderValueException : public ParsePacketException {
 private:
 	std::string _message;
 
@@ -63,57 +63,57 @@ public:
 	~BadHeaderValueException() throw();
 };
 
-class NoHeaderColumnException : public RequestException {
+class NoHeaderColumnException : public ParsePacketException {
 public:
 	virtual const char *what() const throw();
 };
 
-class UriTooLongException : public RequestException {
+class UriTooLongException : public ParsePacketException {
 public:
 	UriTooLongException();
 	virtual const char *what() const throw();
 	~UriTooLongException() throw();
 };
 
-class ContentTooLargeException : public RequestException {
+class ContentTooLargeException : public ParsePacketException {
 public:
 	ContentTooLargeException();
 	virtual const char *what() const throw();
 	~ContentTooLargeException() throw();
 };
 
-class MethodNotAllowedException : public RequestException {
+class MethodNotAllowedException : public ParsePacketException {
 public:
 	MethodNotAllowedException();
 	virtual const char *what() const throw();
 	~MethodNotAllowedException() throw();
 };
 
-class PageNotFoundException : public RequestException {
+class PageNotFoundException : public ParsePacketException {
 public:
 	PageNotFoundException();
 	virtual const char *what() const throw();
 	~PageNotFoundException() throw();
 };
 
-class HttpVersionNotSupportedException : public RequestException {
+class HttpVersionNotSupportedException : public ParsePacketException {
 public:
 	HttpVersionNotSupportedException();
 	virtual const char *what() const throw();
 	~HttpVersionNotSupportedException() throw();
 };
 
-class MalformedChunkException : public RequestException {
+class MalformedChunkException : public ParsePacketException {
 	public:
 		virtual const char* what() const throw();
 };
 
-class TransferEncodingAndContentLengthException : public RequestException {
+class TransferEncodingAndContentLengthException : public ParsePacketException {
 	public:
 		virtual const char* what() const throw();
 };
 
-class TransferCodingNotImplemented : public RequestException {
+class TransferCodingNotImplemented : public ParsePacketException {
 	private:
 		std::string _message;
 	public:

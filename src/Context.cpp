@@ -6,7 +6,7 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/04 15:46:08 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/04 15:59:27 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,9 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <algorithm>
+#include "defines.h"
 
-int queueResponse(Client &client, std::string &response, int epollfd);
+int		queueResponse(Client &client, std::string &response, int epollfd);
 void	ftClose(int* fd);
 
 
@@ -42,7 +43,7 @@ Context::~Context() {
 
 // Getter
 /**
- * @return true if the eventfd is the fd of the CGI
+ * @return true if the eventfd is the fd of a CGI
  */
 bool Context::isRunningCGI(int eventfd) {
 	std::map<int, CGI>::iterator it = _mapRunningCGIs.find(eventfd);
@@ -202,11 +203,12 @@ void Context::checkTimedOutCGI() {
 
 	for (itMap = _mapRunningCGIs.begin(); itMap != _mapRunningCGIs.end(); ++itMap) {
 		CGI &cgi = itMap->second;
-		std::cout << "PID child: " << cgi.getPid() << std::endl;
-		std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
+		if (PRINT)
+			std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
 		if (now - cgi.getStartTime() >= cgi.getTimeOutValue()) {
 			
-			std::cout << "Going to kill" << std::endl;
+			if (PRINT)
+				std::cout << "Going to kill" << std::endl;
 
 			fd = cgi.getFd();
 
@@ -238,6 +240,37 @@ void Context::checkTimedOutCGI() {
 		_mapRunningCGIs.erase(*itFd);
 	}
 }
+
+/**
+ * queueResponse 408 to timed out clients and close the connection
+ */
+void	Context::checkTimedOutClients() {
+	std::vector<Server>::iterator itserv;
+	std::map<int, Client>::iterator itcl;
+	std::string response;
+	
+
+	for (itserv = _servers.begin(); itserv < _servers.end(); ++itserv) {
+		std::map<int, Client>& clients = itserv->getClients();
+		for (itcl = clients.begin(); itcl != clients.end(); ++itcl) {
+			Client& client = itcl->second;
+			if (client.getRecvBuffer().empty() || client.getStatus() == READY)
+				continue;
+			if (client.getRequest().hasTimedOut(itserv->getTimedOutValue())) {
+				std::cout << "client timed out: fd " << client.getFd() << std::endl;
+				response = Response(client.getRequest().getVersion(),
+									itserv->getErrorPageByCode(REQUEST_TIMEOUT)).build();
+
+				if (queueResponse(client, response, _epollfd) == EXIT_FAILURE) {
+					itserv->deleteClient(client.getFd());
+					continue;
+				}
+				client.setDeleteAfterResponse(true);
+			}
+		}
+	}
+}
+
 
 int getContent(std::string fileName, std::string &content, char separator) {
 	std::string line;

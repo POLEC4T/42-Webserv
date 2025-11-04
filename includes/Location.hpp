@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 23:10:13 by mazakov           #+#    #+#             */
-/*   Updated: 2025/10/30 11:52:34 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/04 14:34:20 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@
  */
 class Location : public APage {
   private:
-	// std::vector<AHttpMethod*>	_allowedMethods;
 	std::vector<std::string> _allowedMethods;
 	std::vector<std::string> _index;
 	bool _autoIndex;
@@ -41,12 +40,10 @@ class Location : public APage {
 	~Location();
 
 	// Constructor with values affectation, only root and name other can rest
-	// empty
 	Location(std::string name, std::string root);
 	Location(std::string name, std::string root, std::string content, int code);
 
 	// Setter
-	//  void	setAllowedMethods(const std::vector<AHttpMethod*>&);
 	void setAutoIndex(const bool);
 	void addCgi(const std::string &extension, const std::string &path);
 	void setClientMaxBodySize(size_t);
@@ -55,7 +52,6 @@ class Location : public APage {
 	void setUploadPath(const std::string &);
 
 	// Getter
-	//  std::vector<AHttpMethod*>	getAllowedMethods();
 	const std::vector<std::string> getIndex();
 
 	bool getAutoIndex();
@@ -71,7 +67,6 @@ class Location : public APage {
 	void addAllowedMethods(const std::string &);
 	void addIndex(const std::string &);
 
-	// void	pushMethod(AHttpMethod* method);
 };
 
 #endif

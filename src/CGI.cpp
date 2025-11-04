@@ -6,18 +6,19 @@
 /*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/31 13:55:23 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/04 13:32:54 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/04 15:59:17 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "CGI.hpp"
+# include "CGI.hpp"
+# include "defines.h"
 
 CGI::CGI(Server& server, Client& client, Request& request): _server(server), _client(client), _request(request) {
 	int timeOut = server.getTimedOutValue();
 	_pid = 0;
 	_output = "";
 	_fd = -1;
-	_timeOut = timeOut != -1 ? timeOut : 4;
+	_timeOut = timeOut != -1 ? timeOut : DEFAULT_TIMEOUT;
 	_startTime = time(NULL);
 }
 

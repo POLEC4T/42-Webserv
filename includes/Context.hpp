@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazakov <mazakov@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 23:49:22 by mazakov          ###   ########.fr       */
+/*   Updated: 2025/11/04 10:00:18 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ class Context {
 		void	parseAndSetMapDefaultErrorPage();
 		bool	isListenerFd(int fd) const;
 		Server&	getRelatedServer(int fd);
+		void	checkTimedOutClients();
 };
 
 #endif
