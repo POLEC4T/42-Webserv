@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AHttpMethod.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/30 14:48:50 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/03 21:29:53 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ std::string readPage(std::string fileName) {
 	std::ifstream stream(fileName.c_str(), std::ios::in | std::ios::binary);
 	if (!stream)
 		return "";
+		
 	stream.seekg(0, std::ios::end);
 	std::streampos size = stream.tellg();
 	stream.seekg(0, std::ios::beg);
@@ -171,8 +172,7 @@ Response LoadAutoIndex(Request &req, std::string &path, Server &serv,
 	return Response(req.getVersion(), OK, "OK", page);
 }
 
-Response AHttpMethod::GET(std::string fileName, Location &loc, Request &req,
-						Server &serv) {
+Response AHttpMethod::GET(std::string fileName, Location &loc, Request &req, Server &serv) {
 	std::vector<std::string> vec = loc.getIndex();
 	std::string index;
 	struct stat infos;
@@ -191,55 +191,51 @@ Response AHttpMethod::GET(std::string fileName, Location &loc, Request &req,
 							serv.getErrorPageByCode(PAGE_NOT_FOUND));
 	} else {
 		if (stat(fileName.c_str(), &infos) != 0)
-			return Response(req.getVersion(),
-							serv.getErrorPageByCode(PAGE_NOT_FOUND));
+			return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
 		if (loc.getAutoIndex() == true && S_ISDIR(infos.st_mode))
 			return LoadAutoIndex(req, fileName, serv, loc.getRoot());
 		if (access(fileName.c_str(), R_OK) == 0)
 			return Response(req.getVersion(), OK, "OK", readPage(fileName));
 		else
-			return Response(req.getVersion(),
-							serv.getErrorPageByCode(PAGE_NOT_FOUND));
+			return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
 	}
 	return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
 }
 
 Response	AHttpMethod::DELETE(std::string filename, Request& req, Server& serv)
 {
-    if (FtString(filename).endsWith("/"))
-        return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
-    std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
+	if (FtString(filename).endsWith("/"))
+		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
+	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
-        return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
+		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
 
 	if (std::remove(filename.c_str()) != 0)
-		return Response(req.getVersion(),
-						serv.getErrorPageByCode(PAGE_NOT_FOUND));
+		return Response(req.getVersion(), serv.getErrorPageByCode(PAGE_NOT_FOUND));
 
 	return Response(req.getVersion(), OK, "OK", "");
 }
 
 Response AHttpMethod::POST(std::string filename, Request& req, Server& serv)
 {
-    struct stat* infos = new struct stat;
-    
-    if (stat(filename.c_str(), infos) != 0)
-    {
-        if (infos && S_ISDIR(infos->st_mode))
-        {
-            delete infos;
-            return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
-        }
-    }
-    delete infos;
+	struct stat* infos = new struct stat;
+	
+	if (stat(filename.c_str(), infos) != 0)
+	{
+		if (infos && S_ISDIR(infos->st_mode))
+		{
+			delete infos;
+			return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
+		}
+	}
+	delete infos;
 	std::string directory = filename.substr(0, filename.find_last_of("/") + 1);
 	if (access(directory.c_str(), W_OK) != 0)
 		return Response(req.getVersion(), serv.getErrorPageByCode(FORBIDDEN));
 
 	std::ofstream file(filename.c_str(), std::ostream::out);
 	if (!file.is_open())
-		return Response(req.getVersion(),
-						serv.getErrorPageByCode(PAGE_NOT_FOUND));
+		return Response(req.getVersion(), serv.getErrorPageByCode(INTERNAL_SERVER_ERROR));
 	file << req.getBody();
 
 	return Response(req.getVersion(), OK, "OK", "");

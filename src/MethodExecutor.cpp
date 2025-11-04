@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MethodExecutor.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: faoriol <faoriol@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/11/03 15:20:02 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/03 21:10:59 by faoriol          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ std::string MethodExecutor::execute()
 
 	Location loc = this->getRequestLocation(this->_request, this->_server);
 	if (loc.getCode() == PAGE_NOT_FOUND)
-		return Response(this->_request.getVersion(), this->_server.getErrorPageByCode(PAGE_NOT_FOUND)).build();
+		return Response(this->_request.getVersion(), this->_server.getErrorPageByCode(PAGE_NOT_FOUND)).build(); // TODO faire gaffe si jamais la page par default est pas la 
 	if (returnHandler(this->_response, loc, this->_request, this->_server) == 0)
 		return this->_response.build();
 	std::string fileName(loc.getRoot());
