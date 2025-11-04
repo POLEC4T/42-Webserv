@@ -17,7 +17,7 @@ SRCS = main.cpp \
 	$(SRC_DIR)/Server.cpp \
 	$(SRC_DIR)/AHttpMethod.cpp \
 	$(SRC_DIR)/Request.cpp \
-	$(SRC_DIR)/RequestExceptions.cpp \
+	$(SRC_DIR)/ParsePacketExceptions.cpp \
 	$(SRC_DIR)/Context.cpp \
 	$(SRC_DIR)/FtString.cpp \
 	$(SRC_DIR)/MethodExecutor.cpp \
@@ -35,7 +35,7 @@ HEADERS = $(INC_DIR)/AHttpMethod.hpp \
 	$(INC_DIR)/ErrorPage.hpp \
 	$(INC_DIR)/Location.hpp \
 	$(INC_DIR)/Request.hpp \
-	$(INC_DIR)/RequestExceptions.hpp \
+	$(INC_DIR)/ParsePacketExceptions.hpp \
 	$(INC_DIR)/Response.hpp \
 	$(INC_DIR)/Server.hpp \
 	$(INC_DIR)/Context.hpp	\

@@ -3,21 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   CGI.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/31 13:55:23 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 13:34:15 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/04 11:30:26 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "CGI.hpp"
+# include "CGI.hpp"
+# include "defines.h"
 
 CGI::CGI(Server& server, Client& client): _server(server), _client(client) {
 	int timeOut = server.getTimedOutValue();
 	_pid = 0;
 	_output = "";
 	_fd = -1;
-	_timeOut = timeOut != -1 ? timeOut : 4;
+	_timeOut = timeOut != -1 ? timeOut : DEFAULT_TIMEOUT;
 	_startTime = time(NULL);
 }
 

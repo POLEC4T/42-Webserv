@@ -6,14 +6,14 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 17:41:49 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 11:38:44 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "epoll.hpp"
 #include "limits.h"
-#include "RequestExceptions.hpp"
+#include "ParsePacketExceptions.hpp"
 #include "FtString.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
@@ -331,7 +331,7 @@ bool Client::receivedBody(size_t contentLength) const {
 }
 
 /**
- * Each time we send a request, the client needs to reset states for next ones.
+ * Each time we send a request, the client needs to reset states for next request.
  */
 void Client::resetForNextRequest() {
 	_request = Request();
@@ -393,7 +393,6 @@ int Client::readPacket() {
 		std::cerr << "Client disconnected, fd: " << _fd << std::endl;
 		return (EXIT_FAILURE);
 	}
-	std::cout << "rec size: " << _recvBuffer.size() << std::endl;
 	if (_recvBuffer.empty())
 		_request.setStartTime(time(NULL));
 	_recvBuffer.append(buffer, sizeRead);

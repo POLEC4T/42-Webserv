@@ -3,7 +3,7 @@ webserv
 local*
 .vscode
 .vscode/*
-miloConfigFile.txt
+miloConfig.conf
 *tester*
 YoupiBanane
 cgi_test

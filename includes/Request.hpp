@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 14:50:02 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 16:17:16 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 11:38:42 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@
 // -> special case for Set-Cookie
 
 #include "FtString.hpp"
-#include "RequestExceptions.hpp"
+#include "ParsePacketExceptions.hpp"
 #include <cstdlib>
 #include <exception>
 #include <iostream>

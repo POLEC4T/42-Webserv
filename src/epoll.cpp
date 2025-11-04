@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/04 10:01:34 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 11:36:43 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,12 +271,13 @@ static Location getRequestLocation(Request &req, Server &serv) {
 			break;
 	}
 	Location loc;
-	loc.setCode(404);
+	loc.setCode(PAGE_NOT_FOUND);
 	return loc;
 }
 
 /**
- * @note If any error occurs, the function returns EXIT_FAILURE to signal the caller to delete the client
+ * @return EXIT_FAILURE on error
+ * @note If any error occurs, the client connection has to be closed
  */
 static int handleClientIn(Server& server, Client& client, Context& ctx) {
 
@@ -290,29 +291,25 @@ static int handleClientIn(Server& server, Client& client, Context& ctx) {
 		if (client.getStatus() == WAITING)
 			return (EXIT_SUCCESS);
 
-		Location loc = getRequestLocation(client.getRequest(), server);
+		Request& req = client.getRequest();
+		Location loc = getRequestLocation(req, server);
 		if (loc.getCode() == PAGE_NOT_FOUND)
-		{
-			response = Response(client.getRequest().getVersion(), server.getErrorPageByCode(PAGE_NOT_FOUND)).build();
-			return queueResponse(client, response, ctx.getEpollFd()) == EXIT_FAILURE;
-		}
-
-		std::cout << "Request uri: " << client.getRequest().getUri() << std::endl;
-		
-		if (isCGI(client.getRequest(), loc)) {
-			int retValue = CGIHandler(client.getRequest(), loc, server, client, ctx);
-			if (retValue == DELETE_CLIENT)
+			response = Response(req.getVersion(), server.getErrorPageByCode(PAGE_NOT_FOUND)).build();
+		else if (isCGI(req, loc)) {
+			int cgiRet = CGIHandler(req, loc, server, client, ctx);
+			if (cgiRet == DELETE_CLIENT)
 				return (EXIT_FAILURE);
-			if (retValue != CGI_PENDING)
-				response = Response(client.getRequest().getVersion(),
-							server.getErrorPageByCode(retValue)).build();
+			if (cgiRet != CGI_PENDING)
+				response = Response(req.getVersion(),
+							server.getErrorPageByCode(cgiRet)).build();
 			else
 				return EXIT_SUCCESS;
 		}
 		else
 			response = MethodExecutor(server, client).execute();
-	} catch (const RequestException& re) {
+	} catch (const ParsePacketException& re) {
 		std::cerr << re.what() << std::endl;
+		client.setStatus(READY);
 		response = Response("HTTP/1.1", server.getErrorPageByCode(re.getCode())).build();
 	}
 
@@ -320,7 +317,7 @@ static int handleClientIn(Server& server, Client& client, Context& ctx) {
 }
 
 /**
- * @note If the modification to EPOLLOUT fails, the connection will be closed
+ * @note If the modification to EPOLLOUT fails, the connection has to be closed
  */
 int queueResponse(Client &client, std::string& response, int epollfd) {
 	if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLOUT, client.getFd()) == EXIT_FAILURE)
