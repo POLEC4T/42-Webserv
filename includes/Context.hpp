@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/03 16:27:22 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 10:00:18 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ class Context {
 		void	setEpollFd(int fd);
 		
 		//functions
-		int		handleEventCgi(int fd);
+		void	handleEventCgi(int fd);
 		void	checkTimedOutCGI();
 		void	configFileParser(const std::string& fileName, std::map<int, ErrorPage>);
 		void	parseAndAddServer(std::vector<std::string>::iterator&,

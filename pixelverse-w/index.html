@@ -12,30 +12,31 @@
   <style>
     body {
       font-family: 'Share Tech Mono', monospace;
-      background-color: #0a0a0a;
-      color: #d4d4d4;
+      background-color: #fafafa;
+      color: #333;
       scroll-behavior: smooth;
       letter-spacing: 0.4px;
     }
 
     header {
-      background: rgba(15, 15, 15, 0.8);
+      background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(8px);
-      border-bottom: 1px solid #2a2a2a;
+      border-bottom: 1px solid #ddd;
     }
 
     a {
       transition: color 0.3s ease;
+      color: #555;
     }
 
     a:hover {
-      color: #ffffff;
+      color: #000;
     }
 
     .btn {
-      background: #1c1c1c;
-      border: 1px solid #444;
-      color: #e0e0e0;
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      color: #222;
       padding: 0.9rem 2rem;
       border-radius: 6px;
       font-size: 0.9rem;
@@ -43,14 +44,14 @@
     }
 
     .btn:hover {
-      background: #2a2a2a;
-      border-color: #666;
+      background: #e6e6e6;
+      border-color: #999;
     }
 
     .separator {
       width: 70%;
       height: 1px;
-      background: #2a2a2a;
+      background: #e0e0e0;
       margin: 4rem auto;
     }
 
@@ -61,29 +62,31 @@
     }
 
     .game-card {
-      background: #121212;
-      border: 1px solid #2a2a2a;
+      background: #ffffff;
+      border: 1px solid #ddd;
       border-radius: 8px;
       padding: 2rem;
       transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
     }
 
     .game-card:hover {
-      border-color: #444;
-      background: #171717;
+      border-color: #bbb;
+      background: #f9f9f9;
     }
 
     .profile-card {
-      background: #111;
-      border: 1px solid #2a2a2a;
+      background: #fff;
+      border: 1px solid #ddd;
       border-radius: 8px;
       padding: 2rem;
       text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
     }
 
     .xp-bar {
       height: 8px;
-      background: #1a1a1a;
+      background: #f0f0f0;
       border-radius: 4px;
       overflow: hidden;
       margin-top: 1rem;
@@ -92,16 +95,14 @@
     .xp-fill {
       width: 70%;
       height: 100%;
-      background: #888;
+      background: #999;
       animation: fill 2s ease;
     }
 
-
-
     footer {
-      background: #0c0c0c;
-      border-top: 1px solid #1c1c1c;
-      color: #777;
+      background: #f7f7f7;
+      border-top: 1px solid #e0e0e0;
+      color: #666;
     }
 
     /* fond animé */
@@ -110,7 +111,7 @@
       top: 0; left: 0;
       width: 100%; height: 100%;
       z-index: -1;
-      opacity: 0.3;
+      opacity: 0.2;
     }
   </style>
 </head>
@@ -120,7 +121,7 @@
 
   <!-- HEADER -->
   <header class="fixed top-0 left-0 w-full p-5 text-center z-50">
-    <h1 class="text-xl text-gray-200 tracking-wider">PIXELVERSE</h1>
+    <h1 class="text-xl text-gray-800 tracking-wider">PIXELVERSE</h1>
     <nav class="mt-3 space-x-8 text-sm text-gray-500">
       <a href="#hero">Accueil</a>
       <a href="./request.html">Testing</a>
@@ -131,9 +132,9 @@
 
   <!-- HERO -->
   <section id="hero" class="h-screen flex flex-col justify-center items-center text-center px-6">
-    <h1 class="text-4xl text-gray-100 mb-6">L’élégance du rétro</h1>
-    <p class="text-gray-400 text-lg max-w-2xl mb-10 leading-relaxed">
-      PixelVerse est un espace numérique sobre et immersif, où la nostalgie du pixel  
+    <h1 class="text-4xl text-gray-800 mb-6">L’élégance du rétro</h1>
+    <p class="text-gray-600 text-lg max-w-2xl mb-10 leading-relaxed">
+      PixelVerse est un espace numérique sobre et lumineux, où la nostalgie du pixel  
       rencontre la finesse du design moderne. Ici, le rétro se vit autrement : clair, épuré et intemporel.
     </p>
     <a href="#about" class="btn">Explorer</a>
@@ -143,11 +144,11 @@
 
   <!-- ABOUT -->
   <section id="about" class="section text-center">
-    <h2 class="text-2xl text-gray-100 mb-8">À propos</h2>
-    <p class="text-gray-400 text-lg leading-relaxed max-w-2xl mx-auto">
+    <h2 class="text-2xl text-gray-800 mb-8">À propos</h2>
+    <p class="text-gray-600 text-lg leading-relaxed max-w-2xl mx-auto">
       Le projet PixelVerse est né d’une passion : celle de réunir les créateurs,  
       les joueurs et les rêveurs autour d’une même esthétique.  
-      Pas de surenchère graphique, juste des expériences maîtrisées, nettes, et élégantes.
+      Pas de surenchère graphique, juste des expériences maîtrisées, nettes et élégantes.
     </p>
   </section>
 
@@ -155,32 +156,32 @@
 
   <!-- GAMES -->
   <section id="games" class="section">
-    <h2 class="text-center text-2xl text-gray-100 mb-10">Jeux disponibles</h2>
+    <h2 class="text-center text-2xl text-gray-800 mb-10">Jeux disponibles</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
       <div class="game-card text-center">
-        <h3 class="text-lg text-gray-200 mb-3">Snake</h3>
+        <h3 class="text-lg text-gray-800 mb-3">Snake</h3>
         <p class="text-gray-500 text-sm mb-5">
-          Le classique, revisité dans une version sobre et fluide.  
+          Le classique, revisité dans une version claire et fluide.  
           Minimal, rapide et précis.
         </p>
-        <a href="/cgi/snake.py" class="text-gray-400 hover:text-white text-sm">Jouer</a>
+        <a href="/cgi/snake.py" class="text-gray-600 hover:text-black text-sm">Jouer</a>
       </div>
 
       <div class="game-card text-center">
-        <h3 class="text-lg text-gray-200 mb-3">Bubble Clicker</h3>
+        <h3 class="text-lg text-gray-800 mb-3">Bubble Clicker</h3>
         <p class="text-gray-500 text-sm mb-5">
-          Teste tes réflexes dans un environnement clair et apaisant.  
+          Teste tes réflexes dans un environnement lumineux et apaisant.  
           Chaque clic compte.
         </p>
-        <a href="/cgi/timeOut.py" class="text-gray-400 hover:text-white text-sm">Jouer</a>
+        <a href="/cgi/timeOut.py" class="text-gray-600 hover:text-black text-sm">Jouer</a>
       </div>
 
-       <div class="game-card text-center">
-        <h3 class="text-lg text-gray-200 mb-3">Fractal Viewver</h3>
+      <div class="game-card text-center">
+        <h3 class="text-lg text-gray-800 mb-3">Fractal Viewer</h3>
         <p class="text-gray-500 text-sm mb-5">
-          C'est des fractales c'est trop cool et c'est pas nous qu'on l'a fait
+          C’est des fractales, c’est trop cool et c’est pas nous qu’on l’a fait.
         </p>
-        <a href="fractal.html" class="text-gray-400 hover:text-white text-sm">Jouer</a>
+        <a href="fractal.html" class="text-gray-600 hover:text-black text-sm">Jouer</a>
       </div>
     </div>
   </section>
@@ -189,20 +190,19 @@
 
   <!-- PROFILE -->
   <section id="profile" class="section">
-  <h2 class="text-center text-2xl text-gray-100 mb-10">Profil</h2>
-
-  <div id="profile-content" class="profile-card mx-auto max-w-md text-center text-gray-200">
-    <p class="text-gray-400 text-sm">Chargement du profil...</p>
-  </div>
-</section>
+    <h2 class="text-center text-2xl text-gray-800 mb-10">Profil</h2>
+    <div id="profile-content" class="profile-card mx-auto max-w-md text-center text-gray-700">
+      <p class="text-gray-500 text-sm">Chargement du profil...</p>
+    </div>
+  </section>
 
   <div class="separator"></div>
 
   <!-- FOOTER -->
   <footer id="contact" class="py-8 text-center text-sm">
-    <p>© 2025 PixelVerse — Design sobre et intemporel.</p>
+    <p>© 2025 PixelVerse — Design clair et intemporel.</p>
     <p class="text-gray-500 mt-2">
-      Contact : <a href="mailto:contact@pixelverse.io" class="hover:text-white">contact@pixelverse.io</a>
+      Contact : <a href="mailto:contact@pixelverse.io" class="hover:text-black">contact@pixelverse.io</a>
     </p>
   </footer>
 
