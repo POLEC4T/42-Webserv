@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:16:33 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/04 10:00:18 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 15:19:38 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ class Context {
 				const std::vector<std::string>::iterator&, std::map<int, ErrorPage>);
 		void	parseAndSetMapDefaultErrorPage();
 		bool	isListenerFd(int fd) const;
-		Server&	getRelatedServer(int fd);
+		Server*	getRelatedServer(int fd);
 		void	checkTimedOutClients();
 };
 

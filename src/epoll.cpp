@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/04 13:35:40 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 15:26:26 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,12 @@ int launchEpoll(Context &ctx) {
 			}
 			else
 			{
-				Server& server = ctx.getRelatedServer(events[i].data.fd);
+				Server* servptr = ctx.getRelatedServer(events[i].data.fd);
+				if (servptr == NULL) {
+					std::cerr << "No related server for fd " << events[i].data.fd << std::endl;
+					continue;
+				}
+				Server& server = *servptr;
 				if (ctx.isListenerFd(events[i].data.fd)) {
 					if (addClient(server, events[i].data.fd, ctx.getEpollFd()) == EXIT_FAILURE) {
 						continue;

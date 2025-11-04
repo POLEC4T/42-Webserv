@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/04 11:29:28 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 15:26:03 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -375,17 +375,19 @@ bool Context::isListenerFd(int fd) const {
 }
 
 /**
- * This fd must be either a listening socket or a client socket
- * @throw Error::NoRelatedServersFound if no server is found for this fd
+ * A server contains fds: listening sockets and client sockets. If the given fd
+ * matches one of them, return the server.
+ * @param fd the fd to find the related server
+ * @return the server related to the fd, or NULL if not found
  */
-Server &Context::getRelatedServer(int fd) {
+Server* Context::getRelatedServer(int fd) {
 	std::vector<Server>::iterator servIt;
 	std::vector<int> sockfds;
 	std::vector<Client> clients;
 
-	for (servIt = _servers.begin(); servIt < _servers.end(); servIt++) {
+	for (servIt = _servers.begin(); servIt < _servers.end(); ++servIt) {
 		if (servIt->isClient(fd) || servIt->isListener(fd))
-			return (*servIt);
+			return &(*servIt);
 	}
-	throw(Error::NoRelatedServerFound(fd));
+	return NULL;
 }
