@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: faoriol <faoriol@student.42lyon.fr>        +#+  +:+       +#+        */
+/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 16:47:21 by faoriol           #+#    #+#             */
-/*   Updated: 2025/11/01 22:24:04 by faoriol          ###   ########.fr       */
+/*   Updated: 2025/11/03 17:05:49 by dmazari          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Context.hpp"
 #include "Server.hpp"
 #include "epoll.hpp"
+#include "Error.hpp"
 
 int main(int ac, char **av)
 {
@@ -50,6 +51,13 @@ int main(int ac, char **av)
 	std::vector<Server>::iterator it;
 	for (it = servers.begin(); it != servers.end(); it++)
 		it->setDefaultMapErrorPage(ctx.getMapDefaultErrorPage());
-
-	return (launchEpoll(ctx) == EXIT_FAILURE);
+	try {
+		if (launchEpoll(ctx) == EXIT_FAILURE)
+			return (1);
+	}
+	catch (Error::ErrorCGI& e) {
+		std::cerr << "Error of the CGI" << std::endl;
+		return 1;
+	}
+	return 0;
 }

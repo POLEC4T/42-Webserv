@@ -23,11 +23,11 @@ function generateRandomId(length = 6) {
 // --- Afficher le profil ---
 function renderProfile() {
     const container = document.getElementById("profile-content");
-    let id = getCookie("id");
+    let id = getCookie("id2");
 
     if (!id) {
         id = generateRandomId();
-        setCookie("id", id);
+        setCookie("id2", id);
     }
 
     let level = Math.floor((Math.random() * 100));
@@ -46,7 +46,7 @@ function renderProfile() {
 
     document.getElementById("change-id").addEventListener("click", () => {
         const newId = generateRandomId();
-        setCookie("id", newId);
+        setCookie("id2", newId);
         location.reload();
     });
 }

@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 20:30:23 by faoriol           #+#    #+#             */
-/*   Updated: 2025/11/04 09:58:37 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 10:05:19 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "AHttpMethod.hpp"
 
 bool isCGI(Request &req, Location &loc);
-std::string CGIHandler(Request &req, Location &loc, Server &serv, Client &client);
+int CGIHandler(Request &req, Location &loc, Server &serv, Client &client);
 std::string readPage(std::string fileName);
 
 MethodExecutor::MethodExecutor(Server &s, Client &c) : _server(s), _client(c)

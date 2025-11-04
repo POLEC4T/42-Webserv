@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/03 17:26:34 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/04 10:01:34 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,9 @@
 # include "CodeDefines.h"
 # include "defines.h"
 # include "Context.hpp"
+# include "Error.hpp"
 
+# include <sys/wait.h>
 # include <sys/epoll.h>
 # include <fcntl.h>
 # include <errno.h>
@@ -72,8 +74,7 @@ int launchEpoll(Context &ctx) {
 			if (PRINT)
 				std::cout << "-----\n";
 			if (ctx.isRunningCGI(events[i].data.fd)) {
-				if (ctx.handleEventCgi(events[i].data.fd) == EXIT_FAILURE)
-					std::cout << "Salut faut faire ca" << std::endl;
+				ctx.handleEventCgi(events[i].data.fd);
 			}
 			else
 			{
@@ -296,13 +297,15 @@ static int handleClientIn(Server& server, Client& client, Context& ctx) {
 			return queueResponse(client, response, ctx.getEpollFd()) == EXIT_FAILURE;
 		}
 
+		std::cout << "Request uri: " << client.getRequest().getUri() << std::endl;
+		
 		if (isCGI(client.getRequest(), loc)) {
-			int ret = CGIHandler(client.getRequest(), loc, server, client, ctx);
-			if (ret == DELETE_CLIENT)
+			int retValue = CGIHandler(client.getRequest(), loc, server, client, ctx);
+			if (retValue == DELETE_CLIENT)
 				return (EXIT_FAILURE);
-			if (ret != CGI_PENDING)
+			if (retValue != CGI_PENDING)
 				response = Response(client.getRequest().getVersion(),
-							server.getErrorPageByCode(ret)).build();
+							server.getErrorPageByCode(retValue)).build();
 			else
 				return EXIT_SUCCESS;
 		}
@@ -311,9 +314,6 @@ static int handleClientIn(Server& server, Client& client, Context& ctx) {
 	} catch (const RequestException& re) {
 		std::cerr << re.what() << std::endl;
 		response = Response("HTTP/1.1", server.getErrorPageByCode(re.getCode())).build();
-	} catch (const std::exception& e) {
-		std::cerr << "Unhandled exception (should never happen): " << e.what() << std::endl;
-		response = Response("HTTP/1.1", server.getErrorPageByCode(INTERNAL_SERVER_ERROR)).build();
 	}
 
 	return (queueResponse(client, response, ctx.getEpollFd()) == EXIT_FAILURE);
