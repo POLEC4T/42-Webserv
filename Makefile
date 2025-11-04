@@ -10,7 +10,7 @@ INC_DIR = includes
 
 MAKEFLAGS += --silent
 
-SRCS = main.cpp \
+SRCS = $(SRC_DIR)/main.cpp \
 	$(SRC_DIR)/APage.cpp \
 	$(SRC_DIR)/ErrorPage.cpp \
 	$(SRC_DIR)/Location.cpp \
