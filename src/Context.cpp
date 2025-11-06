@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/06 12:04:18 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/06 14:24:27 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,10 +240,10 @@ void Context::checkTimedOutCGI() {
 }
 
 /**
- * @brief checks if each client must be closed. A client must be closed if they have timed out
- * or if they are in linger status and his linger deadline has been reached.
+ * @brief delete each client that must be. A client must be closed if it has timed out
+ * or if it is in linger status and his linger deadline has been reached.
  */
-void	Context::checkClientsToDelete() {
+void	Context::handleClientTimeoutsAndLinger() {
 	std::map<int, Client>::iterator itcl;
 	std::string response;
 	std::vector<Server>::iterator itserv;

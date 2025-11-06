@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/06 11:58:05 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/06 14:24:04 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ int launchEpoll(Context &ctx) {
 			}
 		}
 		ctx.checkTimedOutCGI();
-		ctx.checkClientsToDelete();
+		ctx.handleClientTimeoutsAndLinger();
 	}
 	return 0;
 }
