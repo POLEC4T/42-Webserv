@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 15:34:19 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/04 16:00:08 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/06 11:49:40 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,6 +158,6 @@ void Request::setStartTime(time_t time) {
 
 bool Request::hasTimedOut(time_t maxTime) const {
 	if (PRINT)
-		std::cout << (time(NULL) - _startTime) << "s >= " << maxTime << "s" << std::endl;
+		std::cout << "Req time left: " << maxTime - (time(NULL) - _startTime) << "s" << std::endl;
 	return (time(NULL) - _startTime >= maxTime);
 }

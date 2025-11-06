@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:08:09 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/04 14:36:40 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/06 11:59:58 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@
 #include <string.h>
 #include "Error.hpp"
 
-#define ONE_MB 1048576
-
 Client::Client() :
 _sentIdx(0),
 _status(WAITING),
@@ -35,7 +33,10 @@ _currChunkPart(SIZE),
 _parsedChunksIdx(0),
 _maxBodySize(0),
 _contentLength(0),
-_deleteAfterResponse(false)
+_deleteClientAfterResponse(false),
+_enableLingerAfterResponse(false),
+_lingerQuota(256 * ONE_KB),
+_lingerDeadline(time(NULL) + 2)
 {};
 
 Client::Client(int fd) :
@@ -46,7 +47,10 @@ _currChunkPart(SIZE),
 _parsedChunksIdx(0),
 _maxBodySize(0),
 _contentLength(0),
-_deleteAfterResponse(false)
+_deleteClientAfterResponse(false),
+_enableLingerAfterResponse(false),
+_lingerQuota(256 * ONE_KB),
+_lingerDeadline(time(NULL) + 2)
 {};
 
 Client::~Client(){};
@@ -69,10 +73,13 @@ const std::string&	Client::getRecvBuffer() const {
 	return (_recvBuffer);
 }
 
-bool Client::getDeleteAfterResponse() const {
-	return (_deleteAfterResponse);
+bool Client::getdeleteClientAfterResponse() const {
+	return (_deleteClientAfterResponse);
 }
 
+time_t Client::getLingerDeadline() const {
+	return (_lingerDeadline);
+}
 
 void Client::setSendBuffer(const std::string& buf) {
 	_sendBuffer = buf;
@@ -82,10 +89,9 @@ void Client::setStatus(t_client_status status) {
 	_status = status;
 }
 
-void Client::setDeleteAfterResponse(bool b) {
-	_deleteAfterResponse = b;
+void Client::setdeleteClientAfterResponse(bool b) {
+	_deleteClientAfterResponse = b;
 }
-
 
 /**
  * @return true if the request line has been completely received.
@@ -126,15 +132,14 @@ size_t Client::_checkAndGetContentLength(const std::string& contentLengthStr) {
 	if (contentLengthStr.find_first_not_of("0123456789") != std::string::npos)
 		throw BadHeaderValueException(contentLengthStr);
 	_contentLength = std::strtoll(contentLengthStr.c_str(), NULL, 10);
-	if (_contentLength == LONG_LONG_MAX || _contentLength == LONG_LONG_MIN)
+	if (_contentLength < 0 || _contentLength == LONG_LONG_MAX || _contentLength == LONG_LONG_MIN) {
 		throw BadHeaderValueException(contentLengthStr);
-	if (_contentLength < 0)
-		throw BadHeaderValueException(contentLengthStr);
+	}
 	
-	if (PRINT)
-		std::cout << "Max body size allowed: " << _maxBodySize << std::endl << "Content-Length received: " << _contentLength << std::endl;
-	if (_contentLength > _maxBodySize)
+	if (_contentLength > _maxBodySize) {
+		_enableLingerAfterResponse = true;
 		throw ContentTooLargeException();
+	}
 	return _contentLength;
 }
 
@@ -342,7 +347,8 @@ void Client::resetForNextRequest() {
 	_sentIdx = 0;
 	_maxBodySize = 0;
 	_contentLength = 0;
-	_deleteAfterResponse = false;
+	_deleteClientAfterResponse = false;
+	_enableLingerAfterResponse = false;
 }
 
 Request &Client::getRequest() { return _request; }
@@ -366,14 +372,18 @@ int Client::sendPendingResponse(int epollfd) {
 	_sentIdx += sentlen;
 
 	if (_sentIdx >= _sendBuffer.size()) {
-		if (PRINT)
-			std::cout << "_sendBuffer completely sent" << std::endl;
-		if (_deleteAfterResponse)
+		if (PRINT) 
+			std::cout << "res sent, first line: " << _sendBuffer.substr(0, _sendBuffer.find('\n')) << std::endl;
+		if (_deleteClientAfterResponse)
 			return (EXIT_FAILURE);
-		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN, _fd) == -1) {
-			return (EXIT_FAILURE);
+		else if (_enableLingerAfterResponse) {
+			_status = LINGER;
+			_lingerDeadline = time(NULL) + 2;
+		} else {
+			this->resetForNextRequest();
 		}
-		this->resetForNextRequest();
+		if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN, _fd) == -1)
+			return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
 }
@@ -385,13 +395,25 @@ int Client::readPacket() {
 
 	sizeRead = recv(_fd, buffer, MAX_RECV, 0);
 	if (sizeRead == -1) {
-		std::cerr << "recv:" << strerror(errno) << std::endl;
+		std::cerr << "recv: " << strerror(errno) << std::endl;
 		return (EXIT_FAILURE);
 	} else if (sizeRead == 0) {
 		if (PRINT)
 			std::cout << "Client disconnected, fd: " << _fd << std::endl;
 		return (EXIT_FAILURE);
 	}
+
+	if (_status == LINGER) {
+		if (sizeRead >= _lingerQuota) {
+			if (PRINT)
+				std::cout << "Linger quota exceeded, deleting client" << std::endl;
+			return (EXIT_FAILURE);
+		} else {
+			_lingerQuota -= sizeRead;
+			return (LINGERING);
+		}
+	}
+
 	if (_recvBuffer.empty())
 		_request.setStartTime(time(NULL));
 	_recvBuffer.append(buffer, sizeRead);

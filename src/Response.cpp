@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/13 17:47:45 by faoriol           #+#    #+#             */
-/*   Updated: 2025/11/04 16:00:12 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/04 16:26:33 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ Response::Response(std::string v, ErrorPage &page)
 	this->_body = page.getContent();
 	this->_headers["Content-Length"] =
 		FtString::my_to_string(page.getContent().size());
-	if (page.getCode() == 504 || page.getCode() == 408)
+	if (page.getCode() == 504 || page.getCode() == 408 || page.getCode() == 413)
 		this->_headers["Connection"] = "close";
 }
 

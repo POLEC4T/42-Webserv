@@ -6,7 +6,7 @@
 /*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 10:46:35 by mniemaz           #+#    #+#             */
-/*   Updated: 2025/11/04 15:26:26 by mniemaz          ###   ########.fr       */
+/*   Updated: 2025/11/06 11:58:05 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ int launchEpoll(Context &ctx) {
 			}
 		}
 		ctx.checkTimedOutCGI();
-		ctx.checkTimedOutClients();
+		ctx.checkClientsToDelete();
 	}
 	return 0;
 }
@@ -145,7 +145,9 @@ static int initEpoll(Context &ctx) {
 static int initServerFds(Server& server) {
 	struct addrinfo	*addrinfos;
 	struct addrinfo	hints;
+	int nbServersStarted;
 
+	nbServersStarted = 0;
 	std::memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET; // ipv4
 	hints.ai_socktype = SOCK_STREAM; // tcp
@@ -208,10 +210,15 @@ static int initServerFds(Server& server) {
 				continue;
 			}
 			server.addSockfd(fd);
+			++nbServersStarted;
 			std::cout << "OK" << std::endl;
 			curraddr = curraddr->ai_next;
 		}
 		freeaddrinfo(addrinfos);
+	}
+	if (nbServersStarted == 0) {
+		std::cerr << "No servers could be started, exiting." << std::endl;
+		return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
 }
@@ -280,12 +287,17 @@ static Location getRequestLocation(Request &req, Server &serv) {
 
 /**
  * @return EXIT_FAILURE on error
+ * @note LINGERING mode, if the client is in lingering status, this function just read 
+ * packets the client is sending in order to gain time (see Client.hpp)
  * @note If any error occurs, the client connection has to be closed
  */
 static int handleClientIn(Server& server, Client& client, Context& ctx) {
 
-	if (client.readPacket() == EXIT_FAILURE)
+	int rdret = client.readPacket();
+	if (rdret == EXIT_FAILURE)
 		return (EXIT_FAILURE);
+	else if (rdret == LINGERING)
+		return (EXIT_SUCCESS);
 
 	std::string response;
 	
@@ -324,7 +336,7 @@ static int handleClientIn(Server& server, Client& client, Context& ctx) {
  * @note on EXIT_FAILURE returned, the client connection has to be closed
  */
 int queueResponse(Client &client, std::string& response, int epollfd) {
-	if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLIN | EPOLLOUT, client.getFd()) == EXIT_FAILURE)
+	if (my_epoll_ctl(epollfd, EPOLL_CTL_MOD, EPOLLOUT, client.getFd()) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 	client.setSendBuffer(response);
 	return(EXIT_SUCCESS);

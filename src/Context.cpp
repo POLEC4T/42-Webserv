@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Context.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmazari <dmazari@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mniemaz <mniemaz@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 15:19:40 by mazakov           #+#    #+#             */
-/*   Updated: 2025/11/04 16:01:32 by dmazari          ###   ########.fr       */
+/*   Updated: 2025/11/06 12:04:18 by mniemaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,6 @@ std::string	buildingFullResponse(std::string& header, const std::string& body, R
 }
 
 int	parseTheOutputOfCGI(std::string& output, Request& req) {
-	std::cout << "CGI Output:\n" << output << std::endl;
 	size_t statusPlace = output.find("Status:", 0);
 	if (statusPlace == std::string::npos)
 	{
@@ -153,7 +152,8 @@ void Context::handleEventCgi(int fd) {
 	if (it == _mapRunningCGIs.end())
 		return ;
 
-	std::cout << "Handling CGI event with fd: " << fd << std::endl;
+	if (PRINT)
+		std::cout << "Handling CGI event with fd: " << fd << std::endl;
 	CGI &cgi = it->second;
 
 	char buffer[MAX_RECV];
@@ -204,15 +204,12 @@ void Context::checkTimedOutCGI() {
 	for (itMap = _mapRunningCGIs.begin(); itMap != _mapRunningCGIs.end(); ++itMap) {
 		CGI &cgi = itMap->second;
 		if (PRINT)
-			std::cout << now - cgi.getStartTime() << " >= " << cgi.getTimeOutValue() << std::endl;
+			std::cout << "CGI time left: " << cgi.getTimeOutValue() - (now - cgi.getStartTime()) << std::endl;
 		if (now - cgi.getStartTime() >= cgi.getTimeOutValue()) {
 			
-			if (PRINT)
-				std::cout << "Going to kill" << std::endl;
-
 			fd = cgi.getFd();
 
-			cgi.getClient().setDeleteAfterResponse(true);
+			cgi.getClient().setdeleteClientAfterResponse(true);
 
 			kill(cgi.getPid(), SIGKILL);
 			if (waitpid(cgi.getPid(), NULL, 0) == -1) {
@@ -236,37 +233,53 @@ void Context::checkTimedOutCGI() {
 
 	for (itFd = CGIsToErase.begin(); itFd != CGIsToErase.end(); ++itFd)
 	{
-		std::cout << "Erasing CGI with fd: " << *itFd << std::endl;
+		if (PRINT)
+			std::cout << "Erasing CGI with fd: " << *itFd << std::endl;
 		_mapRunningCGIs.erase(*itFd);
 	}
 }
 
 /**
- * queueResponse 408 to timed out clients and close the connection
+ * @brief checks if each client must be closed. A client must be closed if they have timed out
+ * or if they are in linger status and his linger deadline has been reached.
  */
-void	Context::checkTimedOutClients() {
-	std::vector<Server>::iterator itserv;
+void	Context::checkClientsToDelete() {
 	std::map<int, Client>::iterator itcl;
 	std::string response;
+	std::vector<Server>::iterator itserv;
+	std::map<Server*, std::vector<int> > toDelete;
 	
 
 	for (itserv = _servers.begin(); itserv < _servers.end(); ++itserv) {
 		std::map<int, Client>& clients = itserv->getClients();
 		for (itcl = clients.begin(); itcl != clients.end(); ++itcl) {
-			Client& client = itcl->second;
-			if (client.getRecvBuffer().empty() || client.getStatus() == READY)
-				continue;
-			if (client.getRequest().hasTimedOut(itserv->getTimedOutValue())) {
-				std::cout << "client timed out: fd " << client.getFd() << std::endl;
-				response = Response(client.getRequest().getVersion(),
-									itserv->getErrorPageByCode(REQUEST_TIMEOUT)).build();
-
-				if (queueResponse(client, response, _epollfd) == EXIT_FAILURE) {
-					itserv->deleteClient(client.getFd());
-					continue;
+			Client& cl = itcl->second;
+			if (cl.getStatus() == LINGER) {
+				if (PRINT)
+					std::cout << "Linger time left: " << cl.getLingerDeadline() - time(NULL)  << "s" << std::endl;
+				if (time(NULL) >= cl.getLingerDeadline()) {
+					std::cout << "Linger deadline exceeded, deleting client" << std::endl;
+					toDelete[&(*itserv)].push_back(cl.getFd());
 				}
-				client.setDeleteAfterResponse(true);
 			}
+			else if (cl.getRecvBuffer().empty() || cl.getStatus() == READY)
+				continue;
+			else if (cl.getRequest().hasTimedOut(itserv->getTimedOutValue())) {
+				std::cout << "client timed out: fd " << cl.getFd() << std::endl;
+				response = Response(cl.getRequest().getVersion(), itserv->getErrorPageByCode(REQUEST_TIMEOUT)).build();
+				cl.setdeleteClientAfterResponse(true);
+				if (queueResponse(cl, response, _epollfd) == EXIT_FAILURE)
+					toDelete[&(*itserv)].push_back(cl.getFd());
+			}
+		}
+	}
+	
+	std::map<Server *, std::vector<int> >::iterator itpair;
+	std::vector<int>::iterator itfd;
+	for (itpair = toDelete.begin(); itpair != toDelete.end(); ++itpair) {
+		Server *server = itpair->first;
+		for (itfd = itpair->second.begin(); itfd != itpair->second.end(); ++itfd) {
+			server->deleteClient(*itfd);
 		}
 	}
 }
