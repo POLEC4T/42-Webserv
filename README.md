@@ -18,3 +18,6 @@ An HTTP server built in C++ 98.
    ./webserv [path_to_config_file]
    ```
  - Open your browser and navigate to `http://localhost:[port]` where `[port]` is the port specified in your config file.
+
+# DEMO
+![VIDEO](https://github.com/user-attachments/assets/ec941a9f-afa4-4446-9a94-855515c6ea2e)
