@@ -20,4 +20,4 @@ An HTTP server built in C++ 98.
  - Open your browser and navigate to `http://localhost:[port]` where `[port]` is the port specified in your config file.
 
 # DEMO
-![VIDEO](https://github.com/user-attachments/assets/ec941a9f-afa4-4446-9a94-855515c6ea2e)
+https://github.com/user-attachments/assets/ec941a9f-afa4-4446-9a94-855515c6ea2e
