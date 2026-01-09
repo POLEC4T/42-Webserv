@@ -1,4 +1,4 @@
-This project has been created as part of the 42 curriculum by [mniemaz](https://github.com/POLEC4T), [fariol](https://github.com/faoriol) and [dmazari](https://github.com/mazakov-d)
+This project has been created as part of the 42 curriculum by [mniemaz](https://github.com/POLEC4T), [faoriol](https://github.com/faoriol) and [dmazari](https://github.com/mazakov-d)
 # Webserv
 An HTTP server built in C++ 98.
 # Features
